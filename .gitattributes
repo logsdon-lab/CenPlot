@@ -1,0 +1,6 @@
+test/chrY_methyl.bed filter=lfs diff=lfs merge=lfs -text
+test/chrY_sat_annot.bed filter=lfs diff=lfs merge=lfs -text
+test/chrY_stv.bed filter=lfs diff=lfs merge=lfs -text
+test/chrY_stv_ort.bed filter=lfs diff=lfs merge=lfs -text
+test/chrY_cdrs.bed filter=lfs diff=lfs merge=lfs -text
+test/chrY_ident.bed filter=lfs diff=lfs merge=lfs -text
