@@ -1,5 +1,6 @@
 import ast
 import math
+import os
 import sys
 import argparse
 import itertools
@@ -12,6 +13,7 @@ from typing import Any, NamedTuple
 import matplotlib
 import matplotlib.axes
 import matplotlib.axis
+import matplotlib.figure
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from matplotlib.collections import PolyCollection
@@ -112,13 +114,13 @@ WIDTH = 14
 
 
 class TrackPosition(StrEnum):
-    Overlap = auto()
-    Top = auto()
-    Bottom = auto()
-    Center = auto()
+    OverlapTop = auto()
+    OverlapBottom = auto()
+    Relative = auto()
 
 
 class TrackOption(StrEnum):
+    HOR = auto()
     Label = auto()
     Value = auto()
     SelfIdent = auto()
@@ -132,7 +134,7 @@ class Track(NamedTuple):
     data: pl.DataFrame
 
 
-def read_stv(
+def read_bed_hor(
     infile: str, *, chrom: str | None = None, mer_order: str = "large"
 ) -> pl.DataFrame:
     return (
@@ -329,7 +331,9 @@ def read_one_track_info(
         )
         return None
 
-    if opt == TrackOption.SelfIdent:
+    if opt == TrackOption.HOR:
+        df_track = read_bed_hor(path, chrom=chrom)
+    elif opt == TrackOption.SelfIdent:
         df_track = read_bed_identity(path, chrom=chrom)
     elif opt == TrackOption.Value:
         df_track = read_bed9(path, chrom=chrom)
@@ -339,8 +343,9 @@ def read_one_track_info(
     return Track(name, pos, opt, prop, df_track)
 
 
-def get_track_info(input_tracks: list[str], *, chrom: str | None = None) -> list[Track]:
+def get_track_info(input_tracks: list[str], *, chrom: str | None = None) -> tuple[list[Track], set[str]]:
     dfs = []
+    chroms = set()
     for input_track in input_tracks:
         track_info = input_track.split(",")
         num_fields = len(track_info)
@@ -353,27 +358,22 @@ def get_track_info(input_tracks: list[str], *, chrom: str | None = None) -> list
                     if not track:
                         continue
                     dfs.append(track)
+                    chroms.update(track.data["chrom"])
         else:
             track = read_one_track_info(*track_info, chrom=chrom)
             if not track:
                 continue
             dfs.append(track)
+            chroms.update(track.data["chrom"])
 
-    return dfs
+    return dfs, chroms
 
 
-def standardize_coords(
-    df_stv: pl.DataFrame, dfs_track: list[Track], df_min_st: pl.DataFrame
-) -> tuple[pl.DataFrame, list[Track]]:
+def standardize_tracks(
+    dfs_track: list[Track], df_min_st: pl.DataFrame
+) -> list[Track]:
     # Get min across all groups.
     new_min = df_min_st["chrom_st"].min()
-    df_new_stv = df_stv.join(
-        df_min_st.group_by("chrom").agg(dst_diff=pl.col("chrom_st").min() - new_min),
-        on="chrom",
-    ).with_columns(
-        chrom_st=pl.col("chrom_st") - pl.col("dst_diff") - new_min,
-        chrom_end=pl.col("chrom_end") - pl.col("dst_diff") - new_min,
-    )
     new_dfs_track = []
     for track in dfs_track:
         if track.opt == TrackOption.SelfIdent:
@@ -391,7 +391,7 @@ def standardize_coords(
         new_dfs_track.append(
             Track(track.name, track.pos, track.opt, track.prop, df_adj_track)
         )
-    return df_new_stv, new_dfs_track
+    return new_dfs_track
 
 
 def draw_uniq_entry_legend(
@@ -457,14 +457,13 @@ def draw_self_ident(
     track: Track,
     *,
     legend_ax: matplotlib.axes.Axes | None = None,
-    is_below_hor_track: bool,
+    flip_y: bool,
 ) -> None:
     colors, verts = [], []
 
     minimalize_ax(ax, yticks=True, spines=("left", "right", "top"))
 
-    # Reorient data so correct orient to HOR track.
-    if is_below_hor_track:
+    if flip_y:
         df_track = track.data.with_columns(y=-pl.col("y"))
     else:
         df_track = track.data
@@ -513,7 +512,7 @@ def draw_values(
     # Trim plot to margins
     ax.margins(x=0, y=0)
     # remove spines
-    minimalize_ax(ax, spines=("right", "top"))
+    minimalize_ax(ax, xticks=True, spines=("right", "top"))
 
     # Limit spine range.
     # TODO: Remove ticks not within bounds.
@@ -529,7 +528,7 @@ def draw_hor_w_ort(
     df_stv: pl.DataFrame,
     df_stv_ort: pl.DataFrame,
 ):
-    minimalize_ax(ax, yticks=True, spines=("right", "left", "top", "bottom"))
+    minimalize_ax(ax, xticks=True, yticks=True, spines=("right", "left", "top", "bottom"))
 
     # Add HOR track.
     for row in df_stv.iter_rows(named=True):
@@ -573,34 +572,31 @@ def draw_hor_w_ort(
     draw_uniq_entry_legend(legend_ax, ref_ax=ax, loc="center", bbox_to_anchor=[0.5, 0], ncols=3)
 
 
-def plot_one_cen(
-    df_stv: pl.DataFrame,
-    df_stv_ort: pl.DataFrame,
+def create_subplots(
     dfs_track: list[Track],
-    chrom: str,
-    min_st_pos: int,
-    max_end_pos: int,
     width: float,
     height: float,
-) -> tuple[Any, matplotlib.axes.Axes]:
-    print(f"Plotting {chrom}...", file=sys.stderr)
-
-    track_props = deque([("hor", 0.0)])
+    **kwargs: Any
+) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes, dict[str, int]]:
+    track_props = []
+    track_indices = {}
     tracks_added = set()
-    track_prop_sum = 0.0
     requires_second_col = True
+
+    track_idx = 0
     for track in dfs_track:
         if track.name in tracks_added:
             print(f"Skipping duplicate {track.name} track.", file=sys.stderr)
             continue
-        if track.pos == TrackPosition.Overlap:
-            pass
-        elif track.pos == TrackPosition.Top:
-            track_props.appendleft((track.name, track.prop))
-            track_prop_sum += track.prop
-        elif track.pos == TrackPosition.Bottom:
-            track_props.append((track.name, track.prop))
-            track_prop_sum += track.prop
+
+        # Store index.
+        # Only increment index if takes up a subplot axis.
+        if track.pos == TrackPosition.Relative:
+            track_indices[track.name] = track_idx
+            track_idx += 1
+            track_props.append(track.prop)
+        else:
+            track_indices[track.name] = track_idx - 1
 
         if not requires_second_col and (
             track.opt == TrackOption.Label or track.opt == TrackOption.SelfIdent
@@ -609,66 +605,68 @@ def plot_one_cen(
 
         tracks_added.add(track.name)
 
-    hor_track_prop = 1.0 - track_prop_sum
-    if hor_track_prop < 0.0:
-        raise ValueError(
-            f"HOR track prop ({hor_track_prop}) is less than 0. Total other track prop: {track_prop_sum}"
-        )
-
-    track_info = {track: (i, prop) for i, (track, prop) in enumerate(track_props)}
-
-    track_props = []
-    track_indices = {}
-    for name, (idx, prop) in sorted(track_info.items(), key=lambda x: x[1][0]):
-        if name == "hor":
-            track_props.append(hor_track_prop)
-        else:
-            track_props.append(prop)
-        track_indices[name] = idx
-
     # Adjust columns and width ratio.
     num_cols = 2 if requires_second_col else 1
     width_ratios = (0.8, 0.2) if requires_second_col else 1.0
-    track_col = 0
-    legend_col = 1
 
     fig, axes = plt.subplots(
         # Count number of tracks
-        len(track_info),
+        len(track_props),
         num_cols,
         figsize=(width, height),
         height_ratios=track_props,
         width_ratios=width_ratios,
+        **kwargs
     )
 
-    # Get HOR axis.
-    hor_track_row = track_indices["hor"]
-    ax: matplotlib.axes.Axes = axes[hor_track_row, track_col]
-    hor_legend_ax = axes[hor_track_row, legend_col]
-    # Set bounds of HOR axis.
-    ax.set_xlim(min_st_pos, max_end_pos)
+    return fig, axes, track_indices
 
-    # HOR
-    draw_hor_w_ort(ax=ax, legend_ax=hor_legend_ax, df_stv=df_stv, df_stv_ort=df_stv_ort)
 
-    # Minimalize all legend cols
+def plot_one_cen(
+    dfs_track: list[Track],
+    outdir: str,
+    chrom: str,
+    min_st_pos: int,
+    max_end_pos: int,
+    width: float,
+    height: float,
+) -> tuple[Any, matplotlib.axes.Axes]:
+    print(f"Plotting {chrom}...", file=sys.stderr)
+
+    fig, axes, track_indices = create_subplots(dfs_track, width, height, tight_layout=True)
+    track_col, legend_col = 0, 1
+
+    track_labels = []
     for track in dfs_track:
-        if track.pos == TrackPosition.Overlap:
-            track_ax: matplotlib.axes.Axes = ax
-            legend_ax: matplotlib.axes.Axes = axes[hor_track_row, legend_col]
-        else:
-            track_row = track_indices[track.name]
-            track_ax = axes[track_row, track_col]
-            legend_ax = axes[track_row, legend_col]
+        track_row = track_indices[track.name]
+        track_label = track.name.encode("ascii", "ignore").decode("unicode_escape")
 
+        if track.pos == TrackPosition.OverlapTop or track.pos == TrackPosition.OverlapBottom:
+            track_label = f"{track_labels[track_row]}\n{track_label}"
+
+        try:
+            track_ax: matplotlib.axes.Axes = axes[track_row, track_col]
+            legend_ax: matplotlib.axes.Axes = axes[track_row, legend_col]
+        except IndexError:
+            print(f"Cannot get track for {track.name} with {track.pos}")
+            continue
+
+        track_ax.set_xlim(min_st_pos, max_end_pos)
         minimize_legend_opts = {"xticks": True, "yticks": True, "spines": ("right", "left", "top", "bottom")}
+        
         # Switch to line if different track option. {value, label, ident}
-        if track.opt == TrackOption.Label:
+        if track.opt == TrackOption.HOR:
+            df_stv_ort = get_stv_mon_ort(track.data)
+            draw_hor_w_ort(
+                ax=track_ax, legend_ax=legend_ax, df_stv=track.data, df_stv_ort=df_stv_ort
+            )
+
+        elif track.opt == TrackOption.Label:
             draw_label(track_ax, legend_ax, track)
 
         elif track.opt == TrackOption.SelfIdent:
             draw_self_ident(
-                track_ax, track, legend_ax=legend_ax, is_below_hor_track=track_row > hor_track_row
+                track_ax, track, legend_ax=legend_ax, flip_y=True
             )
             # Don't remove legend axis elements
             minimize_legend_opts = {"spines": ("right", "top")}
@@ -676,6 +674,7 @@ def plot_one_cen(
         elif track.opt == TrackOption.Value:
             draw_values(track_ax, track)
 
+        # Minimalize all legend cols
         minimalize_ax(
             legend_ax,
             grid=True,
@@ -684,32 +683,49 @@ def plot_one_cen(
         # Set label.
         # Encode to ascii and decode to remove escaped characters
         track_ax.set_ylabel(
-            track.name.encode("ascii", "ignore").decode("unicode_escape"),
+            track_label,
             rotation="horizontal",
             ha="right",
             va='center',
             ma='center',
         )
-        # Share axis with main hor axis.
-        track_ax.sharex(ax)
+        # Store label if more overlaps.
+        track_labels.append(track_label)
+        print(f"\tAdded track: {track.name}.")
 
-    plt.tight_layout()
-    plt.savefig("test.png")
+    outfile = os.path.join(outdir, f"{chrom}.pdf")
+    plt.savefig(outfile)
     plt.clf()
-    breakpoint()
+    return fig, axes
 
-    return fig, ax
+def read_standardized_tracks(
+    input_tracks: list[str],
+    chrom: str | None = None
+) -> tuple[list[Track], set[str], tuple[int, int]] :
+    tracks, all_chroms = get_track_info(input_tracks, chrom=chrom)
 
+    # Self ident track is already standardized.
+    check_tracks = [trk for trk in tracks if trk.opt != TrackOption.SelfIdent]
+    # Get a reference to the dataframe with the lowest starting position.
+    *_, df_track_min_st = min(
+        check_tracks, key=lambda trk: trk.data["chrom_st"].min()
+    )
+
+    # Standardize coords
+    tracks = standardize_tracks(tracks, df_track_min_st)
+    *_, df_track_min_st = min(
+        check_tracks, key=lambda trk: trk.data["chrom_st"].min()
+    )
+    *_, df_track_max_end = max(
+        check_tracks, key=lambda trk: trk.data["chrom_end"].max()
+    )
+    # return min and max position.
+    min_st_pos = df_track_min_st["chrom_st"].min()
+    max_end_pos = df_track_max_end["chrom_end"].max()
+    return tracks, all_chroms, (min_st_pos, max_end_pos)
 
 def main():
     ap = argparse.ArgumentParser()
-
-    ap.add_argument(
-        "-i",
-        "--input_stv",
-        type=argparse.FileType("rb"),
-        help="HOR stv BED9 file",
-    )
     ap.add_argument(
         "-t",
         "--input_tracks",
@@ -717,18 +733,17 @@ def main():
         type=str,
         metavar="(name),(overlap|top|bottom),(label|value|self-ident),(prop),(path)",
         help=(
-            "Additional headerless BED9 files to plot. Specify track name, track position, track type, proportion of height, and path. "
+            "Headerless BED files to plot. Specify track name, track position, track type, proportion of height, and path. "
             "One of more CSV files with the same field can be provided."
         ),
     )
     ap.add_argument("-s", "--sort", help="Sort based on another list.", default=None)
     ap.add_argument("-c", "--chrom", help="Chromosome to plot.", default=None)
-    ap.add_argument("-o", "--output", help="Output figure.")
     ap.add_argument(
         "-d",
-        "--output_dir",
+        "--outdir",
         help="Output dir to plot multiple separate figures.",
-        default=None,
+        default=".",
     )
     ap.add_argument(
         "--width",
@@ -752,29 +767,7 @@ def main():
     # ap.add_argument("-p", "--processes", type=int, default=4, help="Processes to run.")
     args = ap.parse_args()
 
-    df_stv = read_stv(args.input_stv, chrom=args.chrom)
-    dfs_track = get_track_info(args.input_tracks, chrom=args.chrom)
-    STV_TRACK = Track("stv", TrackPosition.Center, TrackOption.Label, 0.0, df_stv)
-
-    # Self ident track is already standardized.
-    check_tracks = [trk for trk in dfs_track if trk.opt != TrackOption.SelfIdent]
-    # Get a reference to the dataframe with the lowest starting position.
-    *_, df_track_min_st = min(
-        (STV_TRACK, *check_tracks), key=lambda trk: trk.data["chrom_st"].min()
-    )
-
-    # Standardize coords
-    df_stv, dfs_track = standardize_coords(df_stv, dfs_track, df_track_min_st)
-    *_, df_track_min_st = min(
-        (STV_TRACK, *check_tracks), key=lambda trk: trk.data["chrom_st"].min()
-    )
-    *_, df_track_max_end = max(
-        (STV_TRACK, *check_tracks), key=lambda trk: trk.data["chrom_end"].max()
-    )
-    min_st_pos = df_track_min_st["chrom_st"].min()
-    max_end_pos = df_track_max_end["chrom_end"].max()
-
-    df_stv_ort = get_stv_mon_ort(df_stv)
+    tracks, all_chroms, (min_st, max_end) = read_standardized_tracks(args.input_tracks, chrom=args.chrom)
 
     # with ProcessPoolExecutor(max_workers=args.processes) as pool:
     #     filtered_data = [
@@ -793,11 +786,9 @@ def main():
     #         plot_one_cen,
     #         *zip(*filtered_data),
     #     )
-
+    os.makedirs(args.outdir, exist_ok=True)
     plots = [
         plot_one_cen(
-            df_stv.filter(pl.col("chrom") == chrom),
-            df_stv_ort.filter(pl.col("chrom") == chrom),
             [
                 Track(
                     trk.name,
@@ -806,19 +797,20 @@ def main():
                     trk.prop,
                     trk.data.filter(pl.col("chrom") == chrom),
                 )
-                for trk in dfs_track
+                for trk in tracks
             ],
+            args.outdir,
             chrom,
-            min_st_pos,
-            max_end_pos,
+            min_st,
+            max_end,
             args.width,
             args.height,
         )
-        for chrom in df_stv["chrom"].unique()
+        # Add sort here.
+        for chrom in all_chroms
     ]
 
-    # TODO: Maybe split per page.
-    plt.tight_layout()
+    # TODO: Merge page.
 
 
 if __name__ == "__main__":
