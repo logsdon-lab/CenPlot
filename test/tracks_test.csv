@@ -1,0 +1,4 @@
+Alpha-satellite HOR monomers\nSequence Composition,overlap,label,0.0,test/chrY_sat_annot.bed
+Mean CpG\nmethylation (%),top,value,0.2,test/chrY_methyl.bed
+CDR,top,label,0.025,test/chrY_cdrs.bed
+Approximate\nNucleotide\nIdentity,top,selfident,0.7,test/chrY_ident.bed
