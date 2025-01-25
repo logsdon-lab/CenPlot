@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+include = ["cenplot*"]
+exclude = ["docs*", "test*"]
+
+[project]
+name = "cenplot"
+version = "0.0.1"
+authors = [
+    {name = "Keith Oshima", email = "oshimak@pennmedicine.upenn.edu"},
+]
+description = "Centromere plotting library."
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT License"}
+dynamic = ["dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/logsdon-lab/cenplot"
+
+[project.scripts]
+nucflag = "cenplot.main:main"

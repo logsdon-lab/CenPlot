@@ -1,4 +1,0 @@
-rm,overlap,label,0.0,/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/repeats/all_cens_chrX.annotation.fa.out
-methyl,top,value,0.2,/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/cdr_finder/bed/all_chrX_binned_freq.bed
-cdr,top,label,0.025,/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_cdrs.bed
-ident,bottom,selfident,0.7,/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/moddotplot/original/chrX.bed

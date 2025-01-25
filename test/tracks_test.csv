@@ -1,5 +1,0 @@
-CDR,relative,label,0.025,test/chrY_cdrs.bed
-Mean CpG\nmethylation (%),relative,value,0.2,test/chrY_methyl.bed
-Alpha-satellite HOR monomers,relative,hor,0.1,test/chrY_stv.bed
-Sequence Composition,overlaptop,label,0.0,test/chrY_sat_annot.bed
-Approximate\nNucleotide\nIdentity,relative,selfident,0.7,test/chrY_ident.bed

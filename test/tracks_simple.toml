@@ -1,0 +1,16 @@
+[tracks]
+
+[[tracks.plots]]
+name = "Alpha-satellite HOR monomers"
+position = "relative"
+type = "hor"
+proportion = 0.5
+path = "test/chrY_stv.bed"
+options = { mer_order = "large" }
+
+[[tracks.plots]]
+name = "Sequence Composition"
+position = "relative"
+proportion = 0.5
+type = "label"
+path = "test/chrY_sat_annot.bed"

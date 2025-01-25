@@ -1,0 +1,46 @@
+[tracks]
+
+[[tracks.plots]]
+name = "CDR"
+position = "relative"
+type = "label"
+proportion = 0.025
+path = "test/chrY_cdrs.bed"
+options = { color = "red" , legend = false }
+
+[[tracks.plots]]
+name = "Mean CpG\nmethylation (%)"
+position = "relative"
+type = "value"
+proportion = 0.2
+path = "test/chrY_methyl.bed"
+
+[[tracks.plots]]
+name = "Sequence Composition"
+position = "relative"
+proportion = 0.1
+type = "label"
+path = "test/chrY_sat_annot.bed"
+options = { legend = true }
+
+[[tracks.plots]]
+name = "Alpha-satellite HOR monomers"
+position = "overlap"
+type = "hor"
+path = "test/chrY_stv.bed"
+options = { mer_order = "large" }
+
+[[tracks.plots]]
+name = "Position (Mbp)"
+position = "relative"
+type = "position"
+proportion = 0.025
+options = { unit = "Mbp", nticks = 5 }
+
+[[tracks.plots]]
+name = "Approximate\nNucleotide\nIdentity"
+position = "relative"
+type = "selfident"
+proportion = 0.6
+path = "test/chrY_ident.bed"
+options = { flip_y = true }
