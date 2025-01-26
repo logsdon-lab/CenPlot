@@ -1,22 +1,6 @@
 [tracks]
 
 [[tracks.plots]]
-name = "CDR"
-position = "relative"
-type = "label"
-proportion = 0.025
-path = "test/chrY_cdrs.bed"
-options = { color = "red" , legend = false, hide_x = true }
-
-[[tracks.plots]]
-name = "Mean CpG\nmethylation (%)"
-position = "relative"
-type = "value"
-proportion = 0.2
-path = "test/chrY_methyl.bed"
-options = { hide_x = true}
-
-[[tracks.plots]]
 name = "Sequence Composition"
 position = "relative"
 proportion = 0.1
@@ -29,12 +13,36 @@ name = "Alpha-satellite HOR monomers"
 position = "overlap"
 type = "hor"
 path = "test/chrY_stv.bed"
-options = { mer_order = "large",  hide_x = true}
+options = { mer_order = "large", hide_x = true}
+
+[[tracks.plots]]
+name = "Split alpha-satellite HOR monomers"
+position = "relative"
+proportion = 0.2
+type = "horsplit"
+path = "test/chrY_stv.bed"
+options = { legend = true, mer_order = "large", title = false, hide_x = true}
+
+[[tracks.plots]]
+name = "CDR"
+position = "relative"
+type = "label"
+proportion = 0.025
+path = "test/chrY_cdrs.bed"
+options = { color = "black", legend = false, hide_x = true }
+
+[[tracks.plots]]
+name = "Mean CpG\nmethylation (%)"
+position = "relative"
+type = "value"
+proportion = 0.1
+path = "test/chrY_methyl.bed"
+options = { hide_x = true}
 
 [[tracks.plots]]
 name = "Approximate\nNucleotide\nIdentity"
 position = "relative"
 type = "selfident"
-proportion = 0.6
+proportion = 0.5
 path = "test/chrY_ident.bed"
 options = { legend = true, flip_y = true }

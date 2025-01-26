@@ -1,6 +1,8 @@
 # `cenplot`
 Library for producing centromere figures.
 
+![](docs/example_multiple.png)
+
 > WIP
 
 ### Test
@@ -29,7 +31,7 @@ python scripts/plot_cens_all_stv_mpl.py -t test/tracks.toml
 
 ### TODO:
 * [] Monomer order
-* [] Split monomers
+* [x] Split monomers
 * [] Refactor to library.
 * [] Examples
 * [] Tests

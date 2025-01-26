@@ -9,7 +9,7 @@ import tomllib
 
 from enum import StrEnum, auto
 from collections import defaultdict
-from typing import Any, NamedTuple
+from typing import Any, Generator, NamedTuple
 from concurrent.futures import ProcessPoolExecutor
 
 import matplotlib
@@ -124,10 +124,10 @@ class TrackPosition(StrEnum):
 
 class TrackOption(StrEnum):
     HOR = auto()
+    HORSplit = auto()
     Label = auto()
     Value = auto()
     SelfIdent = auto()
-    Position = auto()
 
 
 class Track(NamedTuple):
@@ -153,14 +153,6 @@ class Unit(StrEnum):
             new_value = value / 1_000_000
 
         return round(new_value, round_to)
-
-
-TRACKS_OPTS_DONT_STANDARDIZE = set(
-    [
-        TrackOption.SelfIdent,
-        TrackOption.Position,
-    ]
-)
 
 
 def read_bed_hor(
@@ -190,7 +182,7 @@ def read_bed_hor(
     )
 
 
-def get_stv_mon_ort(df_stv: pl.DataFrame, *, dst_merge: int = 100_000) -> pl.DataFrame:
+def get_stv_mon_ort(df_stv: pl.DataFrame, *, dst_merge: int) -> pl.DataFrame:
     stv_itrees: defaultdict[str, IntervalTree] = defaultdict(IntervalTree)
     for grp, df_grp in df_stv.group_by(["chrom", "strand"]):
         chrom, strand = grp
@@ -353,7 +345,7 @@ def read_bed_label(infile: str, *, chrom: str | None = None) -> pl.DataFrame:
 
 def read_one_track_info(
     track: dict[str, Any], *, chrom: str | None = None
-) -> Track | None:
+) -> Generator[Track, None, None]:
     prop = track.get("proportion", 0.0)
     name = track.get("name")
     pos = track.get("position")
@@ -381,15 +373,38 @@ def read_one_track_info(
         )
         return None
 
-    if opt == TrackOption.Position:
-        df_track = pl.DataFrame(schema=BED9_COLS)
-        return Track(name, track_pos, track_opt, prop, df_track, options)
-
     if not path:
         raise ValueError("Path to data required.")
 
     if not os.path.exists(path):
         raise FileNotFoundError(f"Data does not exist for track ({track})")
+
+    if opt == TrackOption.HORSplit:
+        mer_order = options.get("mer_order", "large")
+        df_track = read_bed_hor(path, chrom=chrom, mer_order=mer_order)
+        uniq_mers = df_track["mer"].unique()
+        track_prop = prop / len(uniq_mers)
+        if track_pos == TrackPosition.Overlap:
+            print(
+                f"Overlap not supported for {opt}. Using relative position.",
+                file=sys.stderr,
+            )
+
+        for mer, df_mer_track in df_track.group_by(["mer"], maintain_order=True):
+            mer = mer[0]
+            # Add (mer) to name.
+            # Disallow overlap.
+            # Split proportion over uniq monomers.
+            yield Track(
+                f"{name} ({mer})",
+                TrackPosition.Relative,
+                TrackOption.HOR,
+                track_prop,
+                df_mer_track,
+                options,
+            )
+
+        return None
 
     if opt == TrackOption.HOR:
         mer_order = options.get("mer_order", "large")
@@ -398,12 +413,10 @@ def read_one_track_info(
         df_track = read_bed_identity(path, chrom=chrom)
     elif opt == TrackOption.Value:
         df_track = read_bed9(path, chrom=chrom)
-    elif opt == TrackOption.Position:
-        df_track = pl.DataFrame(schema=BED9_COLS)
     else:
         df_track = read_bed_label(path, chrom=chrom)
 
-    return Track(name, track_pos, track_opt, prop, df_track, options)
+    yield Track(name, track_pos, track_opt, prop, df_track, options)
 
 
 def get_track_info(
@@ -415,11 +428,9 @@ def get_track_info(
         with open(input_track, "rb") as fh:
             tracks = tomllib.load(fh).get("tracks", {})["plots"]
             for track_info in tracks:
-                track = read_one_track_info(track_info, chrom=chrom)
-                if not track:
-                    continue
-                dfs.append(track)
-                chroms.update(track.data["chrom"])
+                for track in read_one_track_info(track_info, chrom=chrom):
+                    dfs.append(track)
+                    chroms.update(track.data["chrom"])
 
     return dfs, chroms
 
@@ -690,6 +701,15 @@ def create_subplots(
             track_indices[track.name] = track_idx
             track_idx += 1
             track_props.append(track.prop)
+        # For each unique HOR monomer number, create a new track.
+        # Divide the proportion of the image allocated between each mer track.
+        elif track.opt == TrackOption.HORSplit:
+            uniq_mers = track.data["mer"].unique()
+            track_prop = track.prop / len(uniq_mers)
+            for mer in uniq_mers:
+                track_indices[f"{track.name}_{mer}"] = track_idx
+                track_props.append(track_prop)
+                track_idx += 1
         else:
             track_indices[track.name] = track_idx - 1
 
@@ -732,9 +752,8 @@ def plot_one_cen(
     #  = sys.maxsize
     # trk_maxtrk_min_st_end = 0
     # for trk in dfs_track:
-    #     if trk.opt in TRACKS_OPTS_DONT_STANDARDIZE:
+    #     if trk.opt == TrackOption.SelfIdent:
     #         continue
-
     #     try:
     #         trk_min_st = min(trk.data["chrom_st"].min(), trk_min_st)
     #         trk_max_end = max(trk.data["chrom_end"].max(), trk_max_end)
@@ -752,23 +771,28 @@ def plot_one_cen(
 
     track_labels: list[str] = []
 
-    for zorder, track in enumerate(dfs_track):
-        esc_track_name = track.name.encode("unicode_escape").decode("utf-8")
-        track_row = track_indices[track.name]
+    def get_track_label(track: Track, all_track_labels: list[str]) -> tuple[str, str]:
+        esc_track_label = track.name.encode("unicode_escape").decode("utf-8")
         track_label = track.name.encode("ascii", "ignore").decode("unicode_escape")
 
         # Update track label for each overlap.
         if track.pos == TrackPosition.Overlap:
             try:
-                track_label = f"{track_labels[-1]}\n{track_label}"
+                track_label = f"{all_track_labels[-1]}\n{track_label}"
             except IndexError:
                 pass
+
+        return esc_track_label, track_label
+
+    for zorder, track in enumerate(dfs_track):
+        track_row = track_indices[track.name]
+        esc_track_label, track_label = get_track_label(track, track_labels)
 
         try:
             track_ax: matplotlib.axes.Axes = axes[track_row, track_col]
         except IndexError:
             print(
-                f"Cannot get track ({track_row, track_col}) for {esc_track_name} with {track.pos} position."
+                f"Cannot get track ({track_row, track_col}) for {esc_track_label} with {track.pos} position."
             )
             continue
         try:
@@ -781,7 +805,8 @@ def plot_one_cen(
 
         # Switch to line if different track option. {value, label, ident}
         if track.opt == TrackOption.HOR:
-            df_stv_ort = get_stv_mon_ort(track.data)
+            ort_dst_merge = track.options.get("ort_dst_merge", 1)
+            df_stv_ort = get_stv_mon_ort(track.data, dst_merge=ort_dst_merge)
             draw_hor_w_ort(
                 ax=track_ax,
                 legend_ax=legend_ax if track.options.get("legend") else None,
@@ -880,8 +905,6 @@ def get_min_max_track(
     for trk in tracks:
         if trk.opt == TrackOption.SelfIdent:
             col = "x"
-        elif trk.opt == TrackOption.Position:
-            continue
         else:
             col = default_col
         if typ == "min":
