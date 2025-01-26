@@ -3,7 +3,7 @@ import polars as pl
 from enum import StrEnum, auto
 from typing import Any, NamedTuple
 
-__all__ = ["Track", "TrackOption", "TrackPosition"]
+__all__ = ["Track", "TrackOption", "TrackPosition", "TrackList"]
 
 
 class TrackPosition(StrEnum):
@@ -26,3 +26,10 @@ class Track(NamedTuple):
     prop: float
     data: pl.DataFrame
     options: dict[str, Any]
+
+
+class TrackList(NamedTuple):
+    tracks: list[Track]
+    chroms: set[str]
+    min_pos: int
+    max_pos: int

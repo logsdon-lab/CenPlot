@@ -6,16 +6,13 @@ import polars as pl
 
 from concurrent.futures import ProcessPoolExecutor
 
-from ..draw.cen import plot_one_cen
-from ..draw.utils import merge_plots
-from ..io.tracks import read_all_tracks
-from ..track import Track
+from cenplot import plot_one_cen, merge_plots, read_all_tracks, Track
 
 
 def get_inputs(
     args: argparse.Namespace,
 ) -> list[tuple[list[Track], str, str, str, int, int, int, int]]:
-    tracks, all_chroms, (min_st, max_end) = read_all_tracks(args.input_tracks)
+    tracks_summary = read_all_tracks(args.input_tracks)
     if args.chroms:
         all_chroms = args.chroms
     return [
@@ -29,13 +26,13 @@ def get_inputs(
                     trk.data.filter(pl.col("chrom") == chrom),
                     trk.options,
                 )
-                for trk in tracks
+                for trk in tracks_summary.tracks
             ],
             args.outdir,
             args.format,
             chrom,
-            min_st,
-            max_end,
+            tracks_summary.min_pos,
+            tracks_summary.max_pos,
             args.width,
             args.height,
         )

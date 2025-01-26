@@ -9,7 +9,7 @@ from .bed9 import read_bed9
 from .bed_identity import read_bed_identity
 from .bed_label import read_bed_label
 from .bed_hor import read_bed_hor
-from ..track import Track, TrackOption, TrackPosition
+from ..track import Track, TrackOption, TrackPosition, TrackList
 
 
 def read_one_track_info(
@@ -117,9 +117,7 @@ def get_min_max_track(
     return track, pos
 
 
-def read_all_tracks(
-    input_tracks: list[str], *, chrom: str | None = None
-) -> tuple[list[Track], set[str], tuple[int, int]]:
+def read_all_tracks(input_tracks: list[str], *, chrom: str | None = None) -> TrackList:
     all_tracks = []
     chroms = set()
     for input_track in input_tracks:
@@ -132,4 +130,5 @@ def read_all_tracks(
 
     _, min_st_pos = get_min_max_track(all_tracks, typ="min")
     _, max_end_pos = get_min_max_track(all_tracks, typ="max", default_col="chrom_end")
-    return all_tracks, chroms, (min_st_pos, max_end_pos)
+
+    return TrackList(all_tracks, chroms, min_st_pos, max_end_pos)
