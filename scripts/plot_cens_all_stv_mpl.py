@@ -23,6 +23,7 @@ import matplotlib.patches as mpatches
 
 from intervaltree import Interval, IntervalTree
 from matplotlib.collections import PolyCollection
+from matplotlib.backends.backend_pdf import PdfPages
 
 MONOMER_LEN = 170
 MONOMER_COLORS = {
@@ -423,36 +424,6 @@ def get_track_info(
     return dfs, chroms
 
 
-def standardize_tracks(dfs_track: list[Track], min_track: Track) -> list[Track]:
-    # Get min across all groups.
-    new_min = min_track.data["chrom_st"].min()
-    new_dfs_track = []
-    for track in dfs_track:
-        if track.opt in TRACKS_OPTS_DONT_STANDARDIZE:
-            df_adj_track = track.data
-        else:
-            df_adj_track = track.data.join(
-                min_track.data.group_by("chrom").agg(
-                    dst_diff=pl.col("chrom_st").min() - new_min
-                ),
-                on="chrom",
-            ).with_columns(
-                chrom_st=pl.col("chrom_st") - pl.col("dst_diff") - new_min,
-                chrom_end=pl.col("chrom_end") - pl.col("dst_diff") - new_min,
-            )
-        new_dfs_track.append(
-            Track(
-                track.name,
-                track.pos,
-                track.opt,
-                track.prop,
-                df_adj_track,
-                track.options,
-            )
-        )
-    return new_dfs_track
-
-
 def draw_uniq_entry_legend(
     ax: matplotlib.axes.Axes, ref_ax: matplotlib.axes.Axes | None = None, **kwargs: Any
 ) -> None:
@@ -473,9 +444,9 @@ def minimalize_ax(
     if grid:
         ax.grid(False)
     if xticks:
-        ax.xaxis.set_tick_params(which="both", bottom=False, labelbottom=False)
+        ax.set_xticks([], [])
     if yticks:
-        ax.yaxis.set_tick_params(which="both", left=False, labelleft=False)
+        ax.set_yticks([], [])
     if spines:
         for spine in spines:
             ax.spines[spine].set_visible(False)
@@ -489,6 +460,7 @@ def draw_label(
     color: str | None = None,
     alpha: float | None = None,
     legend_ax: matplotlib.axes.Axes | None = None,
+    hide_x: bool,
     zorder: float,
 ) -> None:
     patch_options: dict[str, Any] = {"zorder": zorder}
@@ -502,7 +474,7 @@ def draw_label(
     }
 
     minimalize_ax(
-        ax, xticks=True, yticks=True, spines=("left", "right", "top", "bottom")
+        ax, xticks=hide_x, yticks=True, spines=("left", "right", "top", "bottom")
     )
 
     for row in track.data.iter_rows(named=True):
@@ -542,13 +514,14 @@ def draw_self_ident(
     *,
     legend_ax: matplotlib.axes.Axes | None = None,
     zorder: float,
+    hide_x: bool,
     flip_y: bool,
     bins: int = 300,
 ) -> None:
     colors, verts = [], []
 
     minimalize_ax(
-        ax, xticks=True, yticks=True, spines=("left", "right", "top", "bottom")
+        ax, xticks=hide_x, yticks=True, spines=("left", "right", "top", "bottom")
     )
 
     if flip_y:
@@ -567,7 +540,6 @@ def draw_self_ident(
     polys.set(array=None, facecolors=colors)
     ax.add_collection(polys)
 
-    ax.set_xlim(df_track["x"].min(), df_track["x"].max())
     ax.set_ylim(df_track["y"].min(), df_track["y"].max())
 
     if legend_ax:
@@ -598,6 +570,7 @@ def draw_values(
     alpha: float | None = None,
     legend_ax: matplotlib.axes.Axes | None = None,
     zorder: float,
+    hide_x: bool,
 ) -> None:
     plot_options = {"color": "black", "zorder": zorder}
     if color:
@@ -612,7 +585,7 @@ def draw_values(
     # Trim plot to margins
     ax.margins(x=0, y=0)
     # remove spines
-    minimalize_ax(ax, xticks=True, spines=("right", "top"))
+    minimalize_ax(ax, xticks=hide_x, spines=("right", "top"))
 
     # Limit spine range.
     # TODO: Remove ticks not within bounds.
@@ -626,14 +599,17 @@ def draw_values(
 
 def draw_hor_w_ort(
     ax: matplotlib.axes.Axes,
-    legend_ax: matplotlib.axes.Axes,
     df_stv: pl.DataFrame,
     df_stv_ort: pl.DataFrame,
     *,
+    hide_x: bool,
+    ort: bool,
+    ort_pos: str,
     zorder: float,
+    legend_ax: matplotlib.axes.Axes | None,
 ):
     minimalize_ax(
-        ax, xticks=True, yticks=True, spines=("right", "left", "top", "bottom")
+        ax, xticks=hide_x, yticks=True, spines=("right", "left", "top", "bottom")
     )
 
     # Add HOR track.
@@ -647,7 +623,7 @@ def draw_hor_w_ort(
         rect = mpatches.Rectangle(
             (start, 0),
             end + 1 - start,
-            12,
+            1,
             color=color,
             lw=0,
             label=row["mer"],
@@ -656,79 +632,42 @@ def draw_hor_w_ort(
         ax.add_patch(rect)
 
     # Add ort track.
-    for row in df_stv_ort.iter_rows(named=True):
-        # sample arrow
-        start = row["chrom_st"]
-        end = row["chrom_end"]
-        strand = row["strand"]
-        length = end - start
-        # Skip single orts
-        if length < 171:
-            continue
-
-        if strand == "-":
-            start = end
-            length = -length
-
-        arrow = mpatches.FancyArrow(
-            start,
-            -0.1,
-            length,
-            0,
-            width=0.05,
-            color="black",
-            length_includes_head=True,
-            # 10% of entire length
-            head_length=0.1 * -length,
-            clip_on=False,
-            zorder=zorder,
-        )
-        ax.add_patch(arrow)
-
-    draw_uniq_entry_legend(legend_ax, ref_ax=ax, loc="center right", ncols=3)
-
-
-def draw_position(
-    ax: matplotlib.axes.Axes,
-    trk_min_st: int,
-    trk_max_end: int,
-    interval: int | None = None,
-    nticks: int | None = None,
-    unit_name: str = "mbp",
-    color: str = "black",
-):
-    if interval and nticks:
-        raise ValueError("Cannot have interval and nticks.")
-    elif interval:
-        tick_range = range(trk_min_st, trk_max_end, interval)
+    if ort_pos == "top":
+        y_ort = 1.2
     else:
-        nticks = nticks if nticks else 10
-        trk_len = trk_max_end - trk_min_st
-        new_interval = trk_len // nticks
-        tick_range = range(trk_min_st, trk_max_end, new_interval)
+        y_ort = -0.1
+    if ort:
+        for row in df_stv_ort.iter_rows(named=True):
+            # sample arrow
+            start = row["chrom_st"]
+            end = row["chrom_end"]
+            strand = row["strand"]
+            length = end - start
+            # Skip single orts
+            if length < 171:
+                continue
 
-    unit = Unit(unit_name.lower())
+            if strand == "-":
+                start = end
+                length = -length
 
-    # We draw the axis manually as shared axes lose xticks/labels.
-    minimalize_ax(
-        ax,
-        grid=True,
-        xticks=True,
-        yticks=True,
-        spines=("right", "left", "top", "bottom"),
-    )
+            arrow = mpatches.FancyArrow(
+                start,
+                y_ort,
+                length,
+                0,
+                width=0.05,
+                color="black",
+                length_includes_head=True,
+                # 10% of entire length
+                head_length=0.05 * -length,
+                clip_on=False,
+                zorder=zorder,
+            )
+            ax.add_patch(arrow)
 
-    def draw_xtick(i: int):
-        value = unit.convert_value(i)
-        ax.axvline(x=i, color=color, clip_on=False)
-        ax.text(s=f"{value:,}", x=i, y=1.25, ha="center", va="center", clip_on=False)
-
-    ax.axhline(y=0.5, xmin=trk_min_st, xmax=trk_max_end, color=color, clip_on=True)
-    for i in tick_range:
-        draw_xtick(i)
-
-    # Draw end of line.
-    draw_xtick(trk_max_end)
+    if legend_ax:
+        draw_uniq_entry_legend(legend_ax, ref_ax=ax, loc="center right", ncols=3)
 
 
 def create_subplots(
@@ -737,7 +676,7 @@ def create_subplots(
     track_props = []
     track_indices = {}
     tracks_added = set()
-    requires_second_col = True
+    requires_second_col = False
 
     track_idx = 0
     for track in dfs_track:
@@ -754,27 +693,23 @@ def create_subplots(
         else:
             track_indices[track.name] = track_idx - 1
 
-        if not requires_second_col and (
-            track.opt == TrackOption.Label
-            or track.opt == TrackOption.SelfIdent
-            or track.opt == TrackOption.HOR
-        ):
+        if not requires_second_col and track.options.get("legend"):
             requires_second_col = True
 
         tracks_added.add(track.name)
 
     # Adjust columns and width ratio.
-    is_one_row = len(track_props) == 1
     num_cols = 2 if requires_second_col else 1
-    width_ratios = (0.8, 0.2) if requires_second_col or not is_one_row else 1.0
+    width_ratios = (0.8, 0.2) if requires_second_col else [1.0]
     fig, axes = plt.subplots(
         # Count number of tracks
         len(track_props),
         num_cols,
         figsize=(width, height),
-        sharex="col",
         height_ratios=track_props,
         width_ratios=width_ratios,
+        # Always return 2D ndarray
+        squeeze=0,
         **kwargs,
     )
 
@@ -790,18 +725,21 @@ def plot_one_cen(
     max_end_pos: int,
     width: float,
     height: float,
-) -> tuple[Any, matplotlib.axes.Axes]:
+) -> tuple[matplotlib.figure.Figure, np.ndarray, str]:
     print(f"Plotting {chrom}...", file=sys.stderr)
 
-    # Get min and max position of all tracks for this cen.
-    trk_min_st = sys.maxsize
-    trk_max_end = 0
-    for trk in dfs_track:
-        if trk.opt in TRACKS_OPTS_DONT_STANDARDIZE:
-            continue
+    # # Get min and max position of all tracks for this cen.
+    #  = sys.maxsize
+    # trk_maxtrk_min_st_end = 0
+    # for trk in dfs_track:
+    #     if trk.opt in TRACKS_OPTS_DONT_STANDARDIZE:
+    #         continue
 
-        trk_min_st = min(trk.data["chrom_st"].min(), trk_min_st)
-        trk_max_end = max(trk.data["chrom_end"].max(), trk_max_end)
+    #     try:
+    #         trk_min_st = min(trk.data["chrom_st"].min(), trk_min_st)
+    #         trk_max_end = max(trk.data["chrom_end"].max(), trk_max_end)
+    #     except TypeError:
+    #         continue
 
     # # Scale height based on track length.
     # adj_height = height * (trk_max_end / max_end_pos)
@@ -810,42 +748,33 @@ def plot_one_cen(
     fig, axes, track_indices = create_subplots(
         dfs_track, width, height, tight_layout=True
     )
-    is_2d = axes.ndim > 1
     track_col, legend_col = 0, 1
 
-    track_labels = []
-    # Store overlap label
-    overlap_track_label = None
-    # Track zorder
-    zorder = len(dfs_track)
+    track_labels: list[str] = []
 
-    for track in dfs_track:
+    for zorder, track in enumerate(dfs_track):
         esc_track_name = track.name.encode("unicode_escape").decode("utf-8")
         track_row = track_indices[track.name]
         track_label = track.name.encode("ascii", "ignore").decode("unicode_escape")
 
         # Update track label for each overlap.
-        if track.pos == TrackPosition.Overlap and not overlap_track_label:
-            overlap_track_label = track_label
-        elif track.pos == TrackPosition.Overlap and overlap_track_label:
-            overlap_track_label = f"{track_label}\n{overlap_track_label}"
-        # Done overlapping. Reset.
-        elif overlap_track_label:
-            track_label = f"{track_label}\n{overlap_track_label}"
-            overlap_track_label = None
+        if track.pos == TrackPosition.Overlap:
+            try:
+                track_label = f"{track_labels[-1]}\n{track_label}"
+            except IndexError:
+                pass
 
         try:
-            if is_2d:
-                track_ax: matplotlib.axes.Axes = axes[track_row, track_col]
-                legend_ax: matplotlib.axes.Axes = axes[track_row, legend_col]
-            else:
-                track_ax = axes[track_row]
-                legend_ax = axes[legend_col]
+            track_ax: matplotlib.axes.Axes = axes[track_row, track_col]
         except IndexError:
             print(
                 f"Cannot get track ({track_row, track_col}) for {esc_track_name} with {track.pos} position."
             )
             continue
+        try:
+            legend_ax: matplotlib.axes.Axes = axes[track_row, legend_col]
+        except IndexError:
+            legend_ax = None
 
         # Set xaxis limits
         track_ax.set_xlim(min_st_pos, max_end_pos)
@@ -855,10 +784,13 @@ def plot_one_cen(
             df_stv_ort = get_stv_mon_ort(track.data)
             draw_hor_w_ort(
                 ax=track_ax,
-                legend_ax=legend_ax,
+                legend_ax=legend_ax if track.options.get("legend") else None,
                 df_stv=track.data,
                 df_stv_ort=df_stv_ort,
                 zorder=zorder,
+                hide_x=track.options.get("hide_x", False),
+                ort=track.options.get("ort", True),
+                ort_pos=track.options.get("ort_pos", "top"),
             )
 
         elif track.opt == TrackOption.Label:
@@ -868,6 +800,7 @@ def plot_one_cen(
                 color=track.options.get("color"),
                 alpha=track.options.get("alpha"),
                 legend_ax=legend_ax if track.options.get("legend") else None,
+                hide_x=track.options.get("hide_x", False),
                 zorder=zorder,
             )
 
@@ -875,7 +808,8 @@ def plot_one_cen(
             draw_self_ident(
                 track_ax,
                 track,
-                legend_ax=legend_ax,
+                legend_ax=legend_ax if track.options.get("legend") else None,
+                hide_x=track.options.get("hide_x", False),
                 flip_y=track.options.get("flip_y", True),
                 zorder=zorder,
             )
@@ -887,19 +821,30 @@ def plot_one_cen(
                 color=track.options.get("color"),
                 alpha=track.options.get("alpha"),
                 zorder=zorder,
-            )
-        elif track.opt == TrackOption.Position:
-            draw_position(
-                track_ax,
-                trk_min_st,
-                trk_max_end,
-                interval=track.options.get("interval"),
-                nticks=track.options.get("nticks"),
-                unit_name=track.options.get("unit", "Mbp"),
-                color="black",
+                hide_x=track.options.get("hide_x", False),
             )
 
-        if track.opt != TrackOption.SelfIdent:
+        # Store label if more overlaps.
+        track_labels.append(track_label)
+
+        # Set label.
+        # Allow chrom as title or name.
+        track_label = chrom if track.options.get("chrom_as_title") else track_label
+        if track.options.get("title", True):
+            track_ax.set_ylabel(
+                track_label,
+                rotation="horizontal",
+                ha="right",
+                va="center",
+                ma="center",
+            )
+
+        if not legend_ax:
+            continue
+
+        if track.opt != TrackOption.SelfIdent or (
+            track.opt == TrackOption.SelfIdent and not track.options.get("legend")
+        ):
             # Minimalize all legend cols
             minimalize_ax(
                 legend_ax,
@@ -915,25 +860,43 @@ def plot_one_cen(
                 spines=("right", "top"),
             )
 
-        # Set label.
-        # Encode to ascii and decode to remove escaped characters
-        track_ax.set_ylabel(
-            track_label,
-            rotation="horizontal",
-            ha="right",
-            va="center",
-            ma="center",
-        )
-        # Store label if more overlaps.
-        track_labels.append(track_label)
-
-        # Reduce z-order
-        zorder -= 1
-
+    # Add title
+    # fig.suptitle(chrom)
     outfile = os.path.join(outdir, f"{chrom}.{outfmt}")
-    plt.savefig(outfile, transparent=True)
-    plt.clf()
-    return fig, axes
+    plt.savefig(outfile, dpi=600, transparent=True)
+
+    return fig, axes, outfile
+
+
+def get_min_max_track(
+    tracks: list[Track], typ: str, default_col: str = "chrom_st"
+) -> tuple[Track, int]:
+    track = None
+    if typ == "min":
+        pos = sys.maxsize
+    else:
+        pos = 0
+
+    for trk in tracks:
+        if trk.opt == TrackOption.SelfIdent:
+            col = "x"
+        elif trk.opt == TrackOption.Position:
+            continue
+        else:
+            col = default_col
+        if typ == "min":
+            trk_min = trk.data.filter(pl.col(col) > 0)[col].min()
+            if trk_min < pos:
+                track = trk
+                pos = trk_min
+        else:
+            trk_max = trk.data[col].max()
+            if trk_max > pos:
+                track = trk
+                pos = trk_max
+    if not track:
+        raise ValueError("No tracks.")
+    return track, pos
 
 
 def read_standardized_tracks(
@@ -941,27 +904,53 @@ def read_standardized_tracks(
 ) -> tuple[list[Track], set[str], tuple[int, int]]:
     tracks, all_chroms = get_track_info(input_tracks, chrom=chrom)
 
-    # Self ident track is already standardized.
-    check_tracks = [
-        trk for trk in tracks if trk.opt not in TRACKS_OPTS_DONT_STANDARDIZE
-    ]
-    # Get a reference to the dataframe with the lowest starting position.
-    track_min_st: Track = min(check_tracks, key=lambda trk: trk.data["chrom_st"].min())
+    _, min_st_pos = get_min_max_track(tracks, typ="min")
+    _, max_end_pos = get_min_max_track(tracks, typ="max", default_col="chrom_end")
 
-    # Standardize coords
-    tracks = standardize_tracks(tracks, track_min_st)
-
-    check_tracks = [
-        trk for trk in tracks if trk.opt not in TRACKS_OPTS_DONT_STANDARDIZE
-    ]
-    track_min_st = min(check_tracks, key=lambda trk: trk.data["chrom_st"].min())
-    track_max_end: Track = max(
-        check_tracks, key=lambda trk: trk.data["chrom_end"].max()
-    )
-    # return min and max position.
-    min_st_pos = track_min_st.data["chrom_st"].min()
-    max_end_pos = track_max_end.data["chrom_end"].max()
     return tracks, all_chroms, (min_st_pos, max_end_pos)
+
+
+def merge_plots(
+    figures: list[tuple[matplotlib.figure.Figure, np.ndarray, str]], outfile: str
+) -> None:
+    if outfile.endswith(".pdf"):
+        with PdfPages(outfile) as pdf:
+            for fig, _, _ in figures:
+                pdf.savefig(fig)
+    else:
+        merged_images = np.concatenate([plt.imread(file) for _, _, file in figures])
+        plt.imsave(outfile, merged_images)
+
+
+def get_inputs(
+    args: argparse.Namespace,
+) -> list[tuple[list[Track], str, str, str, int, int, int, int]]:
+    tracks, all_chroms, (min_st, max_end) = read_standardized_tracks(args.input_tracks)
+    if args.chroms:
+        all_chroms = args.chroms
+    return [
+        (
+            [
+                Track(
+                    trk.name,
+                    trk.pos,
+                    trk.opt,
+                    trk.prop,
+                    trk.data.filter(pl.col("chrom") == chrom),
+                    trk.options,
+                )
+                for trk in tracks
+            ],
+            args.outdir,
+            args.format,
+            chrom,
+            min_st,
+            max_end,
+            args.width,
+            args.height,
+        )
+        for chrom in all_chroms
+    ]
 
 
 def main():
@@ -972,23 +961,36 @@ def main():
         nargs="*",
         type=str,
         help=(
-            "TOML file with Headerless BED files to plot. "
+            "TOML file with headerless BED files to plot. "
             "Specify under tracks.plots the following fields: {name, position, type, proportion, path, or options}. "
             "One of more TOML can be provided."
         ),
     )
-    ap.add_argument("-s", "--sort", help="Sort based on another list.", default=None)
-    ap.add_argument("-c", "--chrom", help="Chromosome to plot.", default=None)
+    ap.add_argument(
+        "-c",
+        "--chroms",
+        nargs="*",
+        help="Names to plot in this order. Corresponds to 1st col in BED files.",
+        default=None,
+    )
     ap.add_argument(
         "-d",
         "--outdir",
         help="Output dir to plot multiple separate figures.",
+        type=str,
         default=".",
+    )
+    ap.add_argument(
+        "-o",
+        "--outfile",
+        help="Output file merging all figures. Either pdf of png.",
+        type=str,
+        default=None,
     )
     ap.add_argument(
         "-f",
         "--format",
-        help="Output format. Passed as ext to matplotlib.",
+        help="Output format passed as ext to matplotlib. Without '.'",
         default="png",
     )
     ap.add_argument(
@@ -996,79 +998,32 @@ def main():
         "--width",
         type=float,
         help="Figure width in inches per centromere.",
-        default=20.0,
+        default=16.0,
     )
     ap.add_argument(
         "-ht",
         "--height",
         type=float,
         help="Figure height in inches per centromere.",
-        default=12.0,
+        default=8.0,
     )
 
     ap.add_argument("-p", "--processes", type=int, default=4, help="Processes to run.")
     args = ap.parse_args()
 
-    tracks, all_chroms, (min_st, max_end) = read_standardized_tracks(
-        args.input_tracks, chrom=args.chrom
-    )
+    tracks = get_inputs(args)
 
     os.makedirs(args.outdir, exist_ok=True)
     if args.processes == 1:
-        _plots = [
-            plot_one_cen(
-                [
-                    Track(
-                        trk.name,
-                        trk.pos,
-                        trk.opt,
-                        trk.prop,
-                        trk.data.filter(pl.col("chrom") == chrom),
-                        trk.options,
-                    )
-                    for trk in tracks
-                ],
-                args.outdir,
-                args.format,
-                chrom,
-                min_st,
-                max_end,
-                args.width,
-                args.height,
-            )
-            # Add sort here.
-            for chrom in all_chroms
-        ]
+        plots = [plot_one_cen(*track) for track in tracks]
     else:
         with ProcessPoolExecutor(
             max_workers=args.processes, mp_context=multiprocessing.get_context("spawn")
         ) as pool:
-            args_tracks = (
-                (
-                    [
-                        Track(
-                            trk.name,
-                            trk.pos,
-                            trk.opt,
-                            trk.prop,
-                            trk.data.filter(pl.col("chrom") == chrom),
-                            trk.options,
-                        )
-                        for trk in tracks
-                    ],
-                    args.outdir,
-                    args.format,
-                    chrom,
-                    min_st,
-                    max_end,
-                    args.width,
-                    args.height,
-                )
-                for chrom in all_chroms
-            )
-            _plots = pool.map(plot_one_cen, *zip(*args_tracks))  # type: ignore[assignment]
+            plots = pool.map(plot_one_cen, *zip(*tracks))  # type: ignore[assignment]
 
-    # TODO: Merge page.
+    if args.outfile:
+        merge_plots(plots, args.outfile)
 
 
 if __name__ == "__main__":

@@ -26,3 +26,11 @@ options = { flip_y = true }
 ```bash
 python scripts/plot_cens_all_stv_mpl.py -t test/tracks.toml
 ```
+
+### TODO:
+* [] Monomer order
+* [] Split monomers
+* [] Refactor to library.
+* [] Examples
+* [] Tests
+* [] Merge images.
