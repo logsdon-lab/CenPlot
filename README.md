@@ -94,13 +94,13 @@ options = { flip_y = true }
 ```
 
 ```bash
-python scripts/plot_cens_all_stv_mpl.py -t test/tracks.toml
+python -m cenplot.scripts.plot -t test/tracks_multiple.toml -ht 12
 ```
 
 ### TODO:
-* [] Monomer order
+* [ ] Monomer order
 * [x] Split monomers
-* [] Refactor to library.
-* [] Examples
-* [] Tests
-* [] Merge images.
+* [x] Refactor to library.
+* [ ] Examples
+* [ ] Tests
+* [ ] Merge images.
