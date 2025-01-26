@@ -1,34 +1,32 @@
-[tracks]
-
-[[tracks.plots]]
+[[tracks]]
 name = "CDR"
 position = "relative"
 type = "label"
 proportion = 0.025
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_cdrs.bed"
 
-[[tracks.plots]]
+[[tracks]]
 name = "Mean CpG\nmethylation (%)"
 position = "relative"
 type = "value"
 proportion = 0.2
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/cdr_finder/bed/all_chrX_binned_freq.bed"
 
-[[tracks.plots]]
+[[tracks]]
 name = "Sequence Composition"
 position = "relative"
 type = "label"
 proportion = 0.1
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/repeats/all_cens_chrX.annotation.fa.out"
 
-[[tracks.plots]]
+[[tracks]]
 name = "Alpha-satellite HOR monomers"
 position = "overlap"
 type = "hor"
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_AS-HOR_stv_row.all.bed"
 options = { mer_order = "large" }
 
-[[tracks.plots]]
+[[tracks]]
 name = "Approximate\nNucleotide\nIdentity"
 position = "relative"
 type = "selfident"

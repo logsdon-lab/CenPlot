@@ -426,7 +426,7 @@ def get_track_info(
     chroms = set()
     for input_track in input_tracks:
         with open(input_track, "rb") as fh:
-            tracks = tomllib.load(fh).get("tracks", {})["plots"]
+            tracks = tomllib.load(fh).get("tracks", [])
             for track_info in tracks:
                 for track in read_one_track_info(track_info, chrom=chrom):
                     dfs.append(track)
@@ -985,7 +985,7 @@ def main():
         type=str,
         help=(
             "TOML file with headerless BED files to plot. "
-            "Specify under tracks.plots the following fields: {name, position, type, proportion, path, or options}. "
+            "Specify under tracks the following fields: {name, position, type, proportion, path, or options}. "
             "One of more TOML can be provided."
         ),
     )

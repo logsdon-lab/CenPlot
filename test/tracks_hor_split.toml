@@ -1,6 +1,4 @@
-[tracks]
-
-[[tracks.plots]]
+[[tracks]]
 name = "Alpha-satellite HOR monomers"
 position = "relative"
 proportion = 0.8
@@ -8,7 +6,7 @@ type = "horsplit"
 path = "test/chrY_stv.bed"
 options = { legend = true, hide_x = true, title = false, mer_order = "small", ort_dst_merge = 1 }
 
-[[tracks.plots]]
+[[tracks]]
 name = "Sequence Composition"
 position = "relative"
 proportion = 0.2
