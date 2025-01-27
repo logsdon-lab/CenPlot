@@ -1,4 +1,12 @@
 [[tracks]]
+name = "alpha-satellite HOR monomer orientation"
+position = "relative"
+proportion = 0.05
+type = "horort"
+path = "test/chrY/stv.bed"
+options = { title = false, hide_x = true}
+
+[[tracks]]
 name = "Sequence Composition"
 position = "relative"
 proportion = 0.05

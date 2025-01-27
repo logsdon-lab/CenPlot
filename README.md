@@ -73,6 +73,10 @@ Additional plot options. Dependent on [`type`](#type)
 |`all`|`title`|Display the title|`false`|
 |`all`|`hide_x`|Hide the x-axis label and ticks|`false`|
 |`hor`|`mer_order`|Display this HORs with `x` monomers on top.|`"large"`|
+|`horort`|`scale`|Scaling factor for arrow by length.|`50`|
+|`horort`|`merge`|Merge same stranded monomers by this number of bases.|`100000`|
+|`horort`|`fwd_color`|Color `+` monomers this color.|`"black"`|
+|`horort`|`rev_color`||Color `-` monomers this color.|`"black"`|
 |`selfident`|`flip_y`|Flip the y-axis for the self-identity triangle.|`true`|
 
 #### Example:

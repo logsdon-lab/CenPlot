@@ -99,9 +99,9 @@ def plot_one_cen(
                 ax=track_ax,
                 df_stv_ort=track.data,
                 zorder=zorder,
-                scale=track.options.get("ort_scale"),
-                fwd_color=track.options.get("ort_fwd_color"),
-                rev_color=track.options.get("ort_rev_color"),
+                scale=track.options.get("scale"),
+                fwd_color=track.options.get("fwd_color"),
+                rev_color=track.options.get("rev_color"),
             )
 
         elif track.opt == TrackOption.Label:

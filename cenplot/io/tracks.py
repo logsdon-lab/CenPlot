@@ -77,48 +77,25 @@ def read_one_track_info(
         )
         return None
 
-    if track_opt == TrackOption.HOROrt:
-        raise ValueError("Reserved option. Not to be used.")
-
     if not path:
         raise ValueError("Path to data required.")
 
     if not os.path.exists(path):
         raise FileNotFoundError(f"Data does not exist for track ({track})")
 
-    if opt == TrackOption.HORSplit:
+    if track_opt == TrackOption.HORSplit:
         mer_order = options.get("mer_order", "large")
         df_track = read_bed_hor(path, chrom=chrom, mer_order=mer_order)
         uniq_mers = df_track["mer"].unique()
         track_prop = prop / len(uniq_mers)
         if track_pos == TrackPosition.Overlap:
             print(
-                f"Overlap not supported for {opt}. Using relative position.",
+                f"Overlap not supported for {track_opt}. Using relative position.",
                 file=sys.stderr,
             )
 
-        ort_pos = options.get("ort_pos", "top")
-        ort_dst_merge = options.get("ort_merge", 100_000)
-
         for mer, df_mer_track in df_track.group_by(["mer"], maintain_order=True):
             mer = mer[0]
-            df_mer_track_ort = get_stv_mon_ort(df_mer_track, dst_merge=ort_dst_merge)
-
-            # Copy options
-            ort_options = {k: v for k, v in options.items() if k.startswith("ort")}
-            ort_options["title"] = False
-
-            ort_track = Track(
-                f"{name} ({mer} ort)",
-                TrackPosition.Relative,
-                TrackOption.HOROrt,
-                track_prop * 0.1,
-                df_mer_track_ort,
-                ort_options,
-            )
-            if ort_pos == "top":
-                yield ort_track
-
             # Add (mer) to name.
             # Disallow overlap.
             # Split proportion over uniq monomers.
@@ -130,43 +107,18 @@ def read_one_track_info(
                 df_mer_track,
                 options,
             )
-            if ort_pos == "bottom":
-                yield ort_track
 
         return None
 
-    if opt == TrackOption.HOR:
+    if track_opt == TrackOption.HOR:
         mer_order = options.get("mer_order", "large")
-        ort_pos = options.get("ort_pos", "top")
-        ort_dst_merge = options.get("ort_merge", 100_000)
-
         df_track = read_bed_hor(path, chrom=chrom, mer_order=mer_order)
-        df_track_ort = get_stv_mon_ort(df_track, dst_merge=ort_dst_merge)
-
-        # Copy options
-        ort_options = {k: v for k, v in options.items() if k.startswith("ort")}
-        ort_options["title"] = False
-        ort_track = Track(
-            f"{name} (ort)",
-            TrackPosition.Relative,
-            TrackOption.HOROrt,
-            prop * 0.1,
-            df_track_ort,
-            ort_options,
-        )
-        if ort_pos == "top":
-            yield ort_track
-
-        yield Track(name, track_pos, track_opt, prop * 0.9, df_track, options)
-
-        if ort_pos == "bottom":
-            yield ort_track
-
-        return None
-
-    if opt == TrackOption.SelfIdent:
+    elif track_opt == TrackOption.HOROrt:
+        ort_merge = options.get("merge", 100_000)
+        df_track = get_stv_mon_ort(read_bed_hor(path, chrom=chrom), dst_merge=ort_merge)
+    elif track_opt == TrackOption.SelfIdent:
         df_track = read_bed_identity(path, chrom=chrom)
-    elif opt == TrackOption.Value:
+    elif track_opt == TrackOption.Value:
         df_track = read_bed9(path, chrom=chrom)
     else:
         df_track = read_bed_label(path, chrom=chrom)

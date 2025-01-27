@@ -1,4 +1,11 @@
 [[tracks]]
+name = "Alpha-satellite HOR monomer orientation"
+position = "overlap"
+type = "horort"
+path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_AS-HOR_stv_row.all.bed"
+options = { title = false, legend=false, hide_x = true }
+
+[[tracks]]
 name = "Sequence Composition"
 position = "relative"
 type = "label"
@@ -11,7 +18,7 @@ name = "Alpha-satellite HOR monomers"
 position = "overlap"
 type = "hor"
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_AS-HOR_stv_row.all.bed"
-options = { mer_order = "large", ort = true, ort_pos = "top", title = false, legend=false, hide_x = true }
+options = { mer_order = "large", title = false, legend=false, hide_x = true }
 
 [[tracks]]
 name = "CDR"
