@@ -3,18 +3,18 @@ name = "Sequence Composition"
 position = "relative"
 proportion = 0.1
 type = "label"
-path = "test/chrY_sat_annot.bed"
+path = "test/chrY/sat_annot.bed"
 
 [[tracks]]
 name = "CDR"
 position = "overlap"
 type = "label"
-path = "test/chrY_cdrs.bed"
+path = "test/chrY/cdrs.bed"
 options = { color = "red" }
 
 [[tracks]]
 name = "Alpha-satellite HOR monomers"
 position = "overlap"
 type = "hor"
-path = "test/chrY_stv.bed"
+path = "test/chrY/stv.bed"
 options = { mer_order = "large" }

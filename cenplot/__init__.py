@@ -1,7 +1,8 @@
 import logging
 
 from .draw import (
-    draw_hor_w_ort,
+    draw_hor,
+    draw_hor_ort,
     draw_label,
     draw_self_ident,
     draw_values,
@@ -22,7 +23,8 @@ __license__ = "MIT"
 __all__ = [
     "plot_one_cen",
     "merge_plots",
-    "draw_hor_w_ort",
+    "draw_hor",
+    "draw_hor_ort",
     "draw_label",
     "draw_self_ident",
     "draw_values",

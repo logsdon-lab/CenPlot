@@ -3,11 +3,11 @@ name = "Alpha-satellite HOR monomers"
 position = "relative"
 type = "hor"
 proportion = 1.0
-path = "test/chrY_stv.bed"
+path = "test/chrY/stv.bed"
 options = { mer_order = "large" }
 
 [[tracks]]
 name = "Sequence Composition"
 position = "overlap"
 type = "label"
-path = "test/chrY_sat_annot.bed"
+path = "test/chrY/sat_annot.bed"

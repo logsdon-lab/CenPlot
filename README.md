@@ -82,25 +82,27 @@ name = "CDR"
 position = "relative"
 type = "label"
 proportion = 0.025
-path = "test/chrY_cdrs.bed"
+path = "test/chrY/cdrs.bed"
 
 [[tracks]]
 name = "Approximate\nNucleotide\nIdentity"
 position = "relative"
 type = "selfident"
 proportion = 0.7
-path = "test/chrY_ident.bed"
+path = "test/chrY/ident.bed"
 options = { flip_y = true }
 ```
 
 ```bash
-python -m cenplot.scripts.plot -t test/tracks_multiple.toml -ht 12
+make venv && make build && make install
+python scripts/plot.py -t test/tracks_multiple.toml -ht 12
 ```
 
 ### TODO:
 * [ ] Monomer order
 * [x] Split monomers
 * [x] Refactor to library.
+* [ ] Options to struct.
 * [ ] Examples
 * [ ] Tests
 * [ ] Merge images.

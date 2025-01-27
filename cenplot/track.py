@@ -14,6 +14,7 @@ class TrackPosition(StrEnum):
 class TrackOption(StrEnum):
     HOR = auto()
     HORSplit = auto()
+    HOROrt = auto()
     Label = auto()
     Value = auto()
     SelfIdent = auto()

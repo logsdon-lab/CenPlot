@@ -4,6 +4,7 @@ import multiprocessing
 
 import polars as pl
 
+from typing import Iterable
 from concurrent.futures import ProcessPoolExecutor
 
 from cenplot import plot_one_cen, merge_plots, read_all_tracks, Track, LegendPosition
@@ -14,7 +15,7 @@ def get_inputs(
 ) -> list[tuple[list[Track], str, str, str, int, int, int, int, LegendPosition]]:
     tracks_summary = read_all_tracks(args.input_tracks)
     if args.chroms:
-        all_chroms = args.chroms
+        all_chroms: Iterable[str] = [line.strip() for line in args.chroms.readlines()]
     else:
         all_chroms = tracks_summary.chroms
     return [
@@ -60,7 +61,7 @@ def main():
     ap.add_argument(
         "-c",
         "--chroms",
-        nargs="*",
+        type=argparse.FileType("rt"),
         help="Names to plot in this order. Corresponds to 1st col in BED files.",
         default=None,
     )

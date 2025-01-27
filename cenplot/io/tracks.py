@@ -1,15 +1,50 @@
 import os
 import sys
 import tomllib
-from typing import Any, Generator
 
 import polars as pl
+
+from typing import Any, Generator
+from collections import defaultdict
+from intervaltree import Interval, IntervalTree
 
 from .bed9 import read_bed9
 from .bed_identity import read_bed_identity
 from .bed_label import read_bed_label
 from .bed_hor import read_bed_hor
 from ..track import Track, TrackOption, TrackPosition, TrackList
+
+
+def get_stv_mon_ort(df_stv: pl.DataFrame, *, dst_merge: int) -> pl.DataFrame:
+    stv_itrees: defaultdict[str, IntervalTree] = defaultdict(IntervalTree)
+    for grp, df_grp in df_stv.group_by(["chrom", "strand"]):
+        chrom, strand = grp
+        itree = IntervalTree.from_tuples(
+            (row["chrom_st"] - dst_merge, row["chrom_end"] + dst_merge, strand)
+            for row in df_grp.select("chrom_st", "chrom_end", "chrom").iter_rows(
+                named=True
+            )
+        )
+        # TODO: Change this to use custom merge function.
+        itree.merge_overlaps(strict=False, data_reducer=lambda x, _: x)
+
+        stv_itrees[chrom] = stv_itrees[chrom].union(
+            # Restore original coords.
+            IntervalTree(
+                Interval(itv.begin + dst_merge, itv.end - dst_merge, itv.data)
+                for itv in itree
+            )
+        )
+
+    return pl.DataFrame(
+        (
+            (chrom, itv.begin, itv.end, itv.data)
+            for chrom, itree in stv_itrees.items()
+            for itv in itree.iter()
+        ),
+        orient="row",
+        schema=["chrom", "chrom_st", "chrom_end", "strand"],
+    ).sort(by="chrom_st")
 
 
 def read_one_track_info(
@@ -42,6 +77,9 @@ def read_one_track_info(
         )
         return None
 
+    if track_opt == TrackOption.HOROrt:
+        raise ValueError("Reserved option. Not to be used.")
+
     if not path:
         raise ValueError("Path to data required.")
 
@@ -59,8 +97,28 @@ def read_one_track_info(
                 file=sys.stderr,
             )
 
+        ort_pos = options.get("ort_pos", "top")
+        ort_dst_merge = options.get("ort_merge", 100_000)
+
         for mer, df_mer_track in df_track.group_by(["mer"], maintain_order=True):
             mer = mer[0]
+            df_mer_track_ort = get_stv_mon_ort(df_mer_track, dst_merge=ort_dst_merge)
+
+            # Copy options
+            ort_options = {k: v for k, v in options.items() if k.startswith("ort")}
+            ort_options["title"] = False
+
+            ort_track = Track(
+                f"{name} ({mer} ort)",
+                TrackPosition.Relative,
+                TrackOption.HOROrt,
+                track_prop * 0.1,
+                df_mer_track_ort,
+                ort_options,
+            )
+            if ort_pos == "top":
+                yield ort_track
+
             # Add (mer) to name.
             # Disallow overlap.
             # Split proportion over uniq monomers.
@@ -68,17 +126,45 @@ def read_one_track_info(
                 f"{name} ({mer})",
                 TrackPosition.Relative,
                 TrackOption.HOR,
-                track_prop,
+                track_prop * 0.9,
                 df_mer_track,
                 options,
             )
+            if ort_pos == "bottom":
+                yield ort_track
 
         return None
 
     if opt == TrackOption.HOR:
         mer_order = options.get("mer_order", "large")
+        ort_pos = options.get("ort_pos", "top")
+        ort_dst_merge = options.get("ort_merge", 100_000)
+
         df_track = read_bed_hor(path, chrom=chrom, mer_order=mer_order)
-    elif opt == TrackOption.SelfIdent:
+        df_track_ort = get_stv_mon_ort(df_track, dst_merge=ort_dst_merge)
+
+        # Copy options
+        ort_options = {k: v for k, v in options.items() if k.startswith("ort")}
+        ort_options["title"] = False
+        ort_track = Track(
+            f"{name} (ort)",
+            TrackPosition.Relative,
+            TrackOption.HOROrt,
+            prop * 0.1,
+            df_track_ort,
+            ort_options,
+        )
+        if ort_pos == "top":
+            yield ort_track
+
+        yield Track(name, track_pos, track_opt, prop * 0.9, df_track, options)
+
+        if ort_pos == "bottom":
+            yield ort_track
+
+        return None
+
+    if opt == TrackOption.SelfIdent:
         df_track = read_bed_identity(path, chrom=chrom)
     elif opt == TrackOption.Value:
         df_track = read_bed9(path, chrom=chrom)
@@ -123,6 +209,9 @@ def read_all_tracks(input_tracks: list[str], *, chrom: str | None = None) -> Tra
     for input_track in input_tracks:
         with open(input_track, "rb") as fh:
             tracks = tomllib.load(fh).get("tracks", [])
+            # TODO: Ideally we would separate HOROrt and allow the user to specify.
+            # Tightly coupled to HOR so would need to build track info first.
+            # Then adjust HORSplit and HOR based on where HOROrt is (above or below)
             for track_info in tracks:
                 for track in read_one_track_info(track_info, chrom=chrom):
                     all_tracks.append(track)

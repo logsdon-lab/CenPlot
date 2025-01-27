@@ -1,6 +1,10 @@
-test/chrY_methyl.bed filter=lfs diff=lfs merge=lfs -text
-test/chrY_sat_annot.bed filter=lfs diff=lfs merge=lfs -text
-test/chrY_stv.bed filter=lfs diff=lfs merge=lfs -text
-test/chrY_stv_ort.bed filter=lfs diff=lfs merge=lfs -text
-test/chrY_cdrs.bed filter=lfs diff=lfs merge=lfs -text
-test/chrY_ident.bed filter=lfs diff=lfs merge=lfs -text
+test/chrY/methyl.bed filter=lfs diff=lfs merge=lfs -text
+test/chrY/sat_annot.bed filter=lfs diff=lfs merge=lfs -text
+test/chrY/stv.bed filter=lfs diff=lfs merge=lfs -text
+test/chrY/stv_ort.bed filter=lfs diff=lfs merge=lfs -text
+test/chrY/cdrs.bed filter=lfs diff=lfs merge=lfs -text
+test/chrY/ident.bed filter=lfs diff=lfs merge=lfs -text
+test/chr1/ident.bed filter=lfs diff=lfs merge=lfs -text
+test/chr1/sat_annot.bed filter=lfs diff=lfs merge=lfs -text
+test/chr1/stv_row.bed filter=lfs diff=lfs merge=lfs -text
+test/chr1/cdrs.bed filter=lfs diff=lfs merge=lfs -text

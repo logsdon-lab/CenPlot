@@ -6,12 +6,11 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
-from .hor import draw_hor_w_ort
+from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
 from .self_ident import draw_self_ident
 from .values import draw_values
 from .utils import create_subplots, minimalize_ax
-from ..utils import get_stv_mon_ort
 from ..track import Track, TrackOption, TrackPosition, LegendPosition
 
 
@@ -88,17 +87,21 @@ def plot_one_cen(
 
         # Switch to line if different track option. {value, label, ident}
         if track.opt == TrackOption.HOR:
-            ort_dst_merge = track.options.get("ort_dst_merge", 1)
-            df_stv_ort = get_stv_mon_ort(track.data, dst_merge=ort_dst_merge)
-            draw_hor_w_ort(
+            draw_hor(
                 ax=track_ax,
-                legend_ax=legend_ax if track.options.get("legend") else None,
                 df_stv=track.data,
-                df_stv_ort=df_stv_ort,
                 zorder=zorder,
                 hide_x=track.options.get("hide_x", False),
-                ort=track.options.get("ort", True),
-                ort_pos=track.options.get("ort_pos", "top"),
+                legend_ax=legend_ax if track.options.get("legend") else None,
+            )
+        elif track.opt == TrackOption.HOROrt:
+            draw_hor_ort(
+                ax=track_ax,
+                df_stv_ort=track.data,
+                zorder=zorder,
+                scale=track.options.get("ort_scale"),
+                fwd_color=track.options.get("ort_fwd_color"),
+                rev_color=track.options.get("ort_rev_color"),
             )
 
         elif track.opt == TrackOption.Label:

@@ -3,14 +3,14 @@ name = "Sequence Composition"
 position = "relative"
 proportion = 0.05
 type = "label"
-path = "test/chrY_sat_annot.bed"
+path = "test/chrY/sat_annot.bed"
 options = { legend = true, hide_x = true}
 
 [[tracks]]
 name = "Alpha-satellite HOR monomers"
 position = "overlap"
 type = "hor"
-path = "test/chrY_stv.bed"
+path = "test/chrY/stv.bed"
 options = { mer_order = "large", hide_x = true}
 
 [[tracks]]
@@ -18,7 +18,7 @@ name = "Split alpha-satellite HOR monomers"
 position = "relative"
 proportion = 0.2
 type = "horsplit"
-path = "test/chrY_stv.bed"
+path = "test/chrY/stv.bed"
 options = { legend = true, mer_order = "large", title = false, hide_x = true}
 
 [[tracks]]
@@ -26,7 +26,7 @@ name = "CDR"
 position = "relative"
 type = "label"
 proportion = 0.025
-path = "test/chrY_cdrs.bed"
+path = "test/chrY/cdrs.bed"
 options = { color = "black", legend = false, hide_x = true }
 
 [[tracks]]
@@ -34,7 +34,7 @@ name = "Mean CpG\nmethylation (%)"
 position = "relative"
 type = "value"
 proportion = 0.1
-path = "test/chrY_methyl.bed"
+path = "test/chrY/methyl.bed"
 options = { hide_x = true}
 
 [[tracks]]
@@ -42,5 +42,5 @@ name = "Average\nNucleotide\nIdentity"
 position = "relative"
 type = "selfident"
 proportion = 0.5
-path = "test/chrY_ident.bed"
+path = "test/chrY/ident.bed"
 options = { legend = true, flip_y = true }

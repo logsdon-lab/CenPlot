@@ -3,13 +3,13 @@ name = "Sequence Composition (small)"
 position = "relative"
 proportion = 0.5
 type = "label"
-path = "test/chrY_sat_annot.bed"
+path = "test/chrY/sat_annot.bed"
 
 [[tracks]]
 name = "Alpha-satellite HOR monomers (small)"
 position = "overlap"
 type = "hor"
-path = "test/chrY_stv.bed"
+path = "test/chrY/stv.bed"
 options = { mer_order = "small" }
 
 [[tracks]]
@@ -17,11 +17,11 @@ name = "Sequence Composition (large)"
 position = "relative"
 proportion = 0.5
 type = "label"
-path = "test/chrY_sat_annot.bed"
+path = "test/chrY/sat_annot.bed"
 
 [[tracks]]
 name = "Alpha-satellite HOR monomers (large)"
 position = "overlap"
 type = "hor"
-path = "test/chrY_stv.bed"
+path = "test/chrY/stv.bed"
 options = { mer_order = "large" }
