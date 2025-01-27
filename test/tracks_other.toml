@@ -27,7 +27,7 @@ path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_s
 options = { mer_order = "large" }
 
 [[tracks]]
-name = "Approximate\nNucleotide\nIdentity"
+name = "Average\nNucleotide\nIdentity"
 position = "relative"
 type = "selfident"
 proportion = 0.7

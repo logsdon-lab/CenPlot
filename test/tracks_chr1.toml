@@ -1,0 +1,30 @@
+[[tracks]]
+name = "CDR"
+position = "relative"
+type = "label"
+proportion = 0.025
+path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/cdr_finder/bed/all_cdrs.bed"
+
+[[tracks]]
+name = "Sequence Composition"
+position = "relative"
+type = "label"
+proportion = 0.1
+path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/repeats/all_cens_chr1.annotation.fa.out"
+options = { legend = true, hide_x = true }
+
+[[tracks]]
+name = "Alpha-satellite HOR monomers"
+position = "relative"
+proportion = 0.3
+type = "horsplit"
+path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chr1_AS-HOR_stv_row.all.bed"
+options = { legend = true, mer_order = "large", title = false, hide_x = true }
+
+[[tracks]]
+name = "Approximate\nNucleotide\nIdentity"
+position = "relative"
+type = "selfident"
+proportion = 0.575
+path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/moddotplot/original/chr1.bed"
+options = { flip_y = true, legend = true }

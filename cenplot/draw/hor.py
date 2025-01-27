@@ -76,4 +76,4 @@ def draw_hor_w_ort(
             ax.add_patch(arrow)
 
     if legend_ax:
-        draw_uniq_entry_legend(legend_ax, ref_ax=ax, loc="center right", ncols=3)
+        draw_uniq_entry_legend(legend_ax, ref_ax=ax, loc="center left", ncols=3)

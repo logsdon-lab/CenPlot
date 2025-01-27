@@ -12,7 +12,9 @@ def read_bed_hor(
         .with_columns(
             length=pl.col("chrom_end") - pl.col("chrom_st"),
         )
-        .with_columns(mer=(pl.col("length") / MONOMER_LEN).round().cast(pl.Int8))
+        .with_columns(
+            mer=(pl.col("length") / MONOMER_LEN).round().cast(pl.Int8).clip(1, 100)
+        )
         .filter(
             pl.when(pl.col("chrom_name") == "chr10")
             .then(pl.col("mer") >= 5)

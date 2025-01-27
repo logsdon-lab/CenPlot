@@ -15,7 +15,7 @@ from .io import (
     read_bed_label,
     read_all_tracks,
 )
-from .track import Track, TrackOption, TrackPosition, TrackList
+from .track import Track, TrackOption, TrackPosition, TrackList, LegendPosition
 
 __author__ = "Keith Oshima (oshimak@pennmedicine.upenn.edu)"
 __license__ = "MIT"
@@ -35,6 +35,7 @@ __all__ = [
     "TrackOption",
     "TrackPosition",
     "TrackList",
+    "LegendPosition",
 ]
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

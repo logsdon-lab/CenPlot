@@ -3,7 +3,7 @@ import polars as pl
 from enum import StrEnum, auto
 from typing import Any, NamedTuple
 
-__all__ = ["Track", "TrackOption", "TrackPosition", "TrackList"]
+__all__ = ["Track", "TrackOption", "TrackPosition", "TrackList", "LegendPosition"]
 
 
 class TrackPosition(StrEnum):
@@ -33,3 +33,8 @@ class TrackList(NamedTuple):
     chroms: set[str]
     min_pos: int
     max_pos: int
+
+
+class LegendPosition(StrEnum):
+    Left = auto()
+    Right = auto()

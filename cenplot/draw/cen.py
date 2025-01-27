@@ -12,7 +12,7 @@ from .self_ident import draw_self_ident
 from .values import draw_values
 from .utils import create_subplots, minimalize_ax
 from ..utils import get_stv_mon_ort
-from ..track import Track, TrackOption, TrackPosition
+from ..track import Track, TrackOption, TrackPosition, LegendPosition
 
 
 def plot_one_cen(
@@ -24,6 +24,7 @@ def plot_one_cen(
     max_end_pos: int,
     width: float,
     height: float,
+    legend_pos: LegendPosition,
 ) -> tuple[Figure, np.ndarray, str]:
     print(f"Plotting {chrom}...", file=sys.stderr)
 
@@ -44,9 +45,12 @@ def plot_one_cen(
     # height = height if adj_height == 0 else adj_height
 
     fig, axes, track_indices = create_subplots(
-        dfs_track, width, height, tight_layout=True
+        dfs_track, width, height, legend_pos, tight_layout=True
     )
-    track_col, legend_col = 0, 1
+    if legend_pos == LegendPosition.Left:
+        track_col, legend_col = 1, 0
+    else:
+        track_col, legend_col = 0, 1
 
     track_labels: list[str] = []
 

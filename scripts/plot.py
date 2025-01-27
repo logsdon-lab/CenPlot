@@ -6,15 +6,17 @@ import polars as pl
 
 from concurrent.futures import ProcessPoolExecutor
 
-from cenplot import plot_one_cen, merge_plots, read_all_tracks, Track
+from cenplot import plot_one_cen, merge_plots, read_all_tracks, Track, LegendPosition
 
 
 def get_inputs(
     args: argparse.Namespace,
-) -> list[tuple[list[Track], str, str, str, int, int, int, int]]:
+) -> list[tuple[list[Track], str, str, str, int, int, int, int, LegendPosition]]:
     tracks_summary = read_all_tracks(args.input_tracks)
     if args.chroms:
         all_chroms = args.chroms
+    else:
+        all_chroms = tracks_summary.chroms
     return [
         (
             [
@@ -35,6 +37,7 @@ def get_inputs(
             tracks_summary.max_pos,
             args.width,
             args.height,
+            LegendPosition(args.legend_pos),
         )
         for chrom in all_chroms
     ]
@@ -45,7 +48,8 @@ def main():
     ap.add_argument(
         "-t",
         "--input_tracks",
-        nargs="*",
+        nargs="+",
+        required=True,
         type=str,
         help=(
             "TOML file with headerless BED files to plot. "
@@ -93,6 +97,12 @@ def main():
         type=float,
         help="Figure height in inches per centromere.",
         default=8.0,
+    )
+    ap.add_argument(
+        "--legend_pos",
+        type=str,
+        default="right",
+        help="Legend column position. Either left or right.",
     )
 
     ap.add_argument("-p", "--processes", type=int, default=4, help="Processes to run.")

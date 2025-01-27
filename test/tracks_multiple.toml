@@ -38,7 +38,7 @@ path = "test/chrY_methyl.bed"
 options = { hide_x = true}
 
 [[tracks]]
-name = "Approximate\nNucleotide\nIdentity"
+name = "Average\nNucleotide\nIdentity"
 position = "relative"
 type = "selfident"
 proportion = 0.5

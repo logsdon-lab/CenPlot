@@ -34,6 +34,4 @@ def draw_values(
     ax.spines["bottom"].set_bounds(0, track.data["chrom_end"].max())
 
     if legend_ax:
-        draw_uniq_entry_legend(
-            legend_ax, ref_ax=ax, loc="center right", bbox_to_anchor=[0.5, 0], ncols=3
-        )
+        draw_uniq_entry_legend(legend_ax, ref_ax=ax, loc="center left", ncols=3)

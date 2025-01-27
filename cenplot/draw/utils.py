@@ -8,11 +8,15 @@ from typing import Any
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_pdf import PdfPages
-from cenplot.track import Track, TrackOption, TrackPosition
+from ..track import LegendPosition, Track, TrackOption, TrackPosition
 
 
 def create_subplots(
-    dfs_track: list[Track], width: float, height: float, **kwargs: Any
+    dfs_track: list[Track],
+    width: float,
+    height: float,
+    legend_pos: LegendPosition,
+    **kwargs: Any,
 ) -> tuple[Figure, np.ndarray, dict[str, int]]:
     track_props = []
     track_indices = {}
@@ -50,7 +54,11 @@ def create_subplots(
 
     # Adjust columns and width ratio.
     num_cols = 2 if requires_second_col else 1
-    width_ratios = (0.8, 0.2) if requires_second_col else [1.0]
+    if legend_pos == LegendPosition.Left:
+        width_ratios = (0.2, 0.8) if requires_second_col else [1.0]
+    else:
+        width_ratios = (0.8, 0.2) if requires_second_col else [1.0]
+
     fig, axes = plt.subplots(
         # Count number of tracks
         len(track_props),
@@ -99,4 +107,4 @@ def draw_uniq_entry_legend(ax: Axes, ref_ax: Axes | None = None, **kwargs: Any) 
     ref_ax = ref_ax if ref_ax else ax
     handles, labels = ref_ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
-    ax.legend(by_label.values(), by_label.keys(), **kwargs)
+    ax.legend(by_label.values(), by_label.keys(), frameon=False, **kwargs)
