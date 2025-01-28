@@ -19,7 +19,7 @@ name = "Alpha-satellite HOR monomers"
 position = "overlap"
 type = "hor"
 path = "test/chrY/stv.bed"
-options = { title = false, mer_order = "large", hide_x = true}
+options = { legend = false, title = false, mer_order = "large", hide_x = true}
 
 [[tracks]]
 name = "Split alpha-satellite HOR monomers"
@@ -40,7 +40,7 @@ options = { color = "black", legend = false, hide_x = true }
 [[tracks]]
 name = "Mean CpG\nmethylation (%)"
 position = "relative"
-type = "value"
+type = "bar"
 proportion = 0.1
 path = "test/chrY/methyl.bed"
 options = { hide_x = true}
@@ -51,4 +51,4 @@ position = "relative"
 type = "selfident"
 proportion = 0.5
 path = "test/chrY/ident.bed"
-options = { title = false, legend = true, flip_y = true }
+options = { title = false, legend = true, hide_x = false, invert = true }

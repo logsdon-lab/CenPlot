@@ -1,26 +1,37 @@
+import ast
 from matplotlib.axes import Axes
+from matplotlib.colors import rgb2hex
 
 from .utils import draw_uniq_entry_legend, minimalize_ax
-from ..track import Track
+from ..track.types import Track
 
 
-def draw_values(
+def draw_bars(
     ax: Axes,
     track: Track,
     *,
-    color: str | None = None,
-    alpha: float | None = None,
-    legend_ax: Axes | None = None,
     zorder: float,
-    hide_x: bool,
+    legend_ax: Axes | None = None,
 ) -> None:
+    hide_x = track.options.hide_x
+    color = track.options.color
+    alpha = track.options.alpha
+    legend = track.options.legend
+
     minimalize_ax(ax, xticks=hide_x, spines=("right", "top"))
 
-    plot_options = {"color": "black", "zorder": zorder}
+    plot_options = {"zorder": zorder, "alpha": alpha}
     if color:
         plot_options["color"] = color
-    if alpha:
-        plot_options["alpha"] = alpha
+    elif "item_rgb" in track.data.columns:
+        # Convert colors from rgb str -> rgb tuple -> hex
+        color = [
+            rgb2hex([c / 255 for c in ast.literal_eval(rgb)])
+            for rgb in track.data.get_column("item_rgb")
+        ]
+        plot_options["color"] = color
+    else:
+        plot_options["color"] = track.options.DEF_COLOR
 
     # Add bar
     ax.bar(
@@ -36,5 +47,5 @@ def draw_values(
     # TODO: Remove ticks not within bounds.
     ax.spines["bottom"].set_bounds(0, track.data["chrom_end"].max())
 
-    if legend_ax:
+    if legend_ax and legend:
         draw_uniq_entry_legend(legend_ax, ref_ax=ax, loc="center left", ncols=3)

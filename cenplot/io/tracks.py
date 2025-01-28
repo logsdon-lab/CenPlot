@@ -12,7 +12,15 @@ from .bed9 import read_bed9
 from .bed_identity import read_bed_identity
 from .bed_label import read_bed_label
 from .bed_hor import read_bed_hor
-from ..track import Track, TrackOption, TrackPosition, TrackList
+from ..track.settings import (
+    HORPlotSettings,
+    HOROrtPlotSettings,
+    SelfIdentPlotSettings,
+    LabelPlotSettings,
+    BarPlotSettings,
+    PlotSettings,
+)
+from ..track.types import Track, TrackOption, TrackPosition, TrackList
 
 
 def get_stv_mon_ort(df_stv: pl.DataFrame, *, dst_merge: int) -> pl.DataFrame:
@@ -84,7 +92,7 @@ def read_one_track_info(
         raise FileNotFoundError(f"Data does not exist for track ({track})")
 
     if track_opt == TrackOption.HORSplit:
-        mer_order = options.get("mer_order", "large")
+        mer_order = options.get("mer_order", HORPlotSettings.mer_order)
         df_track = read_bed_hor(path, chrom=chrom, mer_order=mer_order)
         uniq_mers = df_track["mer"].unique()
         track_prop = prop / len(uniq_mers)
@@ -105,25 +113,31 @@ def read_one_track_info(
                 TrackOption.HOR,
                 track_prop * 0.9,
                 df_mer_track,
-                options,
+                HORPlotSettings(**options),
             )
 
         return None
 
+    track_options: PlotSettings
     if track_opt == TrackOption.HOR:
-        mer_order = options.get("mer_order", "large")
+        mer_order = options.get("mer_order", HORPlotSettings.mer_order)
         df_track = read_bed_hor(path, chrom=chrom, mer_order=mer_order)
+        track_options = HORPlotSettings(**options)
     elif track_opt == TrackOption.HOROrt:
-        ort_merge = options.get("merge", 100_000)
+        ort_merge = options.get("merge", HOROrtPlotSettings.merge)
         df_track = get_stv_mon_ort(read_bed_hor(path, chrom=chrom), dst_merge=ort_merge)
+        track_options = HOROrtPlotSettings(**options)
     elif track_opt == TrackOption.SelfIdent:
         df_track = read_bed_identity(path, chrom=chrom)
-    elif track_opt == TrackOption.Value:
+        track_options = SelfIdentPlotSettings(**options)
+    elif track_opt == TrackOption.Bar:
         df_track = read_bed9(path, chrom=chrom)
+        track_options = BarPlotSettings(**options)
     else:
         df_track = read_bed_label(path, chrom=chrom)
+        track_options = LabelPlotSettings(**options)
 
-    yield Track(name, track_pos, track_opt, prop, df_track, options)
+    yield Track(name, track_pos, track_opt, prop, df_track, track_options)
 
 
 def get_min_max_track(

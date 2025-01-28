@@ -2,7 +2,7 @@ from .cen import plot_one_cen
 from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
 from .self_ident import draw_self_ident
-from .values import draw_values
+from .bar import draw_bars
 from .utils import merge_plots
 
 __all__ = [
@@ -11,6 +11,6 @@ __all__ = [
     "draw_hor_ort",
     "draw_label",
     "draw_self_ident",
-    "draw_values",
+    "draw_bars",
     "merge_plots",
 ]

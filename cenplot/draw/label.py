@@ -6,22 +6,23 @@ from matplotlib.colors import rgb2hex
 from matplotlib.patches import Rectangle
 
 from .utils import draw_uniq_entry_legend, minimalize_ax
-from ..track import Track
+from ..track.types import Track
 
 
 def draw_label(
     ax: Axes,
     track: Track,
     *,
-    color: str | None = None,
-    alpha: float | None = None,
-    legend_ax: Axes | None = None,
-    hide_x: bool,
     zorder: float,
+    legend_ax: Axes | None = None,
 ) -> None:
+    hide_x = track.options.hide_x
+    color = track.options.color
+    alpha = track.options.alpha
+    legend = track.options.legend
+
     patch_options: dict[str, Any] = {"zorder": zorder}
-    if alpha:
-        patch_options["alpha"] = alpha
+    patch_options["alpha"] = alpha
 
     # Convert colors from rgb str -> rgb tuple -> hex
     track_color_mapping = {
@@ -61,5 +62,5 @@ def draw_label(
         ax.add_patch(rect)
 
     # Draw legend.
-    if legend_ax:
+    if legend_ax and legend:
         draw_uniq_entry_legend(legend_ax, ref_ax=ax, loc="center left", ncols=3)

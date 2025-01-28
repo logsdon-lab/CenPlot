@@ -1,17 +1,16 @@
 import os
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
 
-from matplotlib.figure import Figure
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 
 from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
 from .self_ident import draw_self_ident
-from .values import draw_values
+from .bar import draw_bars
 from .utils import create_subplots, minimalize_ax
-from ..track import Track, TrackOption, TrackPosition, LegendPosition
+from ..track.types import Track, TrackOption, TrackPosition, LegendPosition
 
 
 def plot_one_cen(
@@ -86,64 +85,34 @@ def plot_one_cen(
         # Set xaxis limits
         track_ax.set_xlim(min_st_pos, max_end_pos)
 
-        # Switch to line if different track option. {value, label, ident}
+        # Switch to line if different track option. {bar, label, ident, hor}
         if track.opt == TrackOption.HOR:
-            draw_hor(
-                ax=track_ax,
-                track=track,
-                zorder=zorder,
-                hide_x=track.options.get("hide_x", False),
-                legend_ax=legend_ax if track.options.get("legend") else None,
-            )
+            draw_fn = draw_hor
         elif track.opt == TrackOption.HOROrt:
-            draw_hor_ort(
-                ax=track_ax,
-                track=track,
-                zorder=zorder,
-                scale=track.options.get("scale"),
-                fwd_color=track.options.get("fwd_color"),
-                rev_color=track.options.get("rev_color"),
-            )
-
+            draw_fn = draw_hor_ort
         elif track.opt == TrackOption.Label:
-            draw_label(
-                track_ax,
-                track,
-                color=track.options.get("color"),
-                alpha=track.options.get("alpha"),
-                legend_ax=legend_ax if track.options.get("legend") else None,
-                hide_x=track.options.get("hide_x", False),
-                zorder=zorder,
-            )
-
+            draw_fn = draw_label
         elif track.opt == TrackOption.SelfIdent:
-            draw_self_ident(
-                track_ax,
-                track,
-                legend_ax=legend_ax if track.options.get("legend") else None,
-                legend_aspect_ratio=1.0,
-                hide_x=track.options.get("hide_x", False),
-                flip_y=track.options.get("flip_y", True),
-                zorder=zorder,
-            )
+            draw_fn = draw_self_ident
+        elif track.opt == TrackOption.Bar:
+            draw_fn = draw_bars
+        else:
+            raise ValueError("Invlaid TrackOption. Unreachable.")
 
-        elif track.opt == TrackOption.Value:
-            draw_values(
-                track_ax,
-                track,
-                color=track.options.get("color"),
-                alpha=track.options.get("alpha"),
-                zorder=zorder,
-                hide_x=track.options.get("hide_x", False),
-            )
+        draw_fn(
+            ax=track_ax,
+            legend_ax=legend_ax,
+            track=track,
+            zorder=zorder,
+        )
 
         # Store label if more overlaps.
         track_labels.append(track_label)
 
         # Set label.
         # Allow chrom as title or name.
-        track_label = chrom if track.options.get("chrom_as_title") else track_label
-        if track.options.get("title", True):
+        track_label = chrom if track.options.chrom_as_title else track_label
+        if track.options.title:
             track_ax.set_ylabel(
                 track_label,
                 rotation="horizontal",
@@ -156,7 +125,7 @@ def plot_one_cen(
             continue
 
         if track.opt != TrackOption.SelfIdent or (
-            track.opt == TrackOption.SelfIdent and not track.options.get("legend")
+            track.opt == TrackOption.SelfIdent and not track.options.legend
         ):
             # Minimalize all legend cols
             minimalize_ax(
@@ -178,7 +147,7 @@ def plot_one_cen(
     outfile = os.path.join(outdir, f"{chrom}.{outfmt}")
 
     # Pad between axes.
-    fig.get_layout_engine().set(hspace=0.1)
-    plt.savefig(outfile, dpi=600, transparent=True)
+    fig.get_layout_engine().set(h_pad=0.5)
+    fig.savefig(outfile, dpi=600, transparent=True)
 
     return fig, axes, outfile

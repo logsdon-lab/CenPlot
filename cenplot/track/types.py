@@ -1,9 +1,9 @@
 import polars as pl
 
 from enum import StrEnum, auto
-from typing import Any, NamedTuple
+from typing import NamedTuple
 
-__all__ = ["Track", "TrackOption", "TrackPosition", "TrackList", "LegendPosition"]
+from cenplot.track.settings import PlotSettings
 
 
 class TrackPosition(StrEnum):
@@ -16,7 +16,7 @@ class TrackOption(StrEnum):
     HORSplit = auto()
     HOROrt = auto()
     Label = auto()
-    Value = auto()
+    Bar = auto()
     SelfIdent = auto()
 
 
@@ -26,7 +26,7 @@ class Track(NamedTuple):
     opt: TrackOption
     prop: float
     data: pl.DataFrame
-    options: dict[str, Any]
+    options: PlotSettings
 
 
 class TrackList(NamedTuple):

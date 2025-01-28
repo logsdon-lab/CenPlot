@@ -35,4 +35,4 @@ position = "relative"
 type = "selfident"
 proportion = 0.575
 path = "test/chr1/ident.bed"
-options = { flip_y = true, legend = true }
+options = { invert = true, legend = true }

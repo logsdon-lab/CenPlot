@@ -73,7 +73,7 @@ Additional plot options. Dependent on [`type`](#type)
 |`horort`|`merge`|Merge same stranded monomers by this number of bases.|`100000`|
 |`horort`|`fwd_color`|Color `+` monomers this color.|`"black"`|
 |`horort`|`rev_color`||Color `-` monomers this color.|`"black"`|
-|`selfident`|`flip_y`|Flip the y-axis for the self-identity triangle.|`true`|
+|`selfident`|`invert`|Invert the self-identity triangle.|`true`|
 
 #### Example:
 ```toml
@@ -90,7 +90,7 @@ position = "relative"
 type = "selfident"
 proportion = 0.7
 path = "test/chrY/ident.bed"
-options = { flip_y = true }
+options = { invert = true }
 ```
 
 ```bash

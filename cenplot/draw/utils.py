@@ -8,7 +8,7 @@ from typing import Any
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_pdf import PdfPages
-from ..track import LegendPosition, Track, TrackOption, TrackPosition
+from ..track.types import LegendPosition, Track, TrackOption, TrackPosition
 
 
 def create_subplots(
@@ -47,7 +47,7 @@ def create_subplots(
         else:
             track_indices[track.name] = track_idx - 1
 
-        if not requires_second_col and track.options.get("legend"):
+        if not requires_second_col and track.options.legend:
             requires_second_col = True
 
         tracks_added.add(track.name)

@@ -8,7 +8,7 @@ path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_s
 [[tracks]]
 name = "Mean CpG\nmethylation (%)"
 position = "relative"
-type = "value"
+type = "bar"
 proportion = 0.2
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/cdr_finder/bed/all_chrX_binned_freq.bed"
 
@@ -32,4 +32,4 @@ position = "relative"
 type = "selfident"
 proportion = 0.7
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/moddotplot/original/chrX.bed"
-options = { flip_y = true }
+options = { invert = true }
