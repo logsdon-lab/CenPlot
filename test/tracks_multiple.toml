@@ -1,5 +1,5 @@
 [[tracks]]
-name = "alpha-satellite HOR monomer orientation"
+name = "Alpha-satellite HOR monomer orientation"
 position = "relative"
 proportion = 0.05
 type = "horort"
@@ -7,7 +7,7 @@ path = "test/chrY/stv.bed"
 options = { title = false, hide_x = true}
 
 [[tracks]]
-name = "Sequence Composition"
+name = "Centromere\nstructure"
 position = "relative"
 proportion = 0.05
 type = "label"
@@ -19,7 +19,7 @@ name = "Alpha-satellite HOR monomers"
 position = "overlap"
 type = "hor"
 path = "test/chrY/stv.bed"
-options = { mer_order = "large", hide_x = true}
+options = { title = false, mer_order = "large", hide_x = true}
 
 [[tracks]]
 name = "Split alpha-satellite HOR monomers"
@@ -51,4 +51,4 @@ position = "relative"
 type = "selfident"
 proportion = 0.5
 path = "test/chrY/ident.bed"
-options = { legend = true, flip_y = true }
+options = { title = false, legend = true, flip_y = true }

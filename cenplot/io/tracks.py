@@ -161,9 +161,6 @@ def read_all_tracks(input_tracks: list[str], *, chrom: str | None = None) -> Tra
     for input_track in input_tracks:
         with open(input_track, "rb") as fh:
             tracks = tomllib.load(fh).get("tracks", [])
-            # TODO: Ideally we would separate HOROrt and allow the user to specify.
-            # Tightly coupled to HOR so would need to build track info first.
-            # Then adjust HORSplit and HOR based on where HOROrt is (above or below)
             for track_info in tracks:
                 for track in read_one_track_info(track_info, chrom=chrom):
                     all_tracks.append(track)

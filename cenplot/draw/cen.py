@@ -25,6 +25,7 @@ def plot_one_cen(
     height: float,
     legend_pos: LegendPosition,
 ) -> tuple[Figure, np.ndarray, str]:
+    # Show chrom trimmed of spaces for logs and filenames.
     print(f"Plotting {chrom}...", file=sys.stderr)
 
     # # Get min and max position of all tracks for this cen.
@@ -44,7 +45,7 @@ def plot_one_cen(
     # height = height if adj_height == 0 else adj_height
 
     fig, axes, track_indices = create_subplots(
-        dfs_track, width, height, legend_pos, tight_layout=True
+        dfs_track, width, height, legend_pos, constrained_layout=True
     )
     if legend_pos == LegendPosition.Left:
         track_col, legend_col = 1, 0
@@ -89,7 +90,7 @@ def plot_one_cen(
         if track.opt == TrackOption.HOR:
             draw_hor(
                 ax=track_ax,
-                df_stv=track.data,
+                track=track,
                 zorder=zorder,
                 hide_x=track.options.get("hide_x", False),
                 legend_ax=legend_ax if track.options.get("legend") else None,
@@ -97,7 +98,7 @@ def plot_one_cen(
         elif track.opt == TrackOption.HOROrt:
             draw_hor_ort(
                 ax=track_ax,
-                df_stv_ort=track.data,
+                track=track,
                 zorder=zorder,
                 scale=track.options.get("scale"),
                 fwd_color=track.options.get("fwd_color"),
@@ -120,6 +121,7 @@ def plot_one_cen(
                 track_ax,
                 track,
                 legend_ax=legend_ax if track.options.get("legend") else None,
+                legend_aspect_ratio=1.0,
                 hide_x=track.options.get("hide_x", False),
                 flip_y=track.options.get("flip_y", True),
                 zorder=zorder,
@@ -174,6 +176,9 @@ def plot_one_cen(
     # Add title
     # fig.suptitle(chrom)
     outfile = os.path.join(outdir, f"{chrom}.{outfmt}")
+
+    # Pad between axes.
+    fig.get_layout_engine().set(hspace=0.1)
     plt.savefig(outfile, dpi=600, transparent=True)
 
     return fig, axes, outfile

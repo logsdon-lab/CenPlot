@@ -2,7 +2,7 @@
 name = "CDR"
 position = "relative"
 type = "label"
-proportion = 0.01
+proportion = 0.05
 path = "test/chr1/cdrs.bed"
 options = { hide_x = true }
 
@@ -25,9 +25,9 @@ options = { legend = true, mer_order = "large", title = false, hide_x = false }
 name = "Alpha-satellite HOR monomer ort"
 position = "relative"
 type = "horort"
-proportion = 0.01
+proportion = 0.05
 path = "test/chr1/stv_row.bed"
-options = { legend = false, title = false, hide_x = false, merge = 100_000 }
+options = { legend = false, title = false, hide_x = false, merge = 100_000, scale = 25 }
 
 [[tracks]]
 name = "Average\nNucleotide\nIdentity"

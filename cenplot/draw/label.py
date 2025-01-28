@@ -13,7 +13,6 @@ def draw_label(
     ax: Axes,
     track: Track,
     *,
-    height: int = 12,
     color: str | None = None,
     alpha: float | None = None,
     legend_ax: Axes | None = None,
@@ -30,15 +29,16 @@ def draw_label(
         for name, rgb in track.data.select("name", "item_rgb").unique().rows()
     }
 
-    minimalize_ax(
-        ax, xticks=hide_x, yticks=True, spines=("left", "right", "top", "bottom")
-    )
+    spines = ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
+    minimalize_ax(ax, xticks=hide_x, yticks=True, spines=spines)
+
+    ylim = ax.get_ylim()
+    height = ylim[1] - ylim[0]
 
     for row in track.data.iter_rows(named=True):
         start = row["chrom_st"]
         end = row["chrom_end"]
-        # G
-        lbl_color = track_color_mapping.get(row["name"], "red")
+        lbl_color = track_color_mapping.get(row["name"])
 
         if row["name"] == "-" or not row["name"]:
             labels = {}

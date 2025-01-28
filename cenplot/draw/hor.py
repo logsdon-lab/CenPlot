@@ -1,14 +1,14 @@
-import polars as pl
 from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle, FancyArrowPatch
 
 from .utils import draw_uniq_entry_legend, minimalize_ax
+from ..track import Track
 from ..defaults import MONOMER_COLORS, MONOMER_LEN
 
 
 def draw_hor_ort(
     ax: Axes,
-    df_stv_ort: pl.DataFrame,
+    track: Track,
     zorder: float,
     scale: float | None = None,
     fwd_color: str | None = None,
@@ -25,7 +25,7 @@ def draw_hor_ort(
     if not scale:
         scale = 50
 
-    for row in df_stv_ort.iter_rows(named=True):
+    for row in track.data.iter_rows(named=True):
         # sample arrow
         start = row["chrom_st"]
         end = row["chrom_end"]
@@ -56,28 +56,30 @@ def draw_hor_ort(
 
 def draw_hor(
     ax: Axes,
-    df_stv: pl.DataFrame,
+    track: Track,
     *,
     hide_x: bool,
     zorder: float,
     legend_ax: Axes | None,
 ):
-    minimalize_ax(
-        ax, xticks=hide_x, yticks=True, spines=("right", "left", "top", "bottom")
-    )
+    spines = ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
+    minimalize_ax(ax, xticks=hide_x, yticks=True, spines=spines)
+
+    ylim = ax.get_ylim()
+    height = ylim[1] - ylim[0]
 
     # Add HOR track.
-    for row in df_stv.with_row_index().iter_rows(named=True):
+    for row in track.data.with_row_index().iter_rows(named=True):
         start = row["chrom_st"]
         end = row["chrom_end"]
         row_idx = row["index"]
         # TODO: Adjust zorder so mer order is respected.
-        zorder_adj = zorder + (row_idx / df_stv.shape[0])
+        zorder_adj = zorder + (row_idx / track.data.shape[0])
         color = MONOMER_COLORS.get(row["mer"])
         rect = Rectangle(
             (start, 0),
             end + 1 - start,
-            1,
+            height,
             color=color,
             lw=0,
             label=row["mer"],

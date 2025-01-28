@@ -22,12 +22,10 @@ Here the `CDR` track comes before the `HOR` track.
 [[tracks]]
 name = "CDR"
 position = "relative"
-...
 
 [[tracks]]
 name = "HOR"
 position = "relative"
-...
 ```
 
 ##### `overlap`
@@ -37,12 +35,10 @@ Positions the track to overlap the previous track within the tracks file.
 [[tracks]]
 name = "CDR"
 position = "relative"
-...
 
 [[tracks]]
 name = "HOR"
 position = "overlap"
-...
 ```
 
 #### `type`

@@ -1,24 +1,25 @@
 [[tracks]]
 name = "Alpha-satellite HOR monomer orientation"
-position = "overlap"
+position = "relative"
 type = "horort"
+proportion = 0.05
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_AS-HOR_stv_row.all.bed"
-options = { title = false, legend=false, hide_x = true }
+options = { title = false, legend=false, hide_x = true, scale = 25,  merge = 100_000 }
 
 [[tracks]]
 name = "Sequence Composition"
 position = "relative"
 type = "label"
-proportion = 0.2
+proportion = 0.1
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/repeats/all_cens_chrX.annotation.fa.out"
-options = { title = true, chrom_as_title = true, legend = false, hide_x = true }
+options = { title = true, chrom_as_title = true, legend = true, hide_x = true }
 
 [[tracks]]
 name = "Alpha-satellite HOR monomers"
 position = "overlap"
 type = "hor"
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_AS-HOR_stv_row.all.bed"
-options = { mer_order = "large", title = false, legend=false, hide_x = true }
+options = { mer_order = "large", title = false, legend = true, hide_x = true }
 
 [[tracks]]
 name = "CDR"
@@ -26,12 +27,4 @@ position = "relative"
 type = "label"
 proportion = 0.05
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_cdrs.bed"
-options = { title = false, hide_x = true }
-
-[[tracks]]
-name = "Average\nNucleotide\nIdentity"
-position = "relative"
-type = "selfident"
-proportion = 0.6
-path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/moddotplot/original/chrX.bed"
-options = { flip_y = true }
+options = { title = false, hide_x = false }

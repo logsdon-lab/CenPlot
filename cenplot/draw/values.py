@@ -14,20 +14,23 @@ def draw_values(
     zorder: float,
     hide_x: bool,
 ) -> None:
+    minimalize_ax(ax, xticks=hide_x, spines=("right", "top"))
+
     plot_options = {"color": "black", "zorder": zorder}
     if color:
         plot_options["color"] = color
     if alpha:
         plot_options["alpha"] = alpha
 
-    # Add line
-    ax.plot(track.data["chrom_st"], track.data["name"], **plot_options)
-    # Fill in-between
-    ax.fill_between(track.data["chrom_st"], track.data["name"], **plot_options)
+    # Add bar
+    ax.bar(
+        track.data["chrom_st"],
+        track.data["name"],
+        track.data["chrom_end"] - track.data["chrom_st"],
+        **plot_options,
+    )
     # Trim plot to margins
     ax.margins(x=0, y=0)
-    # remove spines
-    minimalize_ax(ax, xticks=hide_x, spines=("right", "top"))
 
     # Limit spine range.
     # TODO: Remove ticks not within bounds.
