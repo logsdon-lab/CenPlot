@@ -6,6 +6,8 @@ from typing import Any
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_pdf import PdfPages
+
+from ..utils import Unit
 from ..track.types import LegendPosition, Track, TrackOption, TrackPosition
 
 
@@ -92,6 +94,18 @@ def minimalize_ax(
     if spines:
         for spine in spines:
             ax.spines[spine].set_visible(False)
+
+
+def set_position_xlabel(ax: Axes):
+    xmin, xmax = ax.get_xlim()
+    xlen = xmax - xmin
+    if (xlen / 1_000_000) > 1:
+        unit = Unit.Mbp
+    elif (xlen / 1_000) > 1:
+        unit = Unit.Kbp
+    else:
+        unit = Unit.Bp
+    ax.set_xlabel(f"Position ({unit.capitalize()})")
 
 
 def draw_uniq_entry_legend(ax: Axes, ref_ax: Axes | None = None, **kwargs: Any) -> None:

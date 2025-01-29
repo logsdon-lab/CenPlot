@@ -2,7 +2,8 @@ import ast
 from matplotlib.axes import Axes
 from matplotlib.colors import rgb2hex
 
-from .utils import draw_uniq_entry_legend, minimalize_ax
+
+from .utils import draw_uniq_entry_legend, minimalize_ax, set_position_xlabel
 from ..track.types import Track
 
 
@@ -19,6 +20,8 @@ def draw_bars(
     legend = track.options.legend
 
     minimalize_ax(ax, xticks=hide_x, spines=("right", "top"))
+    if not hide_x:
+        set_position_xlabel(ax)
 
     plot_options = {"zorder": zorder, "alpha": alpha}
     if color:

@@ -1,7 +1,7 @@
 from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle, FancyArrowPatch
 
-from .utils import draw_uniq_entry_legend, minimalize_ax
+from .utils import draw_uniq_entry_legend, minimalize_ax, set_position_xlabel
 from ..track.types import Track
 from ..defaults import MONOMER_COLORS, MONOMER_LEN
 
@@ -73,6 +73,8 @@ def draw_hor(
 
     spines = ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
     minimalize_ax(ax, xticks=hide_x, yticks=True, spines=spines)
+    if not hide_x:
+        set_position_xlabel(ax)
 
     ylim = ax.get_ylim()
     height = ylim[1] - ylim[0]

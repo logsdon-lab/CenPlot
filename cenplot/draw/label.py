@@ -5,7 +5,7 @@ from matplotlib.axes import Axes
 from matplotlib.colors import rgb2hex
 from matplotlib.patches import Rectangle
 
-from .utils import draw_uniq_entry_legend, minimalize_ax
+from .utils import draw_uniq_entry_legend, minimalize_ax, set_position_xlabel
 from ..track.types import Track
 
 
@@ -32,6 +32,8 @@ def draw_label(
 
     spines = ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
     minimalize_ax(ax, xticks=hide_x, yticks=True, spines=spines)
+    if not hide_x:
+        set_position_xlabel(ax)
 
     ylim = ax.get_ylim()
     height = ylim[1] - ylim[0]

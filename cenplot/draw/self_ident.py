@@ -4,7 +4,7 @@ from matplotlib.axes import Axes
 from matplotlib.collections import PolyCollection
 from intervaltree import Interval, IntervalTree
 
-from .utils import minimalize_ax
+from .utils import minimalize_ax, set_position_xlabel
 from ..track.types import Track
 from ..defaults import IDENT_COLOR_RANGE
 
@@ -26,6 +26,8 @@ def draw_self_ident(
     colors, verts = [], []
     spines = ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
     minimalize_ax(ax, xticks=hide_x, yticks=True, spines=spines)
+    if not hide_x:
+        set_position_xlabel(ax)
 
     if invert:
         df_track = track.data.with_columns(y=-pl.col("y"))
