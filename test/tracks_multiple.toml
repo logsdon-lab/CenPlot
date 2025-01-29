@@ -14,7 +14,6 @@ path = "test/chrY/stv.bed"
 options = { hide_x = true}
 
 [[tracks]]
-# title = "Centromere\nstructure"
 position = "relative"
 proportion = 0.05
 type = "label"
@@ -22,7 +21,6 @@ path = "test/chrY/sat_annot.bed"
 options = { legend = true, legend_title = "Centromere structure", hide_x = true}
 
 [[tracks]]
-# title = "Alpha-satellite HOR monomers"
 position = "overlap"
 type = "hor"
 path = "test/chrY/stv.bed"
@@ -45,7 +43,7 @@ path = "test/chrY/cdrs.bed"
 options = { color = "black", legend = false, hide_x = true }
 
 [[tracks]]
-title = "Mean CpG\nmethylation (%)"
+title = "Mean CpG\nmethylation\n(%)"
 position = "relative"
 type = "bar"
 proportion = 0.1

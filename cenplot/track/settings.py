@@ -8,15 +8,35 @@ class DefaultPlotSettings:
     Default plot options settings.
     """
 
+    fontsize: float | str = "medium"
+    """
+    Font size for track text.
+    """
+
+    title_fontsize: float | str = "x-large"
+    """
+    Font size for track title.
+    """
+
     legend: bool = True
     """
     Show the legend.
+    """
+
+    legend_fontsize: str = "medium"
+    """
+    Legend font size.
     """
 
     legend_title: str | None = None
     """
     Set legend title.
     * ex. "HOR monomers for {chrom}"
+    """
+
+    legend_title_fontsize: str = "x-large"
+    """
+    Legend title font size.
     """
 
     hide_x: bool = True

@@ -77,39 +77,71 @@ def merge_plots(figures: list[tuple[Figure, np.ndarray, str]], outfile: str) -> 
         plt.imsave(outfile, merged_images)
 
 
-def minimalize_ax(
+def format_ax(
     ax: Axes,
     *,
     grid=False,
     xticks: bool = False,
+    xticklabel_fontsize: float | str | None = None,
     yticks: bool = False,
+    yticklabel_fontsize: float | str | None = None,
     spines: tuple[str, ...] | None = None,
 ) -> None:
     if grid:
         ax.grid(False)
     if xticks:
         ax.set_xticks([], [])
+    if xticklabel_fontsize:
+        for lbl in ax.get_xticklabels():
+            lbl.set_fontsize(xticklabel_fontsize)
     if yticks:
         ax.set_yticks([], [])
+    if yticklabel_fontsize:
+        for lbl in ax.get_yticklabels():
+            lbl.set_fontsize(yticklabel_fontsize)
     if spines:
         for spine in spines:
             ax.spines[spine].set_visible(False)
 
 
-def set_position_xlabel(ax: Axes):
-    xmin, xmax = ax.get_xlim()
-    xlen = xmax - xmin
-    if (xlen / 1_000_000) > 1:
-        unit = Unit.Mbp
-    elif (xlen / 1_000) > 1:
-        unit = Unit.Kbp
-    else:
-        unit = Unit.Bp
-    ax.set_xlabel(f"Position ({unit.capitalize()})")
+def set_both_labels(y_lbl: str, ax: Axes, track: Track):
+    # Set y-label.
+    if track.title:
+        ax.set_ylabel(
+            y_lbl,
+            rotation="horizontal",
+            ha="right",
+            va="center",
+            ma="center",
+            fontsize=track.options.title_fontsize,
+        )
+    # Set x-label.
+    # Set correct units based on xlim.
+    if not track.options.hide_x:
+        xmin, xmax = ax.get_xlim()
+        xlen = xmax - xmin
+        if (xlen / 1_000_000) > 1:
+            unit = Unit.Mbp
+        elif (xlen / 1_000) > 1:
+            unit = Unit.Kbp
+        else:
+            unit = Unit.Bp
+        ax.set_xlabel(
+            f"Position ({unit.capitalize()})", fontsize=track.options.title_fontsize
+        )
 
 
-def draw_uniq_entry_legend(ax: Axes, ref_ax: Axes | None = None, **kwargs: Any) -> None:
+def draw_uniq_entry_legend(
+    ax: Axes, track: Track, ref_ax: Axes | None = None, **kwargs: Any
+) -> None:
     ref_ax = ref_ax if ref_ax else ax
+    # Dedupe labels.
     handles, labels = ref_ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
-    ax.legend(by_label.values(), by_label.keys(), frameon=False, **kwargs)
+
+    legend = ax.legend(by_label.values(), by_label.keys(), frameon=False, **kwargs)
+    # Set legend title.
+    if track.options.legend_title:
+        legend.set_title(track.options.legend_title)
+        legend.get_title().set_fontsize(track.options.legend_title_fontsize)
+        legend.set_alignment("left")

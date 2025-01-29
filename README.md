@@ -6,6 +6,7 @@ Library for producing centromere figures.
 > WIP
 
 ### Plot Settings
+General settings for output plots.
 
 #### `single`
 ```toml
@@ -16,10 +17,11 @@ dim = [16.0, 12.0]
 dpi = 600
 legend_pos = "right"
 axis_h_pad = 0.2
-# shared_xlim = []
 ```
 
 #### `multiple`
+```toml
+```
 
 ### Tracks
 Tracks can be provided in the format of a `TOML` file under `[[tracks]]`.
@@ -82,14 +84,26 @@ Additional plot options. Dependent on [`type`](#type)
 
 |type|option|description|default|
 |-|-|-|-|
-|`all`|`legend`|Display the legend.|`false`|
-|`all`|`hide_x`|Hide the x-axis label and ticks|`false`|
+|`all`|`legend`|Display the legend.|`False`|
+|`all`|`legend_title`|Title for legend.|`None`|
+|`all`|`hide_x`|Hide the x-axis label and ticks|`False`|
+|`all`|`fontsize`|Fontsize for axis elements.|`"medium"`|
+|`all`|`title_fontsize`|Fontsize for axis title.|`"medium"`|
+|`all`|`legend_fontsize`|Fontsize for legend elements|`"x-large"`|
+|`all`|`legend_title_fontsize`|Fontsize for legend title.|`"x-large"`|
 |`hor`|`mer_order`|Display this HORs with `x` monomers on top.|`"large"`|
 |`horort`|`scale`|Scaling factor for arrow by length.|`50`|
 |`horort`|`merge`|Merge same stranded monomers by this number of bases.|`100000`|
 |`horort`|`fwd_color`|Color `+` monomers this color.|`"black"`|
-|`horort`|`rev_color`||Color `-` monomers this color.|`"black"`|
-|`selfident`|`invert`|Invert the self-identity triangle.|`true`|
+|`horort`|`rev_color`|Color `-` monomers this color.|`"black"`|
+|`label`|`color`|Label color. Used if no color is provided in `item_rgb` column.|`None`|
+|`label`|`alpha`|Label alpha.|`1.0`|
+|`bar`|`color`|Bar color. Used if no color is provided in `item_rgb` column.|`None`|
+|`bar`|`alpha`|Bar alpha.|`1.0`|
+|`selfident`|`invert`|Invert the self-identity triangle.|`True`|
+|`selfident`|`legend_bins`| Number of bins for `perc_identity_by_events` in the legend.|`300`|
+|`selfident`|`legend_xmin`| Legend x-min coordinate. Used to constrain x-axis limits.|`70.0`|
+|`selfident`|`legend_asp_ratio`|  Aspect ratio of legend. If `None`, takes up entire axis.|`1.0`|
 
 #### Example:
 ```toml

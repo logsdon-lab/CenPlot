@@ -11,7 +11,7 @@ from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
 from .self_ident import draw_self_ident
 from .bar import draw_bars
-from .utils import create_subplots, minimalize_ax
+from .utils import create_subplots, format_ax, set_both_labels
 from ..track.types import Track, TrackOption, TrackPosition, LegendPosition
 
 
@@ -101,7 +101,8 @@ def plot_one_cen(
         # Set xaxis limits
         track_ax.set_xlim(min_st_pos, max_end_pos)
 
-        # Switch to line if different track option. {bar, label, ident, hor}
+        # Switch track option. {bar, label, ident, hor}
+        # Add legend.
         if track.opt == TrackOption.HOR or track.opt == TrackOption.HORSplit:
             draw_fn = draw_hor
         elif track.opt == TrackOption.HOROrt:
@@ -125,24 +126,11 @@ def plot_one_cen(
         # Store label if more overlaps.
         track_labels.append(track_label)
 
-        # Set y-label.
-        if track.title:
-            track_ax.set_ylabel(
-                track_label,
-                rotation="horizontal",
-                ha="right",
-                va="center",
-                ma="center",
-            )
+        # Set labels for both x and y axis.
+        set_both_labels(track_label, track_ax, track)
 
         if not legend_ax:
             continue
-
-        # Add legend title.
-        if track.options.legend_title:
-            legend = legend_ax.get_legend()
-            legend.set_title(track.options.legend_title)
-            legend.set_alignment("left")
 
         # Make legend title invisible for HORs split after 1.
         if track.opt == TrackOption.HORSplit:
@@ -155,17 +143,21 @@ def plot_one_cen(
         if track.opt != TrackOption.SelfIdent or (
             track.opt == TrackOption.SelfIdent and not track.options.legend
         ):
-            minimalize_ax(
+            format_ax(
                 legend_ax,
                 grid=True,
                 xticks=True,
+                xticklabel_fontsize=track.options.legend_fontsize,
                 yticks=True,
+                yticklabel_fontsize=track.options.legend_fontsize,
                 spines=("right", "left", "top", "bottom"),
             )
         else:
-            minimalize_ax(
+            format_ax(
                 legend_ax,
                 grid=True,
+                xticklabel_fontsize=track.options.legend_fontsize,
+                yticklabel_fontsize=track.options.legend_fontsize,
                 spines=("right", "top"),
             )
 

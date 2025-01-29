@@ -1,7 +1,7 @@
 from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle, FancyArrowPatch
 
-from .utils import draw_uniq_entry_legend, minimalize_ax, set_position_xlabel
+from .utils import draw_uniq_entry_legend, format_ax
 from ..track.types import Track
 from ..defaults import MONOMER_COLORS, MONOMER_LEN
 
@@ -24,7 +24,14 @@ def draw_hor_ort(
     legend = track.options.legend
 
     spines = ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
-    minimalize_ax(ax, xticks=hide_x, yticks=True, spines=spines)
+    format_ax(
+        ax,
+        xticks=hide_x,
+        xticklabel_fontsize=track.options.fontsize,
+        yticks=True,
+        yticklabel_fontsize=track.options.fontsize,
+        spines=spines,
+    )
 
     ylim = ax.get_ylim()
     height = ylim[1] - ylim[0]
@@ -58,7 +65,7 @@ def draw_hor_ort(
         ax.add_patch(arrow)
 
     if legend_ax and legend:
-        draw_uniq_entry_legend(legend_ax, ref_ax=ax, loc="center left", ncols=3)
+        draw_uniq_entry_legend(legend_ax, track, ref_ax=ax, loc="center left", ncols=3)
 
 
 def draw_hor(
@@ -72,9 +79,14 @@ def draw_hor(
     legend = track.options.legend
 
     spines = ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
-    minimalize_ax(ax, xticks=hide_x, yticks=True, spines=spines)
-    if not hide_x:
-        set_position_xlabel(ax)
+    format_ax(
+        ax,
+        xticks=hide_x,
+        xticklabel_fontsize=track.options.fontsize,
+        yticks=True,
+        yticklabel_fontsize=track.options.fontsize,
+        spines=spines,
+    )
 
     ylim = ax.get_ylim()
     height = ylim[1] - ylim[0]
@@ -99,4 +111,4 @@ def draw_hor(
         ax.add_patch(rect)
 
     if legend_ax and legend:
-        draw_uniq_entry_legend(legend_ax, ref_ax=ax, loc="center left", ncols=3)
+        draw_uniq_entry_legend(legend_ax, track, ref_ax=ax, loc="center left", ncols=3)

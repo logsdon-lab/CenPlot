@@ -3,7 +3,7 @@ from matplotlib.axes import Axes
 from matplotlib.colors import rgb2hex
 
 
-from .utils import draw_uniq_entry_legend, minimalize_ax, set_position_xlabel
+from .utils import draw_uniq_entry_legend, format_ax
 from ..track.types import Track
 
 
@@ -19,9 +19,13 @@ def draw_bars(
     alpha = track.options.alpha
     legend = track.options.legend
 
-    minimalize_ax(ax, xticks=hide_x, spines=("right", "top"))
-    if not hide_x:
-        set_position_xlabel(ax)
+    format_ax(
+        ax,
+        xticks=hide_x,
+        xticklabel_fontsize=track.options.fontsize,
+        yticklabel_fontsize=track.options.fontsize,
+        spines=("right", "top"),
+    )
 
     plot_options = {"zorder": zorder, "alpha": alpha}
     if color:
@@ -47,8 +51,7 @@ def draw_bars(
     ax.margins(x=0, y=0)
 
     # Limit spine range.
-    # TODO: Remove ticks not within bounds.
     ax.spines["bottom"].set_bounds(0, track.data["chrom_end"].max())
 
     if legend_ax and legend:
-        draw_uniq_entry_legend(legend_ax, ref_ax=ax, loc="center left", ncols=3)
+        draw_uniq_entry_legend(legend_ax, track, ref_ax=ax, loc="center left", ncols=3)
