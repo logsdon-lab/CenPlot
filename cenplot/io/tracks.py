@@ -34,7 +34,6 @@ def get_stv_mon_ort(df_stv: pl.DataFrame, *, dst_merge: int) -> pl.DataFrame:
                 named=True
             )
         )
-        # TODO: Change this to use custom merge function.
         itree.merge_overlaps(strict=False, data_reducer=lambda x, _: x)
 
         stv_itrees[chrom] = stv_itrees[chrom].union(
@@ -60,14 +59,11 @@ def read_one_track_info(
     track: dict[str, Any], *, chrom: str | None = None
 ) -> Generator[Track, None, None]:
     prop = track.get("proportion", 0.0)
-    name = track.get("name")
+    title = track.get("title")
     pos = track.get("position")
     opt = track.get("type")
     path: str | None = track.get("path")
     options: dict[str, Any] = track.get("options", {})
-
-    if not name:
-        raise ValueError(f"Name not provided for track ({track}).")
 
     try:
         track_pos = TrackPosition(pos)  # type: ignore[arg-type]
@@ -105,14 +101,18 @@ def read_one_track_info(
 
         for mer, df_mer_track in df_track.group_by(["mer"], maintain_order=True):
             mer = mer[0]
-            # Add (mer) to name.
+            # Add mer to name if formatted.
+            try:
+                mer_title = str(title).format(mer=mer) if title else ""
+            except KeyError:
+                mer_title = str(title) if title else ""
             # Disallow overlap.
             # Split proportion over uniq monomers.
             yield Track(
-                f"{name} ({mer})",
+                mer_title,
                 TrackPosition.Relative,
-                TrackOption.HOR,
-                track_prop * 0.9,
+                TrackOption.HORSplit,
+                track_prop,
                 df_mer_track,
                 HORPlotSettings(**options),
             )
@@ -138,7 +138,7 @@ def read_one_track_info(
         df_track = read_bed_label(path, chrom=chrom)
         track_options = LabelPlotSettings(**options)
 
-    yield Track(name, track_pos, track_opt, prop, df_track, track_options)
+    yield Track(title, track_pos, track_opt, prop, df_track, track_options)
 
 
 def get_min_max_track(

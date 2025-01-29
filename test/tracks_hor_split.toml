@@ -5,15 +5,15 @@ dim = [16.0, 8.0]
 dpi = 600
 
 [[tracks]]
-name = "Alpha-satellite HOR monomers"
+# Alpha-satellite HOR monomers
 position = "relative"
 proportion = 0.8
 type = "horsplit"
 path = "test/chrY/stv.bed"
-options = { legend = true, hide_x = true, title = false, mer_order = "small" }
+options = { legend = true, hide_x = true, mer_order = "small" }
 
 [[tracks]]
-name = "Sequence Composition"
+title = "Sequence Composition"
 position = "relative"
 proportion = 0.2
 type = "label"

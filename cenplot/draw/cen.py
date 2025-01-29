@@ -64,9 +64,15 @@ def plot_one_cen(
 
     track_labels: list[str] = []
 
-    def get_track_label(track: Track, all_track_labels: list[str]) -> tuple[str, str]:
-        esc_track_label = track.name.encode("unicode_escape").decode("utf-8")
-        track_label = track.name.encode("ascii", "ignore").decode("unicode_escape")
+    def get_track_label(chrom: str, track: Track, all_track_labels: list[str]) -> str:
+        if not track.title:
+            return ""
+        try:
+            fmt_track_label = track.title.format(chrom=chrom)
+        except KeyError:
+            fmt_track_label = track.title
+
+        track_label = fmt_track_label.encode("ascii", "ignore").decode("unicode_escape")
 
         # Update track label for each overlap.
         if track.pos == TrackPosition.Overlap:
@@ -75,18 +81,17 @@ def plot_one_cen(
             except IndexError:
                 pass
 
-        return esc_track_label, track_label
+        return track_label
 
-    for zorder, track in enumerate(dfs_track):
-        track_row = track_indices[track.name]
-        esc_track_label, track_label = get_track_label(track, track_labels)
+    num_hor_split = 0
+    for idx, track in enumerate(dfs_track):
+        track_row = track_indices[idx]
+        track_label = get_track_label(chrom, track, track_labels)
 
         try:
             track_ax: Axes = axes[track_row, track_col]
         except IndexError:
-            print(
-                f"Cannot get track ({track_row, track_col}) for {esc_track_label} with {track.pos} position."
-            )
+            print(f"Cannot get track ({track_row, track_col}) for {track}.")
             continue
         try:
             legend_ax: Axes = axes[track_row, legend_col]
@@ -97,7 +102,7 @@ def plot_one_cen(
         track_ax.set_xlim(min_st_pos, max_end_pos)
 
         # Switch to line if different track option. {bar, label, ident, hor}
-        if track.opt == TrackOption.HOR:
+        if track.opt == TrackOption.HOR or track.opt == TrackOption.HORSplit:
             draw_fn = draw_hor
         elif track.opt == TrackOption.HOROrt:
             draw_fn = draw_hor_ort
@@ -108,22 +113,20 @@ def plot_one_cen(
         elif track.opt == TrackOption.Bar:
             draw_fn = draw_bars
         else:
-            raise ValueError("Invlaid TrackOption. Unreachable.")
+            raise ValueError("Invalid TrackOption. Unreachable.")
 
         draw_fn(
             ax=track_ax,
             legend_ax=legend_ax,
             track=track,
-            zorder=zorder,
+            zorder=idx,
         )
 
         # Store label if more overlaps.
         track_labels.append(track_label)
 
-        # Set label.
-        # Allow chrom as title or name.
-        track_label = chrom if track.options.chrom_as_title else track_label
-        if track.options.title:
+        # Set y-label.
+        if track.title:
             track_ax.set_ylabel(
                 track_label,
                 rotation="horizontal",
@@ -135,10 +138,23 @@ def plot_one_cen(
         if not legend_ax:
             continue
 
+        # Add legend title.
+        if track.options.legend_title:
+            legend = legend_ax.get_legend()
+            legend.set_title(track.options.legend_title)
+            legend.set_alignment("left")
+
+        # Make legend title invisible for HORs split after 1.
+        if track.opt == TrackOption.HORSplit:
+            if num_hor_split != 0:
+                legend_title = legend_ax.get_legend().get_title()
+                legend_title.set_alpha(0.0)
+            num_hor_split += 1
+
+        # Minimalize all legend cols except self-ident
         if track.opt != TrackOption.SelfIdent or (
             track.opt == TrackOption.SelfIdent and not track.options.legend
         ):
-            # Minimalize all legend cols
             minimalize_ax(
                 legend_ax,
                 grid=True,

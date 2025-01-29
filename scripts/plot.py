@@ -28,7 +28,7 @@ def get_inputs(
         (
             [
                 Track(
-                    trk.name,
+                    trk.title,
                     trk.pos,
                     trk.opt,
                     trk.prop,

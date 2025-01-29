@@ -1,5 +1,3 @@
-import sys
-
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -17,22 +15,17 @@ def create_subplots(
     height: float,
     legend_pos: LegendPosition,
     **kwargs: Any,
-) -> tuple[Figure, np.ndarray, dict[str, int]]:
+) -> tuple[Figure, np.ndarray, dict[int, int]]:
     track_props = []
     track_indices = {}
-    tracks_added = set()
     requires_second_col = False
 
     track_idx = 0
-    for track in dfs_track:
-        if track.name in tracks_added:
-            print(f"Skipping duplicate {track.name} track.", file=sys.stderr)
-            continue
-
+    for i, track in enumerate(dfs_track):
         # Store index.
         # Only increment index if takes up a subplot axis.
         if track.pos == TrackPosition.Relative:
-            track_indices[track.name] = track_idx
+            track_indices[i] = track_idx
             track_idx += 1
             track_props.append(track.prop)
         # For each unique HOR monomer number, create a new track.
@@ -40,17 +33,15 @@ def create_subplots(
         elif track.opt == TrackOption.HORSplit:
             uniq_mers = track.data["mer"].unique()
             track_prop = track.prop / len(uniq_mers)
-            for mer in uniq_mers:
-                track_indices[f"{track.name}_{mer}"] = track_idx
+            for j, _ in enumerate(uniq_mers):
+                track_indices[i + j] = track_idx
                 track_props.append(track_prop)
                 track_idx += 1
         else:
-            track_indices[track.name] = track_idx - 1
+            track_indices[i] = track_idx - 1
 
         if not requires_second_col and track.options.legend:
             requires_second_col = True
-
-        tracks_added.add(track.name)
 
     # Adjust columns and width ratio.
     num_cols = 2 if requires_second_col else 1

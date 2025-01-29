@@ -5,7 +5,7 @@ dim = [16.0, 8.0]
 dpi = 600
 
 [[tracks]]
-name = "Alpha-satellite HOR monomers"
+title = "Alpha-satellite HOR monomers"
 position = "relative"
 type = "hor"
 proportion = 1.0
@@ -13,7 +13,7 @@ path = "test/chrY/stv.bed"
 options = { mer_order = "large" }
 
 [[tracks]]
-name = "Sequence Composition"
+title = "Sequence Composition"
 position = "overlap"
 type = "label"
 path = "test/chrY/sat_annot.bed"

@@ -21,8 +21,16 @@ class TrackOption(StrEnum):
 
 
 class Track(NamedTuple):
-    name: str
+    title: str | None
+    """
+    Title of track.
+    ex. "{chrom}"
+    ex. HOR monomers
+    """
     pos: TrackPosition
+    """
+    Track position.
+    """
     opt: TrackOption
     prop: float
     data: pl.DataFrame

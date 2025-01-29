@@ -24,8 +24,9 @@ axis_h_pad = 0.2
 ### Tracks
 Tracks can be provided in the format of a `TOML` file under `[[tracks]]`.
 
-#### `name`
-The name of a given track. This is added as a label to each track and must be unique.
+#### `title`
+The title of a given track. This is added as a label to each track.
+* The chrom can be added by using format string formatting. ex. `{chrom}`
 
 #### `position`
 The given position of a track. Either `relative` or `overlap`.
@@ -36,11 +37,11 @@ Positions the track in relative order within the tracks file.
 Here the `CDR` track comes before the `HOR` track.
 ```toml
 [[tracks]]
-name = "CDR"
+title = "CDR"
 position = "relative"
 
 [[tracks]]
-name = "HOR"
+title = "HOR"
 position = "relative"
 ```
 
@@ -49,11 +50,11 @@ Positions the track to overlap the previous track within the tracks file.
 
 ```toml
 [[tracks]]
-name = "CDR"
+title = "CDR"
 position = "relative"
 
 [[tracks]]
-name = "HOR"
+title = "HOR"
 position = "overlap"
 ```
 
@@ -69,8 +70,8 @@ Higher Order Repeat track. Split by number of monomers in a HOR.
 ##### `Label`
 Label track. Each label is plotted as a bar on a single track.
 
-##### `Value`
-Value track plotted as a line and area plot.
+##### `Bar`
+Bar plot for each interval in the BED file.
 
 ##### `SelfIdent`
 Self sequence identity plot. See [`ModDotPlot`](https://github.com/marbl/ModDotPlot).
@@ -82,7 +83,6 @@ Additional plot options. Dependent on [`type`](#type)
 |type|option|description|default|
 |-|-|-|-|
 |`all`|`legend`|Display the legend.|`false`|
-|`all`|`title`|Display the title|`false`|
 |`all`|`hide_x`|Hide the x-axis label and ticks|`false`|
 |`hor`|`mer_order`|Display this HORs with `x` monomers on top.|`"large"`|
 |`horort`|`scale`|Scaling factor for arrow by length.|`50`|

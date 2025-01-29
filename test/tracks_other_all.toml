@@ -5,32 +5,32 @@ dim = [16.0, 8.0]
 dpi = 600
 
 [[tracks]]
-name = "Alpha-satellite HOR monomer orientation"
+# Alpha-satellite HOR monomer orientation
 position = "relative"
 type = "horort"
 proportion = 0.05
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_AS-HOR_stv_row.all.bed"
-options = { title = false, legend=false, hide_x = true, scale = 25,  merge = 100_000 }
+options = { legend=false, hide_x = true, scale = 25,  merge = 100_000 }
 
 [[tracks]]
-name = "Sequence Composition"
+title = "{chrom}"
 position = "relative"
 type = "label"
 proportion = 0.1
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/repeats/all_cens_chrX.annotation.fa.out"
-options = { title = true, chrom_as_title = true, legend = true, hide_x = true }
+options = { legend = true, hide_x = true }
 
 [[tracks]]
-name = "Alpha-satellite HOR monomers"
+# Alpha-satellite HOR monomers
 position = "overlap"
 type = "hor"
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_AS-HOR_stv_row.all.bed"
-options = { mer_order = "large", title = false, legend = true, hide_x = true }
+options = { legend = true, hide_x = true, mer_order = "large" }
 
 [[tracks]]
-name = "CDR"
+# CDR
 position = "relative"
 type = "label"
 proportion = 0.05
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_cdrs.bed"
-options = { title = false, hide_x = false }
+options = { hide_x = false }

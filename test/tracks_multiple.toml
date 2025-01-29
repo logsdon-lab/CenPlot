@@ -2,41 +2,42 @@
 format = "png"
 transparent = true
 dim = [16.0, 12.0]
+axis_h_pad = 0.1
 dpi = 600
 
 [[tracks]]
-name = "Alpha-satellite HOR monomer orientation"
+# Alpha-satellite HOR monomer orientation
 position = "relative"
 proportion = 0.05
 type = "horort"
 path = "test/chrY/stv.bed"
-options = { title = false, hide_x = true}
+options = { hide_x = true}
 
 [[tracks]]
-name = "Centromere\nstructure"
+# title = "Centromere\nstructure"
 position = "relative"
 proportion = 0.05
 type = "label"
 path = "test/chrY/sat_annot.bed"
-options = { legend = true, hide_x = true}
+options = { legend = true, legend_title = "Centromere structure", hide_x = true}
 
 [[tracks]]
-name = "Alpha-satellite HOR monomers"
+# title = "Alpha-satellite HOR monomers"
 position = "overlap"
 type = "hor"
 path = "test/chrY/stv.bed"
-options = { legend = false, title = false, mer_order = "large", hide_x = true}
+options = { legend = false, mer_order = "large", hide_x = true}
 
 [[tracks]]
-name = "Split alpha-satellite HOR monomers"
+# Split alpha-satellite HOR monomers
 position = "relative"
 proportion = 0.2
 type = "horsplit"
 path = "test/chrY/stv.bed"
-options = { legend = true, mer_order = "large", title = false, hide_x = true}
+options = { legend = true, legend_title = "# of monomers", mer_order = "large", hide_x = true}
 
 [[tracks]]
-name = "CDR"
+title = "CDR"
 position = "relative"
 type = "label"
 proportion = 0.025
@@ -44,7 +45,7 @@ path = "test/chrY/cdrs.bed"
 options = { color = "black", legend = false, hide_x = true }
 
 [[tracks]]
-name = "Mean CpG\nmethylation (%)"
+title = "Mean CpG\nmethylation (%)"
 position = "relative"
 type = "bar"
 proportion = 0.1
@@ -52,9 +53,9 @@ path = "test/chrY/methyl.bed"
 options = { hide_x = true}
 
 [[tracks]]
-name = "Average\nNucleotide\nIdentity"
+# Average Nucleotide Identity
 position = "relative"
 type = "selfident"
 proportion = 0.5
 path = "test/chrY/ident.bed"
-options = { title = false, legend = true, hide_x = false, invert = true, legend_asp_ratio = 1.0 }
+options = { legend = true, hide_x = false, invert = true, legend_asp_ratio = 1.0 }

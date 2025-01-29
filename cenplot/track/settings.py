@@ -8,20 +8,17 @@ class DefaultPlotSettings:
     Default plot options settings.
     """
 
-    title: bool = True
-    """
-    Add `name` as title of y-axis label.
-    """
-
-    chrom_as_title: bool = False
-    """
-    Use chrom name as title.
-    """
-
     legend: bool = True
     """
     Show the legend.
     """
+
+    legend_title: str | None = None
+    """
+    Set legend title.
+    * ex. "HOR monomers for {chrom}"
+    """
+
     hide_x: bool = True
     """
     Hide the x-axis ticks, ticklabels, and spines.

@@ -6,7 +6,7 @@ axis_h_pad = 0.1
 dpi = 600
 
 [[tracks]]
-name = "CDR"
+title = "CDR"
 position = "relative"
 type = "label"
 proportion = 0.05
@@ -14,7 +14,7 @@ path = "test/chr1/cdrs.bed"
 options = { hide_x = true }
 
 [[tracks]]
-name = "Sequence Composition"
+title = "Sequence Composition"
 position = "relative"
 type = "label"
 proportion = 0.05
@@ -22,24 +22,24 @@ path = "test/chr1/sat_annot.bed"
 options = { legend = true, hide_x = true }
 
 [[tracks]]
-name = "Alpha-satellite HOR monomers"
+title = "Alpha-satellite HOR monomers"
 position = "overlap"
 type = "hor"
 path = "test/chr1/stv_row.bed"
-options = { legend = true, mer_order = "large", title = false, hide_x = false }
+options = { legend = true, hide_x = false, mer_order = "large" }
 
 [[tracks]]
-name = "Alpha-satellite HOR monomer ort"
+title = "Alpha-satellite HOR monomer ort"
 position = "relative"
 type = "horort"
 proportion = 0.05
 path = "test/chr1/stv_row.bed"
-options = { legend = false, title = false, hide_x = true, merge = 100_000, scale = 25 }
+options = { legend = false, hide_x = true, merge = 100_000, scale = 25 }
 
 [[tracks]]
-name = "Average\nNucleotide\nIdentity"
+title = "Average\nNucleotide\nIdentity"
 position = "relative"
 type = "selfident"
 proportion = 0.6
 path = "test/chr1/ident.bed"
-options = { invert = true, legend = true, hide_x = false }
+options = { legend = true, hide_x = false, invert = true }
