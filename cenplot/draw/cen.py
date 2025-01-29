@@ -1,10 +1,12 @@
 import os
 import sys
 import numpy as np
+import polars as pl
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
+from .settings import SinglePlotSettings
 from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
 from .self_ident import draw_self_ident
@@ -16,37 +18,46 @@ from ..track.types import Track, TrackOption, TrackPosition, LegendPosition
 def plot_one_cen(
     dfs_track: list[Track],
     outdir: str,
-    outfmt: str,
     chrom: str,
-    min_st_pos: int,
-    max_end_pos: int,
-    width: float,
-    height: float,
-    legend_pos: LegendPosition,
+    settings: SinglePlotSettings,
 ) -> tuple[Figure, np.ndarray, str]:
     # Show chrom trimmed of spaces for logs and filenames.
     print(f"Plotting {chrom}...", file=sys.stderr)
 
-    # # Get min and max position of all tracks for this cen.
-    #  = sys.maxsize
-    # trk_maxtrk_min_st_end = 0
-    # for trk in dfs_track:
-    #     if trk.opt == TrackOption.SelfIdent:
-    #         continue
-    #     try:
-    #         trk_min_st = min(trk.data["chrom_st"].min(), trk_min_st)
-    #         trk_max_end = max(trk.data["chrom_end"].max(), trk_max_end)
-    #     except TypeError:
-    #         continue
+    if not settings.shared_xlim:
+        # Get min and max position of all tracks for this cen.
+        min_st_pos = sys.maxsize
+        max_end_pos = 0
+        for trk in dfs_track:
+            col_st, col_end = "chrom_st", "chrom_end"
+            if trk.opt == TrackOption.SelfIdent:
+                df_track = trk.data.filter(
+                    (pl.col("query_st") > 0) & (pl.col("query_end") > 0)
+                )
+                col_st, col_end = "query_st", "query_end"
+            else:
+                df_track = trk.data
+
+            try:
+                min_st_pos = min(df_track[col_st].min(), min_st_pos)
+                max_end_pos = max(df_track[col_end].max(), max_end_pos)
+            except TypeError:
+                continue
+
+    else:
+        min_st_pos = settings.shared_xlim[0]
+        max_end_pos = settings.shared_xlim[1]
+
+    width, height = settings.dim
 
     # # Scale height based on track length.
     # adj_height = height * (trk_max_end / max_end_pos)
     # height = height if adj_height == 0 else adj_height
 
     fig, axes, track_indices = create_subplots(
-        dfs_track, width, height, legend_pos, constrained_layout=True
+        dfs_track, width, height, settings.legend_pos, constrained_layout=True
     )
-    if legend_pos == LegendPosition.Left:
+    if settings.legend_pos == LegendPosition.Left:
         track_col, legend_col = 1, 0
     else:
         track_col, legend_col = 0, 1
@@ -144,10 +155,10 @@ def plot_one_cen(
 
     # Add title
     # fig.suptitle(chrom)
-    outfile = os.path.join(outdir, f"{chrom}.{outfmt}")
+    outfile = os.path.join(outdir, f"{chrom}.{settings.format}")
 
     # Pad between axes.
-    fig.get_layout_engine().set(h_pad=0.5)
-    fig.savefig(outfile, dpi=600, transparent=True)
+    fig.get_layout_engine().set(h_pad=settings.axis_h_pad)
+    fig.savefig(outfile, dpi=settings.dpi, transparent=settings.transparent)
 
     return fig, axes, outfile

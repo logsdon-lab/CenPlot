@@ -7,13 +7,19 @@ import polars as pl
 from typing import Iterable
 from concurrent.futures import ProcessPoolExecutor
 
-from cenplot import plot_one_cen, merge_plots, read_all_tracks, Track, LegendPosition
+from cenplot import (
+    plot_one_cen,
+    merge_plots,
+    read_one_cen_tracks,
+    Track,
+    SinglePlotSettings,
+)
 
 
 def get_inputs(
     args: argparse.Namespace,
-) -> list[tuple[list[Track], str, str, str, int, int, int, int, LegendPosition]]:
-    tracks_summary = read_all_tracks(args.input_tracks)
+) -> list[tuple[list[Track], str, str, SinglePlotSettings]]:
+    tracks_summary, plot_settings = read_one_cen_tracks(args.input_track)
     if args.chroms:
         all_chroms: Iterable[str] = [line.strip() for line in args.chroms.readlines()]
     else:
@@ -32,13 +38,8 @@ def get_inputs(
                 for trk in tracks_summary.tracks
             ],
             args.outdir,
-            args.format,
             chrom,
-            tracks_summary.min_pos,
-            tracks_summary.max_pos,
-            args.width,
-            args.height,
-            LegendPosition(args.legend_pos),
+            plot_settings,
         )
         for chrom in all_chroms
     ]
@@ -48,14 +49,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "-t",
-        "--input_tracks",
-        nargs="+",
+        "--input_track",
         required=True,
         type=str,
         help=(
             "TOML file with headerless BED files to plot. "
-            "Specify under tracks the following fields: {name, position, type, proportion, path, or options}. "
-            "One of more TOML can be provided."
+            "Specify under tracks the following fields: {name, position, type, proportion, path, or options}."
         ),
     )
     ap.add_argument(
@@ -78,32 +77,6 @@ def main():
         help="Output file merging all figures. Either pdf of png.",
         type=str,
         default=None,
-    )
-    ap.add_argument(
-        "-f",
-        "--format",
-        help="Output format passed as ext to matplotlib. Without '.'",
-        default="png",
-    )
-    ap.add_argument(
-        "-w",
-        "--width",
-        type=float,
-        help="Figure width in inches per centromere.",
-        default=16.0,
-    )
-    ap.add_argument(
-        "-ht",
-        "--height",
-        type=float,
-        help="Figure height in inches per centromere.",
-        default=8.0,
-    )
-    ap.add_argument(
-        "--legend_pos",
-        type=str,
-        default="right",
-        help="Legend column position. Either left or right.",
     )
 
     ap.add_argument("-p", "--processes", type=int, default=4, help="Processes to run.")

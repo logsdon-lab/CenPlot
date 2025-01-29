@@ -1,3 +1,9 @@
+[settings]
+format = "png"
+transparent = true
+dim = [16.0, 8.0]
+dpi = 600
+
 [[tracks]]
 name = "Sequence Composition"
 position = "relative"

@@ -32,8 +32,6 @@ class Track(NamedTuple):
 class TrackList(NamedTuple):
     tracks: list[Track]
     chroms: set[str]
-    min_pos: int
-    max_pos: int
 
 
 class LegendPosition(StrEnum):

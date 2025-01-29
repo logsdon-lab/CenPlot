@@ -1,3 +1,9 @@
+[settings]
+format = "png"
+transparent = true
+dim = [16.0, 12.0]
+dpi = 600
+
 [[tracks]]
 name = "Alpha-satellite HOR monomer orientation"
 position = "relative"
@@ -51,4 +57,4 @@ position = "relative"
 type = "selfident"
 proportion = 0.5
 path = "test/chrY/ident.bed"
-options = { title = false, legend = true, hide_x = false, invert = true }
+options = { title = false, legend = true, hide_x = false, invert = true, legend_asp_ratio = 1.0 }

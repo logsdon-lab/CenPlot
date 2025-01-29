@@ -8,13 +8,14 @@ from .draw import (
     draw_bars,
     plot_one_cen,
     merge_plots,
+    SinglePlotSettings,
 )
 from .io import (
     read_bed9,
     read_bed_hor,
     read_bed_identity,
     read_bed_label,
-    read_all_tracks,
+    read_one_cen_tracks,
 )
 from .track import (
     Track,
@@ -44,7 +45,7 @@ __all__ = [
     "read_bed_hor",
     "read_bed_identity",
     "read_bed_label",
-    "read_all_tracks",
+    "read_one_cen_tracks",
     "Track",
     "TrackOption",
     "TrackPosition",
@@ -56,6 +57,7 @@ __all__ = [
     "HOROrtPlotSettings",
     "BarPlotSettings",
     "LabelPlotSettings",
+    "SinglePlotSettings",
 ]
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

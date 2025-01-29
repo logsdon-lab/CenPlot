@@ -26,6 +26,9 @@ def draw_hor_ort(
     spines = ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
     minimalize_ax(ax, xticks=hide_x, yticks=True, spines=spines)
 
+    ylim = ax.get_ylim()
+    height = ylim[1] - ylim[0]
+
     for row in track.data.iter_rows(named=True):
         # sample arrow
         start = row["chrom_st"]
@@ -45,8 +48,8 @@ def draw_hor_ort(
             color = fwd_color
 
         arrow = FancyArrowPatch(
-            (start, 0),
-            (end, 0),
+            (start, height * 0.5),
+            (end, height * 0.5),
             mutation_scale=scale,
             color=color,
             clip_on=False,

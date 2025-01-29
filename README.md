@@ -5,6 +5,22 @@ Library for producing centromere figures.
 
 > WIP
 
+### Plot Settings
+
+#### `single`
+```toml
+[settings]
+format = "png"
+transparent = true
+dim = [16.0, 12.0]
+dpi = 600
+legend_pos = "right"
+axis_h_pad = 0.2
+# shared_xlim = []
+```
+
+#### `multiple`
+
 ### Tracks
 Tracks can be provided in the format of a `TOML` file under `[[tracks]]`.
 
@@ -102,7 +118,7 @@ python scripts/plot.py -t test/tracks_multiple.toml -ht 12
 * [ ] Monomer order
 * [x] Split monomers
 * [x] Refactor to library.
-* [ ] Options to struct.
+* [x] Options to struct.
 * [ ] Examples
 * [ ] Tests
 * [ ] Merge images.

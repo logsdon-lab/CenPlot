@@ -1,3 +1,10 @@
+[settings]
+format = "png"
+transparent = true
+dim = [12.0, 7.0]
+axis_h_pad = 0.1
+dpi = 600
+
 [[tracks]]
 name = "CDR"
 position = "relative"
@@ -10,7 +17,7 @@ options = { hide_x = true }
 name = "Sequence Composition"
 position = "relative"
 type = "label"
-proportion = 0.1
+proportion = 0.05
 path = "test/chr1/sat_annot.bed"
 options = { legend = true, hide_x = true }
 
@@ -27,12 +34,12 @@ position = "relative"
 type = "horort"
 proportion = 0.05
 path = "test/chr1/stv_row.bed"
-options = { legend = false, title = false, hide_x = false, merge = 100_000, scale = 25 }
+options = { legend = false, title = false, hide_x = true, merge = 100_000, scale = 25 }
 
 [[tracks]]
 name = "Average\nNucleotide\nIdentity"
 position = "relative"
 type = "selfident"
-proportion = 0.575
+proportion = 0.6
 path = "test/chr1/ident.bed"
-options = { invert = true, legend = true }
+options = { invert = true, legend = true, hide_x = false }

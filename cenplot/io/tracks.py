@@ -21,6 +21,7 @@ from ..track.settings import (
     PlotSettings,
 )
 from ..track.types import Track, TrackOption, TrackPosition, TrackList
+from ..draw.settings import SinglePlotSettings
 
 
 def get_stv_mon_ort(df_stv: pl.DataFrame, *, dst_merge: int) -> pl.DataFrame:
@@ -169,18 +170,54 @@ def get_min_max_track(
     return track, pos
 
 
-def read_all_tracks(input_tracks: list[str], *, chrom: str | None = None) -> TrackList:
+def read_one_cen_tracks(
+    input_track: str, *, chrom: str | None = None
+) -> tuple[TrackList, SinglePlotSettings]:
+    """
+    Read a `cenplot` track file optionally filtering for a chrom name.
+
+    Args:
+        input_track:
+            Input track file.
+        chrom:
+            Chromosome name in 1st column (`chrom`) to filter for. ex. `chr4`
+
+    Returns:
+        List of tracks w/contained chroms and plot settings.
+    """
     all_tracks = []
     chroms = set()
-    for input_track in input_tracks:
-        with open(input_track, "rb") as fh:
-            tracks = tomllib.load(fh).get("tracks", [])
-            for track_info in tracks:
-                for track in read_one_track_info(track_info, chrom=chrom):
-                    all_tracks.append(track)
-                    chroms.update(track.data["chrom"])
+    with open(input_track, "rb") as fh:
+        toml = tomllib.load(fh)
+        settings: dict[str, Any] = toml.get("settings", {})
+        format = settings.get("format", SinglePlotSettings.format)
+        transparent = settings.get("transparent", SinglePlotSettings.transparent)
+        dim = tuple(settings.get("dim", SinglePlotSettings.dim))
+        dpi = settings.get("dpi", SinglePlotSettings.dpi)
+        legend_pos = settings.get("legend_pos", SinglePlotSettings.legend_pos)
+        axis_h_pad = settings.get("axis_h_pad", SinglePlotSettings.axis_h_pad)
+
+        tracks = toml.get("tracks", [])
+
+        for track_info in tracks:
+            for track in read_one_track_info(track_info, chrom=chrom):
+                all_tracks.append(track)
+                chroms.update(track.data["chrom"])
 
     _, min_st_pos = get_min_max_track(all_tracks, typ="min")
     _, max_end_pos = get_min_max_track(all_tracks, typ="max", default_col="chrom_end")
-
-    return TrackList(all_tracks, chroms, min_st_pos, max_end_pos)
+    tracklist = TrackList(all_tracks, chroms)
+    plot_settings = SinglePlotSettings(
+        format,
+        transparent,
+        dim,
+        dpi,
+        legend_pos,
+        axis_h_pad,
+        shared_xlim=(
+            tuple(settings.get("shared_xlim"))  # type: ignore[arg-type]
+            if settings.get("shared_xlim")
+            else (min_st_pos, max_end_pos)
+        ),
+    )
+    return tracklist, plot_settings
