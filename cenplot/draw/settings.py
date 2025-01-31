@@ -21,9 +21,17 @@ class SinglePlotSettings:
     """
     Set the plot DPI per plot.
     """
+    layout: str = "tight"
+    """
+    Layout engine option for matplotlib. See https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure.
+    """
     legend_pos: LegendPosition = LegendPosition.Right
     """
     Legend position as `LegendPosition`. Either `LegendPosition.Right` or `LegendPosition.Left`.
+    """
+    legend_prop: float = 0.2
+    """
+    Legend proportion of plot.
     """
     axis_h_pad: float = 0.2
     """

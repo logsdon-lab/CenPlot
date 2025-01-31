@@ -16,6 +16,7 @@ def create_subplots(
     width: float,
     height: float,
     legend_pos: LegendPosition,
+    legend_prop: float,
     **kwargs: Any,
 ) -> tuple[Figure, np.ndarray, dict[int, int]]:
     track_props = []
@@ -34,10 +35,9 @@ def create_subplots(
         # Divide the proportion of the image allocated between each mer track.
         elif track.opt == TrackOption.HORSplit:
             uniq_mers = track.data["mer"].unique()
-            track_prop = track.prop / len(uniq_mers)
             for j, _ in enumerate(uniq_mers):
                 track_indices[i + j] = track_idx
-                track_props.append(track_prop)
+                track_props.append(track.prop)
                 track_idx += 1
         else:
             track_indices[i] = track_idx - 1
@@ -48,9 +48,9 @@ def create_subplots(
     # Adjust columns and width ratio.
     num_cols = 2 if requires_second_col else 1
     if legend_pos == LegendPosition.Left:
-        width_ratios = (0.2, 0.8) if requires_second_col else [1.0]
+        width_ratios = (legend_prop, 1 - legend_prop) if requires_second_col else [1.0]
     else:
-        width_ratios = (0.8, 0.2) if requires_second_col else [1.0]
+        width_ratios = (1 - legend_prop, legend_prop) if requires_second_col else [1.0]
 
     fig, axes = plt.subplots(
         # Count number of tracks
@@ -122,8 +122,6 @@ def set_both_labels(y_lbl: str, ax: Axes, track: Track):
         xlen = xmax - xmin
         if (xlen / 1_000_000) > 1:
             unit = Unit.Mbp
-        elif (xlen / 1_000) > 1:
-            unit = Unit.Kbp
         else:
             unit = Unit.Bp
         ax.set_xlabel(

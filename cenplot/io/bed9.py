@@ -10,7 +10,7 @@ def read_bed9(infile: str, *, chrom: str | None = None) -> pl.DataFrame:
     df_adj = adj_by_ctg_coords(df, "chrom").sort(by="chrom_st")
 
     if chrom:
-        df_adj = df_adj.filter(pl.col("chrom_name") == chrom)
+        df_adj = df_adj.filter(pl.col("chrom") == chrom)
     if "item_rgb" not in df.columns:
         df_adj = df_adj.with_columns(item_rgb=pl.lit("0,0,0"))
     if "name" not in df.columns:

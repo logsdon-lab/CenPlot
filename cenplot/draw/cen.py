@@ -55,7 +55,12 @@ def plot_one_cen(
     # height = height if adj_height == 0 else adj_height
 
     fig, axes, track_indices = create_subplots(
-        dfs_track, width, height, settings.legend_pos, constrained_layout=True
+        dfs_track,
+        width,
+        height,
+        settings.legend_pos,
+        settings.legend_prop,
+        layout=settings.layout,
     )
     if settings.legend_pos == LegendPosition.Left:
         track_col, legend_col = 1, 0

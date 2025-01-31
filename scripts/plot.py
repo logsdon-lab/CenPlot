@@ -19,30 +19,32 @@ from cenplot import (
 def get_inputs(
     args: argparse.Namespace,
 ) -> list[tuple[list[Track], str, str, SinglePlotSettings]]:
-    tracks_summary, plot_settings = read_one_cen_tracks(args.input_track)
-    if args.chroms:
-        all_chroms: Iterable[str] = [line.strip() for line in args.chroms.readlines()]
-    else:
-        all_chroms = tracks_summary.chroms
-    return [
-        (
-            [
-                Track(
-                    trk.title,
-                    trk.pos,
-                    trk.opt,
-                    trk.prop,
-                    trk.data.filter(pl.col("chrom") == chrom),
-                    trk.options,
-                )
-                for trk in tracks_summary.tracks
-            ],
-            args.outdir,
-            chrom,
-            plot_settings,
+    all_chroms: Iterable[str] = [line.strip() for line in args.chroms.readlines()]
+
+    inputs = []
+    for chrom in all_chroms:
+        tracks_summary, plot_settings = read_one_cen_tracks(
+            args.input_track, chrom=chrom
         )
-        for chrom in all_chroms
-    ]
+        inputs.append(
+            (
+                [
+                    Track(
+                        trk.title,
+                        trk.pos,
+                        trk.opt,
+                        trk.prop,
+                        trk.data.filter(pl.col("chrom") == chrom),
+                        trk.options,
+                    )
+                    for trk in tracks_summary.tracks
+                ],
+                args.outdir,
+                chrom,
+                plot_settings,
+            )
+        )
+    return inputs
 
 
 def main():

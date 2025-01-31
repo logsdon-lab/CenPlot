@@ -7,12 +7,9 @@ from ..defaults import BED_SELF_IDENT_COLS, IDENT_COLOR_RANGE
 def read_bed_identity(infile: str, *, chrom: str | None = None) -> pl.DataFrame:
     df = pl.read_csv(
         infile, separator="\t", has_header=False, new_columns=BED_SELF_IDENT_COLS
-    ).with_columns(
-        query_name=pl.col("query").str.extract(r"^(.*?):|^(.*?)$"),
-        chrom_name=pl.col("query").str.extract(r"(chr[\dXY]+)").fill_null(""),
     )
     if chrom:
-        df = df.filter(pl.col("chrom_name") == chrom)
+        df = df.filter(pl.col("query") == chrom)
 
     # Build expr to filter range of colors.
     # TODO: Allow custom range.
@@ -38,7 +35,7 @@ def read_bed_identity(infile: str, *, chrom: str | None = None) -> pl.DataFrame:
         .with_columns(color=color_expr)
         # Get window size.
         .with_columns(
-            window=(pl.col("query_end") - pl.col("query_st")).max().over("query_name")
+            window=(pl.col("query_end") - pl.col("query_st")).max().over("query")
         )
         .with_columns(
             first_pos=pl.col("query_st") // pl.col("window"),
@@ -50,8 +47,8 @@ def read_bed_identity(infile: str, *, chrom: str | None = None) -> pl.DataFrame:
             y=-pl.col("first_pos") + pl.col("second_pos"),
         )
         .with_columns(
-            scale=(pl.col("query_st").max() / pl.col("x").max()).over("query_name"),
-            group=pl.int_range(pl.len()).over("query_name"),
+            scale=(pl.col("query_st").max() / pl.col("x").max()).over("query"),
+            group=pl.int_range(pl.len()).over("query"),
         )
         .with_columns(
             window=pl.col("window") / pl.col("scale"),
@@ -71,7 +68,7 @@ def read_bed_identity(infile: str, *, chrom: str | None = None) -> pl.DataFrame:
             ((pl.col("new_y") * pl.col("window")) + pl.col("y")) * pl.col("window"),
         )
         .select(
-            "query_name",
+            "query",
             "new_x",
             "new_y",
             "color",
@@ -81,7 +78,7 @@ def read_bed_identity(infile: str, *, chrom: str | None = None) -> pl.DataFrame:
         # arr to new rows
         .explode("new_x", "new_y")
         # Rename to filter later on.
-        .rename({"query_name": "chrom", "new_x": "x", "new_y": "y"})
+        .rename({"query": "chrom", "new_x": "x", "new_y": "y"})
         .collect()
     )
     return df_tri

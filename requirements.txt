@@ -1,4 +1,5 @@
-matplotlib==3.8.3
+matplotlib==3.10.0
 polars==1.19.0
-numpy==1.26.4
+numpy==2.2.1
 intervaltree==3.1.0
+censtats @ git+https://github.com/logsdon-lab/censtats@feature/better-length-cmd

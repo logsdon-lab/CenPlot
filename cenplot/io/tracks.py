@@ -5,8 +5,7 @@ import tomllib
 import polars as pl
 
 from typing import Any, Generator
-from collections import defaultdict
-from intervaltree import Interval, IntervalTree
+from censtats.length import hor_array_length
 
 from .bed9 import read_bed9
 from .bed_identity import read_bed_identity
@@ -22,37 +21,6 @@ from ..track.settings import (
 )
 from ..track.types import Track, TrackOption, TrackPosition, TrackList
 from ..draw.settings import SinglePlotSettings
-
-
-def get_stv_mon_ort(df_stv: pl.DataFrame, *, dst_merge: int) -> pl.DataFrame:
-    stv_itrees: defaultdict[str, IntervalTree] = defaultdict(IntervalTree)
-    for grp, df_grp in df_stv.group_by(["chrom", "strand"]):
-        chrom, strand = grp
-        itree = IntervalTree.from_tuples(
-            (row["chrom_st"] - dst_merge, row["chrom_end"] + dst_merge, strand)
-            for row in df_grp.select("chrom_st", "chrom_end", "chrom").iter_rows(
-                named=True
-            )
-        )
-        itree.merge_overlaps(strict=False, data_reducer=lambda x, _: x)
-
-        stv_itrees[chrom] = stv_itrees[chrom].union(
-            # Restore original coords.
-            IntervalTree(
-                Interval(itv.begin + dst_merge, itv.end - dst_merge, itv.data)
-                for itv in itree
-            )
-        )
-
-    return pl.DataFrame(
-        (
-            (chrom, itv.begin, itv.end, itv.data)
-            for chrom, itree in stv_itrees.items()
-            for itv in itree.iter()
-        ),
-        orient="row",
-        schema=["chrom", "chrom_st", "chrom_end", "strand"],
-    ).sort(by="chrom_st")
 
 
 def read_one_track_info(
@@ -91,6 +59,13 @@ def read_one_track_info(
     if track_opt == TrackOption.HORSplit:
         mer_order = options.get("mer_order", HORPlotSettings.mer_order)
         df_track = read_bed_hor(path, chrom=chrom, mer_order=mer_order)
+        if df_track.is_empty():
+            print(
+                f"Empty file or chrom not found for {track_opt} and {path}. Skipping",
+                file=sys.stderr,
+            )
+            return None
+
         uniq_mers = df_track["mer"].unique()
         track_prop = prop / len(uniq_mers)
         if track_pos == TrackPosition.Overlap:
@@ -125,8 +100,11 @@ def read_one_track_info(
         df_track = read_bed_hor(path, chrom=chrom, mer_order=mer_order)
         track_options = HORPlotSettings(**options)
     elif track_opt == TrackOption.HOROrt:
-        ort_merge = options.get("merge", HOROrtPlotSettings.merge)
-        df_track = get_stv_mon_ort(read_bed_hor(path, chrom=chrom), dst_merge=ort_merge)
+        _, df_track = hor_array_length(
+            read_bed_hor(path, chrom=chrom), output_strand=True
+        )
+        # Merged HOR arrays must be 90% HORs.
+        df_track = df_track.filter(pl.col("prop") > 0.9)
         track_options = HOROrtPlotSettings(**options)
     elif track_opt == TrackOption.SelfIdent:
         df_track = read_bed_identity(path, chrom=chrom)
@@ -195,7 +173,9 @@ def read_one_cen_tracks(
         dim = tuple(settings.get("dim", SinglePlotSettings.dim))
         dpi = settings.get("dpi", SinglePlotSettings.dpi)
         legend_pos = settings.get("legend_pos", SinglePlotSettings.legend_pos)
+        legend_prop = settings.get("legend_prop", SinglePlotSettings.legend_prop)
         axis_h_pad = settings.get("axis_h_pad", SinglePlotSettings.axis_h_pad)
+        layout = settings.get("layout", SinglePlotSettings.layout)
 
         tracks = toml.get("tracks", [])
 
@@ -212,7 +192,9 @@ def read_one_cen_tracks(
         transparent,
         dim,
         dpi,
+        layout,
         legend_pos,
+        legend_prop,
         axis_h_pad,
         shared_xlim=(
             tuple(settings.get("shared_xlim"))  # type: ignore[arg-type]
