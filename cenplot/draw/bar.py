@@ -1,6 +1,4 @@
-import ast
 from matplotlib.axes import Axes
-from matplotlib.colors import rgb2hex
 
 
 from .utils import draw_uniq_entry_legend, format_ax
@@ -31,12 +29,7 @@ def draw_bars(
     if color:
         plot_options["color"] = color
     elif "item_rgb" in track.data.columns:
-        # Convert colors from rgb str -> rgb tuple -> hex
-        color = [
-            rgb2hex([c / 255 for c in ast.literal_eval(rgb)])
-            for rgb in track.data.get_column("item_rgb")
-        ]
-        plot_options["color"] = color
+        plot_options["color"] = track.data["color"]
     else:
         plot_options["color"] = track.options.DEF_COLOR
 

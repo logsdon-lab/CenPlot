@@ -34,8 +34,11 @@ def create_subplots(
         # For each unique HOR monomer number, create a new track.
         # Divide the proportion of the image allocated between each mer track.
         elif track.opt == TrackOption.HORSplit:
-            uniq_mers = track.data["mer"].unique()
-            for j, _ in enumerate(uniq_mers):
+            if track.options.mode == "hor":
+                n_subplots = track.data["name"].unique()
+            else:
+                n_subplots = track.data["mer"].unique()
+            for j, _ in enumerate(n_subplots):
                 track_indices[i + j] = track_idx
                 track_props.append(track.prop)
                 track_idx += 1

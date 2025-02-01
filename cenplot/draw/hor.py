@@ -3,7 +3,6 @@ from matplotlib.patches import Rectangle, FancyArrowPatch
 
 from .utils import draw_uniq_entry_legend, format_ax
 from ..track.types import Track
-from ..defaults import MONOMER_COLORS, MONOMER_LEN
 
 
 def draw_hor_ort(
@@ -41,11 +40,6 @@ def draw_hor_ort(
         start = row["chrom_st"]
         end = row["chrom_end"]
         strand = row["strand"]
-        length = end - start
-        # Skip single orts
-        if length < MONOMER_LEN:
-            continue
-
         if strand == "-":
             tmp_start = start
             start = end
@@ -91,6 +85,11 @@ def draw_hor(
     ylim = ax.get_ylim()
     height = ylim[1] - ylim[0]
 
+    if track.options.mode == "hor":
+        colname = "name"
+    else:
+        colname = "mer"
+
     # Add HOR track.
     for row in track.data.with_row_index().iter_rows(named=True):
         start = row["chrom_st"]
@@ -98,14 +97,14 @@ def draw_hor(
         row_idx = row["index"]
         # TODO: Adjust zorder so mer order is respected.
         zorder_adj = zorder + (row_idx / track.data.shape[0])
-        color = MONOMER_COLORS.get(row["mer"])
+        color = row["color"]
         rect = Rectangle(
             (start, 0),
             end + 1 - start,
             height,
             color=color,
             lw=0,
-            label=row["mer"],
+            label=row[colname],
             zorder=zorder_adj,
         )
         ax.add_patch(rect)

@@ -1,9 +1,10 @@
 [settings]
 format = "png"
 transparent = true
-dim = [16.0, 6.0]
+dim = [24.0, 12.0]
 dpi = 600
-legend_prop = 0.05
+legend_prop = 0.1
+layout = "tight"
 
 [[tracks]]
 # title = "Alpha-satellite HOR monomers"
@@ -11,15 +12,15 @@ position = "relative"
 type = "horsplit"
 proportion = 0.8
 path = "test/chm13/chm13_stv_row.bed"
-options = { legend = true, mer_order = "large", hide_x = true }
+options = { legend = true, legend_fontsize="small", mode = "hor", mer_order = "large", live_only = true, mer_filter = 2, hide_x = true }
 
 [[tracks]]
 # title = "Alpha-satellite HOR monomer"
 position = "relative"
 type = "hor"
-proportion = 0.1
+proportion = 0.2
 path = "test/chm13/chm13_stv_row.bed"
-options = { legend = false, mer_order = "large", hide_x = true }
+options = { legend = true, mer_order = "large", live_only = true, hide_x = true }
 
 [[tracks]]
 # title = "Alpha-satellite HOR monomer ort"
@@ -27,4 +28,4 @@ position = "relative"
 type = "horort"
 proportion = 0.1
 path = "test/chm13/chm13_stv_row.bed"
-options = { legend = false, hide_x = false, merge = 30_000, scale = 12 }
+options = { legend = false, hide_x = false, live_only = true, scale = 12 }

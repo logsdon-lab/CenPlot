@@ -127,10 +127,6 @@ class HOROrtPlotSettings(DefaultPlotSettings):
     """
     Scale arrow attributes by this factor as well as length.
     """
-    merge: int = 100_000
-    """
-    Merge orientations by this number of bases.
-    """
     fwd_color: str | None = None
     """
     Color of `+` arrows.
@@ -138,6 +134,14 @@ class HOROrtPlotSettings(DefaultPlotSettings):
     rev_color: str | None = None
     """
     Color of `-` arrows.
+    """
+    live_only: bool = True
+    """
+    Only plot live HORs.
+    """
+    mer_filter: int = 2
+    """
+    Filter HORs that have at least 2 monomers.
     """
 
 
@@ -150,6 +154,22 @@ class HORPlotSettings(DefaultPlotSettings):
     mer_order: Literal["large", "small"] = "large"
     """
     Plot HORs with `{mer_order}` monomers on top.
+    """
+    mode: Literal["mer", "hor"] = "mer"
+    """
+    Plot HORs with `mer` or `hor`.
+    """
+    live_only: bool = True
+    """
+    Only plot live HORs.
+    """
+    mer_filter: int = 2
+    """
+    Filter HORs that have at least 2 monomers.
+    """
+    use_item_rgb: bool = False
+    """
+    Use `item_rgb` column for color.
     """
 
 
