@@ -47,4 +47,4 @@ def draw_bars(
     ax.spines["bottom"].set_bounds(0, track.data["chrom_end"].max())
 
     if legend_ax and legend:
-        draw_uniq_entry_legend(legend_ax, track, ref_ax=ax, loc="center left", ncols=3)
+        draw_uniq_entry_legend(legend_ax, track, ref_ax=ax, loc="center left")

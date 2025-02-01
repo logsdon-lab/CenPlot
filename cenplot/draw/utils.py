@@ -140,7 +140,14 @@ def draw_uniq_entry_legend(
     handles, labels = ref_ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
 
-    legend = ax.legend(by_label.values(), by_label.keys(), frameon=False, **kwargs)
+    legend = ax.legend(
+        by_label.values(), by_label.keys(), ncols=4, frameon=False, **kwargs
+    )
+
+    # Wrap text.
+    for txt in legend.get_texts():
+        txt.set_wrap(True)
+
     # Set legend title.
     if track.options.legend_title:
         legend.set_title(track.options.legend_title)

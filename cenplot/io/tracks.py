@@ -29,7 +29,6 @@ from ..defaults import MONOMER_COLORS
 def map_value_colors(
     df: pl.DataFrame,
     map_col: str | None = None,
-    map_cmap: str = "viridis",
     map_values: dict[Any, Any] | None = None,
     use_item_rgb: bool = False,
 ) -> pl.DataFrame:
@@ -98,6 +97,7 @@ def read_one_track_info(
         mer_order = options.get("mer_order", HORPlotSettings.mer_order)
         live_only = options.get("live_only", HORPlotSettings.live_only)
         mer_filter = options.get("mer_filter", HORPlotSettings.mer_filter)
+        split_prop = options.get("split_prop", HORPlotSettings.split_prop)
         df_track = read_bed_hor(
             path,
             chrom=chrom,
@@ -119,7 +119,6 @@ def read_one_track_info(
             df_track = map_value_colors(
                 df_track,
                 map_col=split_colname,
-                map_cmap="viridis",
                 use_item_rgb=use_item_rgb,
             )
         else:
@@ -132,7 +131,12 @@ def read_one_track_info(
             )
 
         srs_split_names = df_track[split_colname].unique()
-        track_prop = prop / len(srs_split_names)
+        # Split proportion across tracks.
+        if split_prop:
+            track_prop = prop / len(srs_split_names)
+        else:
+            track_prop = prop
+
         if track_pos == TrackPosition.Overlap:
             print(
                 f"Overlap not supported for {track_opt}. Using relative position.",

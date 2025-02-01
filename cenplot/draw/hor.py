@@ -110,4 +110,4 @@ def draw_hor(
         ax.add_patch(rect)
 
     if legend_ax and legend:
-        draw_uniq_entry_legend(legend_ax, track, ref_ax=ax, loc="center left", ncols=3)
+        draw_uniq_entry_legend(legend_ax, track, ref_ax=ax, loc="center left")

@@ -171,6 +171,10 @@ class HORPlotSettings(DefaultPlotSettings):
     """
     Use `item_rgb` column for color.
     """
+    split_prop: bool = False
+    """
+    If split, divide proportion evenly across each split track.
+    """
 
 
 PlotSettings = (
