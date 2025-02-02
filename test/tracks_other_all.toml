@@ -10,7 +10,7 @@ position = "relative"
 type = "horort"
 proportion = 0.05
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_AS-HOR_stv_row.all.bed"
-options = { legend=false, hide_x = true, scale = 25,  merge = 100_000 }
+options = { legend=false, hide_x = true, scale = 25 }
 
 [[tracks]]
 title = "{chrom}"

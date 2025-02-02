@@ -1,7 +1,7 @@
 from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle, FancyArrowPatch
 
-from .utils import draw_uniq_entry_legend, format_ax
+from .utils import add_border, draw_uniq_entry_legend, format_ax
 from ..track.types import Track, TrackPosition
 
 
@@ -83,6 +83,7 @@ def draw_hor(
 ):
     hide_x = track.options.hide_x
     legend = track.options.legend
+    border = track.options.border
 
     if track.pos != TrackPosition.Overlap:
         spines = (
@@ -109,12 +110,9 @@ def draw_hor(
         colname = "mer"
 
     # Add HOR track.
-    for row in track.data.with_row_index().iter_rows(named=True):
+    for row in track.data.iter_rows(named=True):
         start = row["chrom_st"]
         end = row["chrom_end"]
-        row_idx = row["index"]
-        # TODO: Adjust zorder so mer order is respected.
-        zorder_adj = zorder + (row_idx / track.data.shape[0])
         color = row["color"]
         rect = Rectangle(
             (start, 0),
@@ -123,9 +121,13 @@ def draw_hor(
             color=color,
             lw=0,
             label=row[colname],
-            zorder=zorder_adj,
+            zorder=zorder,
         )
         ax.add_patch(rect)
+
+    if border:
+        # Ensure border is always on top.
+        add_border(ax, height, zorder + 1.0)
 
     if legend_ax and legend:
         draw_uniq_entry_legend(

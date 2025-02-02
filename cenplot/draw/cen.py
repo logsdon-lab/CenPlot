@@ -167,7 +167,12 @@ def plot_one_cen(
             )
 
     # Add title
-    # fig.suptitle(chrom)
+    if settings.title:
+        title = settings.title.format(chrom=chrom)
+        fig.suptitle(
+            title, x=0.02, y=0.98, horizontalalignment="left", fontsize="xx-large"
+        )
+
     outfile = os.path.join(outdir, f"{chrom}.{settings.format}")
 
     # Pad between axes.

@@ -1,6 +1,7 @@
 [settings]
+title = "{chrom}"
 format = "png"
-# transparent = false
+transparent = false
 dim = [16.0, 6.0]
 dpi = 600
 axis_h_pad = 0.1
@@ -19,10 +20,10 @@ position = "relative"
 type = "label"
 proportion = 0.025
 path = "test/cdr/HG02953_rm.bed"
-options = { legend = true, legend_ncols = 1, hide_x = true }
+options = { legend = true, legend_title = "Sequence composition", legend_title_fontsize="large", legend_ncols = 1, hide_x = true, border = true }
 
 [[tracks]]
-title = "Mean CpG\nmethylation (%)"
+title = "Mean CpG\nmethylation\n(%)"
 position = "relative"
 type = "bar"
 proportion = 0.1
@@ -36,15 +37,15 @@ path = "test/cdr/HG02953_cdr.bed"
 options = { legend = false, hide_x = true, color = "red", alpha = 0.34 }
 
 [[tracks]]
-title = "Coverage (x)"
+title = "Coverage\n(x)"
 position = "relative"
 type = "bar"
 proportion = 0.1
 path = "test/cdr/HG02953_cov.bed"
-options = { hide_x = false, color = "blue" }
+options = { legend = true, legend_title = "Coverage", legend_ncols = 1, hide_x = false, color = "blue", label = "Total" }
 
 [[tracks]]
 position = "overlap"
 type = "bar"
 path = "test/cdr/HG02953_cov_methyl.bed"
-options = { hide_x = false, color = "red" }
+options = { legend = true, legend_title = "Coverage", legend_ncols = 1, hide_x = false, color = "red", label = "Methylated" }

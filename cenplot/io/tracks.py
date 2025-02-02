@@ -55,7 +55,10 @@ def map_value_colors(
                 )
             }
         df = df.with_columns(
-            color=pl.col(map_col).cast(pl.String).replace(val_color_mapping)
+            color=pl.col(map_col)
+            .cast(pl.String)
+            # If not in mapping, set to gray.
+            .replace(val_color_mapping, default="#808080")
         )
 
     return df
@@ -276,6 +279,7 @@ def read_one_cen_tracks(
     with open(input_track, "rb") as fh:
         toml = tomllib.load(fh)
         settings: dict[str, Any] = toml.get("settings", {})
+        title = settings.get("title", SinglePlotSettings.title)
         format = settings.get("format", SinglePlotSettings.format)
         transparent = settings.get("transparent", SinglePlotSettings.transparent)
         dim = tuple(settings.get("dim", SinglePlotSettings.dim))
@@ -296,6 +300,7 @@ def read_one_cen_tracks(
     _, max_end_pos = get_min_max_track(all_tracks, typ="max", default_col="chrom_end")
     tracklist = TrackList(all_tracks, chroms)
     plot_settings = SinglePlotSettings(
+        title,
         format,
         transparent,
         dim,

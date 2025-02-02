@@ -1,8 +1,22 @@
 # `cenplot`
 Library for producing centromere figures.
 
-![](docs/example_multiple.png)
-
+<table>
+  <tr>
+    <td>
+        <figure float="left">
+            <img align="middle" src="docs/example_cdr.png" width="100%">
+            <figcaption>CDR plot.</figcaption>
+        </figure>
+    </td>
+    <td>
+        <figure float="left">
+            <img align="middle" src="docs/example_multiple.png" width="100%">
+            <figcaption>Combined plot.</figcaption>
+        </figure>
+    </td>
+  </tr>
+</table>
 > WIP
 
 ### Plot Settings
@@ -85,21 +99,35 @@ Additional plot options. Dependent on [`type`](#type)
 |type|option|description|default|
 |-|-|-|-|
 |`all`|`legend`|Display the legend.|`False`|
+|`all`|`legend_ncols`|Number of columns for legend entries.|`4`|
 |`all`|`legend_title`|Title for legend.|`None`|
+|`all`|`legend_fontsize`|Fontsize for legend elements|`"x-large"`|
+|`all`|`legend_title_fontsize`|Fontsize for legend title.|`"x-large"`|
 |`all`|`hide_x`|Hide the x-axis label and ticks|`False`|
 |`all`|`fontsize`|Fontsize for axis elements.|`"medium"`|
 |`all`|`title_fontsize`|Fontsize for axis title.|`"medium"`|
-|`all`|`legend_fontsize`|Fontsize for legend elements|`"x-large"`|
-|`all`|`legend_title_fontsize`|Fontsize for legend title.|`"x-large"`|
+|`hor`|`mode`|Plot HORs with `mer` or `hor`.|`"mer"`|
 |`hor`|`mer_order`|Display this HORs with `x` monomers on top.|`"large"`|
+|`hor`|`live_only`|Only plot live HORs.|`True`|
+|`hor`|`split_prop`|If split, divide proportion evenly across each split track.|`False`|
+|`hor`|`mer_filter`|Filter HORs that have at least this number of monomers.|`2`|
+|`hor`|`border`|Add black border containing all added labels.|`False`|
+|`hor`|`use_item_rgb`|Use `item_rgb` column if provided. Otherwise, generate a random color for each value in column `name`.|`True`|
 |`horort`|`scale`|Scaling factor for arrow by length.|`50`|
 |`horort`|`merge`|Merge same stranded monomers by this number of bases.|`100000`|
 |`horort`|`fwd_color`|Color `+` monomers this color.|`"black"`|
 |`horort`|`rev_color`|Color `-` monomers this color.|`"black"`|
+|`horort`|`live_only`|Only plot live HORs.|`True`|
+|`horort`|`mer_filter`|Filter HORs that have at least this number of monomers.|`2`|
 |`label`|`color`|Label color. Used if no color is provided in `item_rgb` column.|`None`|
 |`label`|`alpha`|Label alpha.|`1.0`|
+|`label`|`use_item_rgb`|Use `item_rgb` column if provided. Otherwise, generate a random color for each value in column `name`.|`True`|
+|`label`|`border`|Add black border containing all added labels.|`False`|
 |`bar`|`color`|Bar color. Used if no color is provided in `item_rgb` column.|`None`|
 |`bar`|`alpha`|Bar alpha.|`1.0`|
+|`bar`|`ymin`|Minimum y-value.|`0.0`|
+|`bar`|`ymax`|Maximum y-value.|`None`|
+|`bar`|`label`|Label to add to legend.|`None`|
 |`selfident`|`invert`|Invert the self-identity triangle.|`True`|
 |`selfident`|`legend_bins`| Number of bins for `perc_identity_by_events` in the legend.|`300`|
 |`selfident`|`legend_xmin`| Legend x-min coordinate. Used to constrain x-axis limits.|`70.0`|

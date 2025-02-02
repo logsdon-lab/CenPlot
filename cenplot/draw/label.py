@@ -2,7 +2,7 @@ from typing import Any
 from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle
 
-from .utils import draw_uniq_entry_legend, format_ax
+from .utils import add_border, draw_uniq_entry_legend, format_ax
 from ..track.types import Track, TrackPosition
 
 
@@ -17,6 +17,7 @@ def draw_label(
     color = track.options.color
     alpha = track.options.alpha
     legend = track.options.legend
+    border = track.options.border
 
     patch_options: dict[str, Any] = {"zorder": zorder}
     patch_options["alpha"] = alpha
@@ -60,11 +61,16 @@ def draw_label(
             (start, 0),
             end + 1 - start,
             height,
+            # No line width on each individual rect.
             lw=0,
             **labels,
             **patch_options,
         )
         ax.add_patch(rect)
+
+    if border:
+        # Ensure border on top with larger zorder.
+        add_border(ax, height, zorder=zorder + 1.0)
 
     # Draw legend.
     if legend_ax and legend:

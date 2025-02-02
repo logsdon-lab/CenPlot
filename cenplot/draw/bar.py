@@ -18,6 +18,7 @@ def draw_bars(
     legend = track.options.legend
     ymin = track.options.ymin
     ymax = track.options.ymax
+    label = track.options.label
 
     if track.pos != TrackPosition.Overlap:
         spines = ("right", "top")
@@ -45,6 +46,7 @@ def draw_bars(
         track.data["chrom_st"],
         track.data["name"],
         track.data["chrom_end"] - track.data["chrom_st"],
+        label=label,
         **plot_options,
     )
     # Trim plot to margins

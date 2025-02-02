@@ -13,7 +13,7 @@ class DefaultPlotSettings:
     Font size for track text.
     """
 
-    title_fontsize: float | str = "x-large"
+    title_fontsize: float | str = "large"
     """
     Font size for track title.
     """
@@ -39,7 +39,7 @@ class DefaultPlotSettings:
     * ex. "HOR monomers for {chrom}"
     """
 
-    legend_title_fontsize: str = "x-large"
+    legend_title_fontsize: str = "large"
     """
     Legend title font size.
     """
@@ -100,6 +100,11 @@ class LabelPlotSettings(DefaultPlotSettings):
     Label alpha.
     """
 
+    border: bool = False
+    """
+    Add black border containing all added labels.
+    """
+
 
 @dataclass
 class BarPlotSettings(DefaultPlotSettings):
@@ -130,6 +135,11 @@ class BarPlotSettings(DefaultPlotSettings):
     ymax: int | None = None
     """
     Maximum y-value.
+    """
+
+    label: str | None = None
+    """
+    Label to add to legend.
     """
 
 
@@ -194,6 +204,10 @@ class HORPlotSettings(DefaultPlotSettings):
     split_prop: bool = False
     """
     If split, divide proportion evenly across each split track.
+    """
+    border: bool = False
+    """
+    Add black border containing all added labels.
     """
 
 

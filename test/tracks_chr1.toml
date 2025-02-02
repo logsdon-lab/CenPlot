@@ -34,7 +34,7 @@ position = "relative"
 type = "horort"
 proportion = 0.05
 path = "test/chr1/stv_row.bed"
-options = { legend = false, hide_x = true, merge = 100_000, scale = 25 }
+options = { legend = false, hide_x = true, scale = 25 }
 
 [[tracks]]
 title = "Average\nNucleotide\nIdentity"

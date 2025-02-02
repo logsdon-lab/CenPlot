@@ -5,6 +5,11 @@ from ..track.types import LegendPosition
 
 @dataclass
 class SinglePlotSettings:
+    title: str | None = None
+    """
+    Figure title. ex. "{chrom}"
+    """
+
     format: Literal["png", "pdf"] = "png"
     """
     Output format. Either `"pdf"` or `"png"`.

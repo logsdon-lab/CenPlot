@@ -1,3 +1,4 @@
+from matplotlib.patches import Rectangle
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -158,3 +159,15 @@ def draw_uniq_entry_legend(
         legend.set_title(track.options.legend_title)
         legend.get_title().set_fontsize(track.options.legend_title_fontsize)
         legend.set_alignment("left")
+
+
+def add_border(ax: Axes, height: float, zorder: float):
+    xmin, xmax = ax.get_xlim()
+    rect = Rectangle(
+        (xmin, 0),
+        xmax - xmin,
+        height,
+        fill=None,
+        zorder=zorder,
+    )
+    ax.add_patch(rect)

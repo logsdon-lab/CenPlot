@@ -1,6 +1,7 @@
 [settings]
+title = "{chrom}"
 format = "png"
-transparent = true
+transparent = false
 dim = [16.0, 12.0]
 axis_h_pad = 0.1
 dpi = 600
@@ -11,11 +12,11 @@ position = "relative"
 proportion = 0.05
 type = "horort"
 path = "test/chrY/stv.bed"
-options = { hide_x = true}
+options = { hide_x = true, scale = 34 }
 
 [[tracks]]
 position = "relative"
-proportion = 0.05
+proportion = 0.1
 type = "label"
 path = "test/chrY/sat_annot.bed"
 options = { legend = true, legend_title = "Centromere structure", hide_x = true}
@@ -24,15 +25,15 @@ options = { legend = true, legend_title = "Centromere structure", hide_x = true}
 position = "overlap"
 type = "hor"
 path = "test/chrY/stv.bed"
-options = { legend = false, mer_order = "large", hide_x = true}
+options = { legend = false, mer_order = "large", hide_x = true, border = true}
 
 [[tracks]]
 # Split alpha-satellite HOR monomers
 position = "relative"
-proportion = 0.2
+proportion = 0.1
 type = "horsplit"
 path = "test/chrY/stv.bed"
-options = { legend = true, legend_title = "# of monomers", mer_order = "large", hide_x = true}
+options = { legend = true, legend_title = "# of monomers", mer_order = "large", hide_x = true, split_prop = false}
 
 [[tracks]]
 title = "CDR"
@@ -54,6 +55,6 @@ options = { hide_x = true}
 # Average Nucleotide Identity
 position = "relative"
 type = "selfident"
-proportion = 0.5
+proportion = 0.7
 path = "test/chrY/ident.bed"
 options = { legend = true, hide_x = false, invert = true, legend_asp_ratio = 1.0 }
