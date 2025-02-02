@@ -1,0 +1,33 @@
+[settings]
+title = "{chrom} HOR monomers"
+format = "png"
+transparent = false
+dim = [16.0, 10.0]
+dpi = 600
+axis_h_pad = 0.02
+legend_prop = 0.05
+layout = "tight"
+
+[[tracks]]
+# title = "Alpha-satellite HOR monomers"
+position = "relative"
+type = "horsplit"
+proportion = 0.1
+path = "test/chm13/chm13_stv_row.bed"
+options = { legend = true, legend_title = "HOR monomers", mode = "hor", mer_order = "large", live_only = true, mer_filter = 2, hide_x = true, split_prop = false, border = true }
+
+[[tracks]]
+# title = "Alpha-satellite HOR monomer ort"
+position = "relative"
+type = "horort"
+proportion = 0.1
+path = "test/chm13/chm13_stv_row.bed"
+options = { legend = false, hide_x = true, live_only = true, scale = 12 }
+
+[[tracks]]
+# title = "Alpha-satellite HOR monomer"
+position = "relative"
+type = "hor"
+proportion = 0.1
+path = "test/chm13/chm13_stv_row.bed"
+options = { legend = true, legend_title = "HOR monomer number", mer_order = "large", live_only = true, hide_x = false, border = true }

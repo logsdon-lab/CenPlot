@@ -8,6 +8,10 @@ Library for producing centromere figures.
             <img align="middle" src="docs/example_cdr.png" width="100%">
             <figcaption>CDR plot.</figcaption>
         </figure>
+      <figure float="left">
+            <img align="middle" src="docs/example_split_hor.png" width="100%">
+            <figcaption>HOR plot.</figcaption>
+        </figure>
     </td>
     <td>
         <figure float="left">
