@@ -9,3 +9,8 @@ test/chr1/sat_annot.bed filter=lfs diff=lfs merge=lfs -text
 test/chr1/stv_row.bed filter=lfs diff=lfs merge=lfs -text
 test/chr1/cdrs.bed filter=lfs diff=lfs merge=lfs -text
 test/chm13/chm13_stv_row.bed filter=lfs diff=lfs merge=lfs -text
+test/cdr/HG02953_cov.bed filter=lfs diff=lfs merge=lfs -text
+test/cdr/HG02953_cov_methyl.bed filter=lfs diff=lfs merge=lfs -text
+test/cdr/HG02953_rm.bed filter=lfs diff=lfs merge=lfs -text
+test/cdr/HG02953_avg_methyl.bed filter=lfs diff=lfs merge=lfs -text
+test/cdr/HG02953_cdr.bed filter=lfs diff=lfs merge=lfs -text

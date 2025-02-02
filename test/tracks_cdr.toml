@@ -1,0 +1,50 @@
+[settings]
+format = "png"
+# transparent = false
+dim = [16.0, 6.0]
+dpi = 600
+axis_h_pad = 0.1
+legend_prop = 0.05
+layout = "constrained"
+
+[[tracks]]
+position = "relative"
+type = "label"
+proportion = 0.01
+path = "test/cdr/HG02953_cdr.bed"
+options = { legend = false, hide_x = true, color = "black" }
+
+[[tracks]]
+position = "relative"
+type = "label"
+proportion = 0.025
+path = "test/cdr/HG02953_rm.bed"
+options = { legend = true, legend_ncols = 1, hide_x = true }
+
+[[tracks]]
+title = "Mean CpG\nmethylation (%)"
+position = "relative"
+type = "bar"
+proportion = 0.1
+path = "test/cdr/HG02953_avg_methyl.bed"
+options = { hide_x = true, color = "black", ymax = 100 }
+
+[[tracks]]
+position = "overlap"
+type = "label"
+path = "test/cdr/HG02953_cdr.bed"
+options = { legend = false, hide_x = true, color = "red", alpha = 0.34 }
+
+[[tracks]]
+title = "Coverage (x)"
+position = "relative"
+type = "bar"
+proportion = 0.1
+path = "test/cdr/HG02953_cov.bed"
+options = { hide_x = false, color = "blue" }
+
+[[tracks]]
+position = "overlap"
+type = "bar"
+path = "test/cdr/HG02953_cov_methyl.bed"
+options = { hide_x = false, color = "red" }

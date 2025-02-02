@@ -23,6 +23,11 @@ class DefaultPlotSettings:
     Show the legend.
     """
 
+    legend_ncols: int = 4
+    """
+    Number of columns for legend entries.
+    """
+
     legend_fontsize: str = "medium"
     """
     Legend font size.
@@ -85,6 +90,11 @@ class LabelPlotSettings(DefaultPlotSettings):
     Label color. Used if no color is provided in `item_rgb` column.
     """
 
+    use_item_rgb: bool = True
+    """
+    Use `item_rgb` column if provided. Otherwise, generate a random color for each value in column `name`.
+    """
+
     alpha: float = 1.0
     """
     Label alpha.
@@ -110,6 +120,16 @@ class BarPlotSettings(DefaultPlotSettings):
     alpha: float = 1.0
     """
     Alpha of bars.
+    """
+
+    ymin: int = 0
+    """
+    Minimum y-value.
+    """
+
+    ymax: int | None = None
+    """
+    Maximum y-value.
     """
 
 

@@ -9,6 +9,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 from ..utils import Unit
 from ..track.types import LegendPosition, Track, TrackOption, TrackPosition
+from ..track.settings import DefaultPlotSettings
 
 
 def create_subplots(
@@ -133,7 +134,11 @@ def set_both_labels(y_lbl: str, ax: Axes, track: Track):
 
 
 def draw_uniq_entry_legend(
-    ax: Axes, track: Track, ref_ax: Axes | None = None, **kwargs: Any
+    ax: Axes,
+    track: Track,
+    ref_ax: Axes | None = None,
+    ncols: int = DefaultPlotSettings.legend_ncols,
+    **kwargs: Any,
 ) -> None:
     ref_ax = ref_ax if ref_ax else ax
     # Dedupe labels.
@@ -141,7 +146,7 @@ def draw_uniq_entry_legend(
     by_label = dict(zip(labels, handles))
 
     legend = ax.legend(
-        by_label.values(), by_label.keys(), ncols=4, frameon=False, **kwargs
+        by_label.values(), by_label.keys(), ncols=ncols, frameon=False, **kwargs
     )
 
     # Wrap text.

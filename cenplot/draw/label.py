@@ -1,12 +1,9 @@
-import ast
-
 from typing import Any
 from matplotlib.axes import Axes
-from matplotlib.colors import rgb2hex
 from matplotlib.patches import Rectangle
 
 from .utils import draw_uniq_entry_legend, format_ax
-from ..track.types import Track
+from ..track.types import Track, TrackPosition
 
 
 def draw_label(
@@ -24,18 +21,20 @@ def draw_label(
     patch_options: dict[str, Any] = {"zorder": zorder}
     patch_options["alpha"] = alpha
 
-    # Convert colors from rgb str -> rgb tuple -> hex
-    track_color_mapping = {
-        name: rgb2hex([c / 255 for c in ast.literal_eval(rgb)])
-        for name, rgb in track.data.select("name", "item_rgb").unique().rows()
-    }
-
-    spines = ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
+    # Overlapping tracks should not cause the overlapped track to have their spines/ticks/ticklabels removed.
+    if track.pos != TrackPosition.Overlap:
+        spines = (
+            ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
+        )
+        yticks = True
+    else:
+        yticks = False
+        spines = None
     format_ax(
         ax,
         xticks=hide_x,
         xticklabel_fontsize=track.options.fontsize,
-        yticks=True,
+        yticks=yticks,
         yticklabel_fontsize=track.options.fontsize,
         spines=spines,
     )
@@ -46,7 +45,6 @@ def draw_label(
     for row in track.data.iter_rows(named=True):
         start = row["chrom_st"]
         end = row["chrom_end"]
-        lbl_color = track_color_mapping.get(row["name"])
 
         if row["name"] == "-" or not row["name"]:
             labels = {}
@@ -55,8 +53,8 @@ def draw_label(
         # Allow override.
         if color:
             patch_options["color"] = color
-        else:
-            patch_options["color"] = lbl_color
+        elif "color" in row:
+            patch_options["color"] = row["color"]
 
         rect = Rectangle(
             (start, 0),
@@ -70,4 +68,10 @@ def draw_label(
 
     # Draw legend.
     if legend_ax and legend:
-        draw_uniq_entry_legend(legend_ax, track, ref_ax=ax, loc="center left")
+        draw_uniq_entry_legend(
+            legend_ax,
+            track,
+            ref_ax=ax,
+            ncols=track.options.legend_ncols,
+            loc="center left",
+        )

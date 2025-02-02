@@ -37,8 +37,8 @@ def map_value_colors(
         df = df.with_columns(
             color=pl.col("item_rgb")
             .str.split(",")
-            .list.eval(pl.element().cast(pl.Int8) / 255)
-            .map_elements(lambda x: rgb2hex(x))
+            .list.eval(pl.element().cast(pl.Int16) / 255)
+            .map_elements(lambda x: rgb2hex(x), return_dtype=pl.String)
         )
     elif map_col:
         if map_values:
@@ -54,7 +54,9 @@ def map_value_colors(
                     unique_vals, cmap(np.linspace(0, 1, len(unique_vals)))
                 )
             }
-        df = df.with_columns(color=pl.col(map_col).replace(val_color_mapping))
+        df = df.with_columns(
+            color=pl.col(map_col).cast(pl.String).replace(val_color_mapping)
+        )
 
     return df
 
@@ -211,7 +213,13 @@ def read_one_track_info(
         df_track = read_bed9(path, chrom=chrom)
         track_options = BarPlotSettings(**options)
     else:
+        use_item_rgb = options.get("use_item_rgb", LabelPlotSettings.use_item_rgb)
         df_track = read_bed_label(path, chrom=chrom)
+        df_track = map_value_colors(
+            df_track,
+            map_col="name",
+            use_item_rgb=use_item_rgb,
+        )
         track_options = LabelPlotSettings(**options)
 
     df_track = map_value_colors(df_track)

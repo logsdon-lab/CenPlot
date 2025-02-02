@@ -2,7 +2,7 @@ from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle, FancyArrowPatch
 
 from .utils import draw_uniq_entry_legend, format_ax
-from ..track.types import Track
+from ..track.types import Track, TrackPosition
 
 
 def draw_hor_ort(
@@ -22,7 +22,13 @@ def draw_hor_ort(
     scale = track.options.scale
     legend = track.options.legend
 
-    spines = ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
+    if track.pos != TrackPosition.Overlap:
+        spines = (
+            ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
+        )
+    else:
+        spines = None
+
     format_ax(
         ax,
         xticks=hide_x,
@@ -59,7 +65,13 @@ def draw_hor_ort(
         ax.add_patch(arrow)
 
     if legend_ax and legend:
-        draw_uniq_entry_legend(legend_ax, track, ref_ax=ax, loc="center left", ncols=3)
+        draw_uniq_entry_legend(
+            legend_ax,
+            track,
+            ref_ax=ax,
+            ncols=track.options.legend_ncols,
+            loc="center left",
+        )
 
 
 def draw_hor(
@@ -72,7 +84,13 @@ def draw_hor(
     hide_x = track.options.hide_x
     legend = track.options.legend
 
-    spines = ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
+    if track.pos != TrackPosition.Overlap:
+        spines = (
+            ("right", "left", "top", "bottom") if hide_x else ("right", "left", "top")
+        )
+    else:
+        spines = None
+
     format_ax(
         ax,
         xticks=hide_x,
@@ -110,4 +128,10 @@ def draw_hor(
         ax.add_patch(rect)
 
     if legend_ax and legend:
-        draw_uniq_entry_legend(legend_ax, track, ref_ax=ax, loc="center left")
+        draw_uniq_entry_legend(
+            legend_ax,
+            track,
+            ref_ax=ax,
+            ncols=track.options.legend_ncols,
+            loc="center left",
+        )
