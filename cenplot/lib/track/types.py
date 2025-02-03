@@ -3,7 +3,7 @@ import polars as pl
 from enum import StrEnum, auto
 from typing import NamedTuple
 
-from cenplot.track.settings import PlotSettings
+from ..track.settings import PlotSettings
 
 
 class TrackPosition(StrEnum):

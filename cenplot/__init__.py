@@ -1,6 +1,6 @@
 import logging
 
-from .draw import (
+from .lib.draw import (
     draw_hor,
     draw_hor_ort,
     draw_label,
@@ -10,14 +10,14 @@ from .draw import (
     merge_plots,
     SinglePlotSettings,
 )
-from .io import (
+from .lib.io import (
     read_bed9,
     read_bed_hor,
     read_bed_identity,
     read_bed_label,
     read_one_cen_tracks,
 )
-from .track import (
+from .lib.track import (
     Track,
     TrackOption,
     TrackPosition,

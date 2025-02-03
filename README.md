@@ -157,14 +157,11 @@ options = { invert = true }
 
 ```bash
 make venv && make build && make install
-python scripts/plot.py -t test/tracks_multiple.toml -ht 12
+cenplot draw -t test/tracks_multiple.toml
 ```
 
 ### TODO:
 * [ ] Monomer order
-* [x] Split monomers
-* [x] Refactor to library.
-* [x] Options to struct.
 * [ ] Examples
 * [ ] Tests
 * [ ] Merge images.

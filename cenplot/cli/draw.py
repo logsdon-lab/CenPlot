@@ -1,11 +1,11 @@
-import sys
 import os
+import sys
 import argparse
 import multiprocessing
 
 import polars as pl
 
-from typing import Iterable
+from typing import Any, Iterable, TYPE_CHECKING, TextIO
 from concurrent.futures import ProcessPoolExecutor
 
 from cenplot import (
@@ -16,29 +16,31 @@ from cenplot import (
     SinglePlotSettings,
 )
 
+if TYPE_CHECKING:
+    SubArgumentParser = argparse._SubParsersAction[argparse.ArgumentParser]
+else:
+    SubArgumentParser = Any
 
-def get_inputs(
-    args: argparse.Namespace,
+
+def get_draw_args(
+    input_tracks: str, chroms: TextIO, share_xlim: bool, outdir: str
 ) -> list[tuple[list[Track], str, str, SinglePlotSettings]]:
-    all_chroms: Iterable[str] = [line.strip() for line in args.chroms.readlines()]
+    all_chroms: Iterable[str] = [line.strip() for line in chroms.readlines()]
 
     inputs = []
     tracks_settings = [
-        read_one_cen_tracks(args.input_track, chrom=chrom) for chrom in all_chroms
+        (chrom, *read_one_cen_tracks(input_tracks, chrom=chrom)) for chrom in all_chroms
     ]
     xmin_all, xmax_all = sys.maxsize, 0
-    if args.share_xlim:
-        for _, settings in tracks_settings:
+    if share_xlim:
+        for *_, settings in tracks_settings:
             if settings.xlim:
                 xmin, xmax = settings.xlim
                 xmin_all = min(xmin_all, xmin)
                 xmax_all = max(xmax_all, xmax)
 
-    for chrom in all_chroms:
-        tracks_summary, plot_settings = read_one_cen_tracks(
-            args.input_track, chrom=chrom
-        )
-        if args.share_xlim:
+    for chrom, tracks_summary, plot_settings in tracks_settings:
+        if share_xlim:
             plot_settings.xlim = (xmin_all, xmax_all)
 
         inputs.append(
@@ -54,7 +56,7 @@ def get_inputs(
                     )
                     for trk in tracks_summary.tracks
                 ],
-                args.outdir,
+                outdir,
                 chrom,
                 plot_settings,
             )
@@ -62,11 +64,14 @@ def get_inputs(
     return inputs
 
 
-def main():
-    ap = argparse.ArgumentParser()
+def add_draw_cli(parser: SubArgumentParser) -> None:
+    ap = parser.add_parser(
+        "draw",
+        description="Draw centromere tracks.",
+    )
     ap.add_argument(
         "-t",
-        "--input_track",
+        "--input_tracks",
         required=True,
         type=str,
         help=(
@@ -96,24 +101,31 @@ def main():
         default=None,
     )
     ap.add_argument("--share_xlim", help="Share x-axis limits.", action="store_true")
-
     ap.add_argument("-p", "--processes", type=int, default=4, help="Processes to run.")
-    args = ap.parse_args()
 
-    tracks = get_inputs(args)
+    return None
 
-    os.makedirs(args.outdir, exist_ok=True)
-    if args.processes == 1:
-        plots = [plot_one_cen(*track) for track in tracks]
+
+def draw(
+    input_tracks: str,
+    chroms: TextIO,
+    outdir: str,
+    outfile: str,
+    share_xlim: bool,
+    processes: int,
+):
+    draw_args = get_draw_args(
+        input_tracks=input_tracks, chroms=chroms, share_xlim=share_xlim, outdir=outdir
+    )
+
+    os.makedirs(outdir, exist_ok=True)
+    if processes == 1:
+        plots = [plot_one_cen(*draw_arg) for draw_arg in draw_args]
     else:
         with ProcessPoolExecutor(
-            max_workers=args.processes, mp_context=multiprocessing.get_context("spawn")
+            max_workers=processes, mp_context=multiprocessing.get_context("spawn")
         ) as pool:
-            plots = pool.map(plot_one_cen, *zip(*tracks))  # type: ignore[assignment]
+            plots = pool.map(plot_one_cen, *zip(*draw_args))  # type: ignore[assignment]
 
-    if args.outfile:
-        merge_plots(plots, args.outfile)
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+    if outfile:
+        merge_plots(plots, outfile)

@@ -28,4 +28,4 @@ dynamic = ["dependencies"]
 Homepage = "https://github.com/logsdon-lab/cenplot"
 
 [project.scripts]
-nucflag = "cenplot.main:main"
+cenplot = "cenplot.main:main"
