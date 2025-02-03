@@ -42,9 +42,9 @@ class SinglePlotSettings:
     """
     Apply a height padding to each axis.
     """
-    shared_xlim: tuple[int, int] | None = None
+    xlim: tuple[int, int] | None = None
     """
-    Share x-axis limit across all plots.
+    Set x-axis limit across all plots.
     * `None` - Use the min and max position across all tracks.
     * `tuple[float, float]` - Use provided coordinates as min and max position.
     """

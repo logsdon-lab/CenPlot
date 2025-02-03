@@ -309,9 +309,9 @@ def read_one_cen_tracks(
         legend_pos,
         legend_prop,
         axis_h_pad,
-        shared_xlim=(
-            tuple(settings.get("shared_xlim"))  # type: ignore[arg-type]
-            if settings.get("shared_xlim")
+        xlim=(
+            tuple(settings.get("xlim"))  # type: ignore[arg-type]
+            if settings.get("xlim")
             else (min_st_pos, max_end_pos)
         ),
     )

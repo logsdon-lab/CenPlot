@@ -1,3 +1,4 @@
+import sys
 import os
 import argparse
 import multiprocessing
@@ -22,10 +23,24 @@ def get_inputs(
     all_chroms: Iterable[str] = [line.strip() for line in args.chroms.readlines()]
 
     inputs = []
+    tracks_settings = [
+        read_one_cen_tracks(args.input_track, chrom=chrom) for chrom in all_chroms
+    ]
+    xmin_all, xmax_all = sys.maxsize, 0
+    if args.share_xlim:
+        for _, settings in tracks_settings:
+            if settings.xlim:
+                xmin, xmax = settings.xlim
+                xmin_all = min(xmin_all, xmin)
+                xmax_all = max(xmax_all, xmax)
+
     for chrom in all_chroms:
         tracks_summary, plot_settings = read_one_cen_tracks(
             args.input_track, chrom=chrom
         )
+        if args.share_xlim:
+            plot_settings.xlim = (xmin_all, xmax_all)
+
         inputs.append(
             (
                 [
@@ -80,6 +95,7 @@ def main():
         type=str,
         default=None,
     )
+    ap.add_argument("--share_xlim", help="Share x-axis limits.", action="store_true")
 
     ap.add_argument("-p", "--processes", type=int, default=4, help="Processes to run.")
     args = ap.parse_args()

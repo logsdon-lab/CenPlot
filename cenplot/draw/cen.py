@@ -24,7 +24,7 @@ def plot_one_cen(
     # Show chrom trimmed of spaces for logs and filenames.
     print(f"Plotting {chrom}...", file=sys.stderr)
 
-    if not settings.shared_xlim:
+    if not settings.xlim:
         # Get min and max position of all tracks for this cen.
         min_st_pos = sys.maxsize
         max_end_pos = 0
@@ -45,8 +45,8 @@ def plot_one_cen(
                 continue
 
     else:
-        min_st_pos = settings.shared_xlim[0]
-        max_end_pos = settings.shared_xlim[1]
+        min_st_pos = settings.xlim[0]
+        max_end_pos = settings.xlim[1]
 
     width, height = settings.dim
 
