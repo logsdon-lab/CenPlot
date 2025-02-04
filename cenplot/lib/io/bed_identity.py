@@ -1,10 +1,14 @@
 import math
 import polars as pl
 
+from typing import TextIO
+
 from ..defaults import BED_SELF_IDENT_COLS, IDENT_COLOR_RANGE
 
 
-def read_bed_identity(infile: str, *, chrom: str | None = None) -> pl.DataFrame:
+def read_bed_identity(
+    infile: str | TextIO, *, chrom: str | None = None
+) -> pl.DataFrame:
     df = pl.read_csv(
         infile, separator="\t", has_header=False, new_columns=BED_SELF_IDENT_COLS
     )

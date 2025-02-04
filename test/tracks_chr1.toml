@@ -26,7 +26,7 @@ title = "Alpha-satellite HOR monomers"
 position = "overlap"
 type = "hor"
 path = "test/chr1/stv_row.bed"
-options = { legend = true, hide_x = false, mer_order = "large" }
+options = { legend = true, hide_x = false, sort_order = "descending" }
 
 [[tracks]]
 title = "Alpha-satellite HOR monomer ort"

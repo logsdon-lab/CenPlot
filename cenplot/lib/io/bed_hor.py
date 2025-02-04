@@ -1,19 +1,25 @@
 import polars as pl
 
+from typing import TextIO
+
 from .bed9 import read_bed9
-from ..defaults import MONOMER_LEN
+from .utils import map_value_colors
+from ..defaults import MONOMER_COLORS, MONOMER_LEN
+from ..track.settings import HORPlotSettings
 
 
 def read_bed_hor(
-    infile: str,
+    infile: str | TextIO,
     *,
     chrom: str | None = None,
-    mer_order: str = "large",
     live_only: bool = True,
-    mer_filter: int = 2,
-    visualization: bool = False,
+    mer_filter: int = HORPlotSettings.mer_filter,
+    hor_filter: int | None = None,
+    sort_col: str = "mer",
+    sort_order: str = HORPlotSettings.sort_order,
+    use_item_rgb: bool = HORPlotSettings.use_item_rgb,
 ) -> pl.DataFrame:
-    lf = (
+    df = (
         read_bed9(infile, chrom=chrom)
         .lazy()
         .with_columns(
@@ -22,26 +28,27 @@ def read_bed_hor(
         .with_columns(
             mer=(pl.col("length") / MONOMER_LEN).round().cast(pl.Int8).clip(1, 100)
         )
-    )
-
-    if visualization:
-        lf = lf.filter(
-            pl.when(pl.col("chrom_name") == "chr10")
-            .then(pl.col("mer") >= 5)
-            .when(pl.col("chrom_name") == "chr20")
-            .then(pl.col("mer") >= 5)
-            .when(pl.col("chrom_name") == "chrY")
-            .then(pl.col("mer") >= 30)
-            .when(pl.col("chrom_name") == "chr17")
-            .then(pl.col("mer") >= 4)
-            .otherwise(True)
-        ).with_columns(pl.col("length") + 2000)
-    return (
-        lf.filter(
+        .filter(
             pl.when(live_only).then(pl.col("name").str.contains("L")).otherwise(True)
             & (pl.col("mer") >= mer_filter)
         )
-        .sort("mer", descending=mer_order == "large")
-        .cast({"mer": pl.String})
         .collect()
     )
+
+    df = map_value_colors(
+        df,
+        map_col="mer",
+        map_values=MONOMER_COLORS,
+        use_item_rgb=use_item_rgb,
+    )
+    df = df.join(df.get_column("name").value_counts(name="hor_count"), on="name")
+
+    if hor_filter:
+        df = df.filter(pl.col("hor_count") >= hor_filter)
+
+    if sort_col == "mer":
+        df = df.sort(sort_col, descending=sort_order == HORPlotSettings.sort_order)
+    else:
+        df = df.sort("hor_count", descending=sort_order == HORPlotSettings.sort_order)
+
+    return df

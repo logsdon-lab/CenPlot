@@ -1,9 +1,11 @@
 import polars as pl
 
+from typing import TextIO
+
 from .bed9 import read_bed9
 
 
-def read_bed_label(infile: str, *, chrom: str | None = None) -> pl.DataFrame:
+def read_bed_label(infile: str | TextIO, *, chrom: str | None = None) -> pl.DataFrame:
     df_track = read_bed9(infile, chrom=chrom)
 
     # Order facets by descending length. This prevents larger annotations from blocking others.

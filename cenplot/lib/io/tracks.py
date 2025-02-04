@@ -1,14 +1,13 @@
 import os
 import sys
 import tomllib
-
-import numpy as np
 import polars as pl
+
 
 from typing import Any, Generator
 from censtats.length import hor_array_length
-from matplotlib.colors import LinearSegmentedColormap, rgb2hex
 
+from .utils import get_min_max_track, map_value_colors
 from .bed9 import read_bed9
 from .bed_identity import read_bed_identity
 from .bed_label import read_bed_label
@@ -23,45 +22,50 @@ from ..track.settings import (
 )
 from ..track.types import Track, TrackOption, TrackPosition, TrackList
 from ..draw.settings import SinglePlotSettings
-from ..defaults import MONOMER_COLORS
 
 
-def map_value_colors(
-    df: pl.DataFrame,
-    map_col: str | None = None,
-    map_values: dict[Any, Any] | None = None,
-    use_item_rgb: bool = False,
-) -> pl.DataFrame:
-    if "item_rgb" in df.columns and use_item_rgb:
-        # Convert colors from rgb str -> rgb tuple -> hex
-        df = df.with_columns(
-            color=pl.col("item_rgb")
-            .str.split(",")
-            .list.eval(pl.element().cast(pl.Int16) / 255)
-            .map_elements(lambda x: rgb2hex(x), return_dtype=pl.String)
-        )
-    elif map_col:
-        if map_values:
-            val_color_mapping = map_values
-        else:
-            unique_vals = df[map_col].unique(maintain_order=True)
-            cmap = LinearSegmentedColormap.from_list(
-                "rg", ["r", "w", "g"], N=len(unique_vals)
-            )
-            val_color_mapping = {
-                val: rgb2hex(color)
-                for val, color in zip(
-                    unique_vals, cmap(np.linspace(0, 1, len(unique_vals)))
-                )
-            }
-        df = df.with_columns(
-            color=pl.col(map_col)
-            .cast(pl.String)
-            # If not in mapping, set to gray.
-            .replace(val_color_mapping, default="#808080")
+def split_hor_track(
+    df_track: pl.DataFrame,
+    track_pos: TrackPosition,
+    track_opt: TrackOption,
+    title: Any | None,
+    prop: float,
+    split_colname: str,
+    split_prop: bool,
+    options: dict[str, Any],
+) -> Generator[Track, None, None]:
+    srs_split_names = df_track[split_colname].unique()
+    # Split proportion across tracks.
+    if split_prop:
+        track_prop = prop / len(srs_split_names)
+    else:
+        track_prop = prop
+
+    if track_pos == TrackPosition.Overlap:
+        print(
+            f"Overlap not supported for {track_opt}. Using relative position.",
+            file=sys.stderr,
         )
 
-    return df
+    for split, df_split_track in df_track.group_by(
+        [split_colname], maintain_order=True
+    ):
+        split = split[0]
+        # Add mer to name if formatted.
+        try:
+            mer_title = str(title).format(mer=split) if title else ""
+        except KeyError:
+            mer_title = str(title) if title else ""
+        # Disallow overlap.
+        # Split proportion over uniq monomers.
+        yield Track(
+            mer_title,
+            TrackPosition.Relative,
+            TrackOption.HORSplit,
+            track_prop,
+            df_split_track,
+            HORPlotSettings(**options),
+        )
 
 
 def read_one_track_info(
@@ -99,16 +103,28 @@ def read_one_track_info(
 
     track_options: PlotSettings
     if track_opt == TrackOption.HORSplit:
-        mer_order = options.get("mer_order", HORPlotSettings.mer_order)
         live_only = options.get("live_only", HORPlotSettings.live_only)
         mer_filter = options.get("mer_filter", HORPlotSettings.mer_filter)
+        hor_filter = options.get("hor_filter", HORPlotSettings.hor_filter)
         split_prop = options.get("split_prop", HORPlotSettings.split_prop)
+        use_item_rgb = options.get("use_item_rgb", HORPlotSettings.use_item_rgb)
+        sort_order = options.get("sort_order", HORPlotSettings.sort_order)
+
+        # Use item_rgb column otherwise, map name or mer to a color.
+        if options.get("mode", HORPlotSettings.mode) == "hor":
+            split_colname = "name"
+        else:
+            split_colname = "mer"
+
         df_track = read_bed_hor(
             path,
             chrom=chrom,
-            mer_order=mer_order,
+            sort_col=split_colname,
+            sort_order=sort_order,
             live_only=live_only,
             mer_filter=mer_filter,
+            hor_filter=hor_filter,
+            use_item_rgb=use_item_rgb,
         )
         if df_track.is_empty():
             print(
@@ -117,77 +133,34 @@ def read_one_track_info(
             )
             return None
 
-        # Use item_rgb column otherwise, map name or mer to a color.
-        use_item_rgb = options.get("use_item_rgb", HORPlotSettings.use_item_rgb)
-        if options.get("mode", HORPlotSettings.mode) == "hor":
-            split_colname = "name"
-            df_track = map_value_colors(
-                df_track,
-                map_col=split_colname,
-                use_item_rgb=use_item_rgb,
-            )
-        else:
-            split_colname = "mer"
-            df_track = map_value_colors(
-                df_track,
-                map_col=split_colname,
-                map_values=MONOMER_COLORS,
-                use_item_rgb=use_item_rgb,
-            )
-
-        srs_split_names = df_track[split_colname].unique()
-        # Split proportion across tracks.
-        if split_prop:
-            track_prop = prop / len(srs_split_names)
-        else:
-            track_prop = prop
-
-        if track_pos == TrackPosition.Overlap:
-            print(
-                f"Overlap not supported for {track_opt}. Using relative position.",
-                file=sys.stderr,
-            )
-
-        for split, df_split_track in df_track.group_by(
-            [split_colname], maintain_order=True
-        ):
-            split = split[0]
-            # Add mer to name if formatted.
-            try:
-                mer_title = str(title).format(mer=split) if title else ""
-            except KeyError:
-                mer_title = str(title) if title else ""
-            # Disallow overlap.
-            # Split proportion over uniq monomers.
-            yield Track(
-                mer_title,
-                TrackPosition.Relative,
-                TrackOption.HORSplit,
-                track_prop,
-                df_split_track,
-                HORPlotSettings(**options),
-            )
-
+        yield from split_hor_track(
+            df_track,
+            track_pos,
+            track_opt,
+            title,
+            prop,
+            split_colname,
+            split_prop,
+            options,
+        )
         return None
 
     elif track_opt == TrackOption.HOR:
-        mer_order = options.get("mer_order", HORPlotSettings.mer_order)
+        sort_order = options.get("sort_order", HORPlotSettings.sort_order)
         live_only = options.get("live_only", HORPlotSettings.live_only)
         mer_filter = options.get("mer_filter", HORPlotSettings.mer_filter)
+        hor_filter = options.get("hor_filter", HORPlotSettings.hor_filter)
 
         # Use item_rgb column otherwise, map name or mer to a color.
         use_item_rgb = options.get("use_item_rgb", HORPlotSettings.use_item_rgb)
         df_track = read_bed_hor(
             path,
             chrom=chrom,
-            mer_order=mer_order,
+            sort_col="mer",
+            sort_order=sort_order,
             live_only=live_only,
             mer_filter=mer_filter,
-        )
-        df_track = map_value_colors(
-            df_track,
-            map_col="mer",
-            map_values=MONOMER_COLORS,
+            hor_filter=hor_filter,
             use_item_rgb=use_item_rgb,
         )
         track_options = HORPlotSettings(**options)
@@ -204,7 +177,6 @@ def read_one_track_info(
                 chrom=chrom,
                 live_only=live_only,
                 mer_filter=mer_filter,
-                visualization=False,
             ),
             output_strand=True,
         )
@@ -228,35 +200,6 @@ def read_one_track_info(
     df_track = map_value_colors(df_track)
 
     yield Track(title, track_pos, track_opt, prop, df_track, track_options)
-
-
-def get_min_max_track(
-    tracks: list[Track], typ: str, default_col: str = "chrom_st"
-) -> tuple[Track, int]:
-    track = None
-    if typ == "min":
-        pos = sys.maxsize
-    else:
-        pos = 0
-
-    for trk in tracks:
-        if trk.opt == TrackOption.SelfIdent:
-            col = "x"
-        else:
-            col = default_col
-        if typ == "min":
-            trk_min = trk.data.filter(pl.col(col) > 0)[col].min()
-            if trk_min < pos:
-                track = trk
-                pos = trk_min
-        else:
-            trk_max = trk.data[col].max()
-            if trk_max > pos:
-                track = trk
-                pos = trk_max
-    if not track:
-        raise ValueError("No tracks.")
-    return track, pos
 
 
 def read_one_cen_tracks(

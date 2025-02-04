@@ -10,7 +10,7 @@ position = "relative"
 type = "hor"
 proportion = 1.0
 path = "test/chrY/stv.bed"
-options = { mer_order = "large" }
+options = { sort_order = "descending" }
 
 [[tracks]]
 title = "Sequence Composition"

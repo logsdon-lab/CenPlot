@@ -181,9 +181,13 @@ class HORPlotSettings(DefaultPlotSettings):
     Higher order repeat plot options.
     """
 
-    mer_order: Literal["large", "small"] = "large"
+    sort_order: Literal["ascending", "descending"] = "descending"
     """
-    Plot HORs with `{mer_order}` monomers on top.
+    Plot HORs by `{mode}` in `{sort_order}` order.
+
+    Mode:
+    * If `{mer}`, sort by `mer` number
+    * If `{hor}`, sort by `hor` frequency.
     """
     mode: Literal["mer", "hor"] = "mer"
     """
@@ -196,6 +200,10 @@ class HORPlotSettings(DefaultPlotSettings):
     mer_filter: int = 2
     """
     Filter HORs that have at least 2 monomers.
+    """
+    hor_filter: int = 5
+    """
+    Filter HORs that have occur fewer than hor_filter times.
     """
     use_item_rgb: bool = False
     """

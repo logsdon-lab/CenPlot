@@ -25,7 +25,7 @@ options = { legend = true, hide_x = true }
 position = "overlap"
 type = "hor"
 path = "/project/logsdon_shared/projects/HGSVC3/CenMAP_verkko_run6/results/hor_stv/bed/chrX_AS-HOR_stv_row.all.bed"
-options = { legend = true, hide_x = true, mer_order = "large" }
+options = { legend = true, hide_x = true, sort_order = "descending" }
 
 [[tracks]]
 # CDR
