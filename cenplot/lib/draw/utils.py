@@ -138,13 +138,24 @@ def draw_uniq_entry_legend(
     ax: Axes,
     track: Track,
     ref_ax: Axes | None = None,
-    ncols: int = DefaultPlotSettings.legend_ncols,
+    ncols: int | None = DefaultPlotSettings.legend_ncols,
     **kwargs: Any,
 ) -> None:
     ref_ax = ref_ax if ref_ax else ax
+
     # Dedupe labels.
     handles, labels = ref_ax.get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
+    by_label: dict[str, Rectangle] = dict(zip(labels, handles))
+
+    # Add outline to markers
+    for _, handle in by_label.items():
+        handle.set_linewidth(1.0)
+        handle.set_edgecolor("black")
+        handle.set_height(1.0)
+        handle.set_width(1.0)
+
+    if not ncols:
+        ncols = 4
 
     legend = ax.legend(
         by_label.values(), by_label.keys(), ncols=ncols, frameon=False, **kwargs

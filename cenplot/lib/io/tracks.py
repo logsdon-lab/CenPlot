@@ -15,10 +15,13 @@ from .bed_hor import read_bed_hor
 from ..track.settings import (
     HORPlotSettings,
     HOROrtPlotSettings,
+    LegendPlotSettings,
+    PositionPlotSettings,
     SelfIdentPlotSettings,
     LabelPlotSettings,
     BarPlotSettings,
     PlotSettings,
+    SpacerPlotSettings,
 )
 from ..track.types import Track, TrackOption, TrackPosition, TrackList
 from ..draw.settings import SinglePlotSettings
@@ -95,13 +98,27 @@ def read_one_track_info(
         )
         return None
 
+    track_options: PlotSettings
+    if track_opt == TrackOption.Position:
+        track_options = PositionPlotSettings(**options)
+        track_options.hide_x = False
+        yield Track(title, track_pos, track_opt, prop, None, track_options)
+        return None
+    elif track_opt == TrackOption.Legend:
+        track_options = LegendPlotSettings(**options)
+        yield Track(title, track_pos, track_opt, prop, None, track_options)
+        return None
+    elif track_opt == TrackOption.Spacer:
+        track_options = SpacerPlotSettings(**options)
+        yield Track(title, track_pos, track_opt, prop, None, track_options)
+        return None
+
     if not path:
         raise ValueError("Path to data required.")
 
     if not os.path.exists(path):
         raise FileNotFoundError(f"Data does not exist for track ({track})")
 
-    track_options: PlotSettings
     if track_opt == TrackOption.HORSplit:
         live_only = options.get("live_only", HORPlotSettings.live_only)
         mer_filter = options.get("mer_filter", HORPlotSettings.mer_filter)
@@ -237,6 +254,9 @@ def read_one_cen_tracks(
         for track_info in tracks:
             for track in read_one_track_info(track_info, chrom=chrom):
                 all_tracks.append(track)
+                # Tracks legend and position have no data.
+                if not isinstance(track.data, pl.DataFrame):
+                    continue
                 chroms.update(track.data["chrom"])
 
     _, min_st_pos = get_min_max_track(all_tracks, typ="min")

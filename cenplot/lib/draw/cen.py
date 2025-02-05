@@ -1,7 +1,6 @@
 import os
 import sys
 import numpy as np
-import polars as pl
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -11,7 +10,9 @@ from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
 from .self_ident import draw_self_ident
 from .bar import draw_bars
+from .legend import draw_legend
 from .utils import create_subplots, format_ax, set_both_labels
+from ..io.utils import get_min_max_track
 from ..track.types import Track, TrackOption, TrackPosition, LegendPosition
 
 
@@ -26,24 +27,10 @@ def plot_one_cen(
 
     if not settings.xlim:
         # Get min and max position of all tracks for this cen.
-        min_st_pos = sys.maxsize
-        max_end_pos = 0
-        for trk in dfs_track:
-            col_st, col_end = "chrom_st", "chrom_end"
-            if trk.opt == TrackOption.SelfIdent:
-                df_track = trk.data.filter(
-                    (pl.col("query_st") > 0) & (pl.col("query_end") > 0)
-                )
-                col_st, col_end = "query_st", "query_end"
-            else:
-                df_track = trk.data
-
-            try:
-                min_st_pos = min(df_track[col_st].min(), min_st_pos)
-                max_end_pos = max(df_track[col_end].max(), max_end_pos)
-            except TypeError:
-                continue
-
+        _, min_st_pos = get_min_max_track(dfs_track, typ="min")
+        _, max_end_pos = get_min_max_track(
+            dfs_track, typ="max", default_col="chrom_end"
+        )
     else:
         min_st_pos = settings.xlim[0]
         max_end_pos = settings.xlim[1]
@@ -106,27 +93,48 @@ def plot_one_cen(
         # Set xaxis limits
         track_ax.set_xlim(min_st_pos, max_end_pos)
 
-        # Switch track option. {bar, label, ident, hor}
-        # Add legend.
-        if track.opt == TrackOption.HOR or track.opt == TrackOption.HORSplit:
-            draw_fn = draw_hor
-        elif track.opt == TrackOption.HOROrt:
-            draw_fn = draw_hor_ort
-        elif track.opt == TrackOption.Label:
-            draw_fn = draw_label
-        elif track.opt == TrackOption.SelfIdent:
-            draw_fn = draw_self_ident
-        elif track.opt == TrackOption.Bar:
-            draw_fn = draw_bars
+        if track.opt == TrackOption.Legend:
+            draw_legend(track_ax, axes, track, dfs_track, track_row, track_col)
+        elif track.opt == TrackOption.Position:
+            # Hide everything but x-axis
+            format_ax(
+                track_ax,
+                grid=True,
+                yticks=True,
+                spines=("right", "left", "top"),
+            )
+        elif track.opt == TrackOption.Spacer:
+            # Hide everything.
+            format_ax(
+                track_ax,
+                grid=True,
+                xticks=True,
+                yticks=True,
+                spines=("right", "left", "top", "bottom"),
+            )
         else:
-            raise ValueError("Invalid TrackOption. Unreachable.")
+            # Switch track option. {bar, label, ident, hor}
+            # Add legend.
+            if track.opt == TrackOption.HOR or track.opt == TrackOption.HORSplit:
+                draw_fn = draw_hor
+            elif track.opt == TrackOption.HOROrt:
+                draw_fn = draw_hor_ort
+            elif track.opt == TrackOption.Label:
+                draw_fn = draw_label
+            elif track.opt == TrackOption.SelfIdent:
+                draw_fn = draw_self_ident
+            elif track.opt == TrackOption.Bar:
+                draw_fn = draw_bars
 
-        draw_fn(
-            ax=track_ax,
-            legend_ax=legend_ax,
-            track=track,
-            zorder=idx,
-        )
+            else:
+                raise ValueError("Invalid TrackOption. Unreachable.")
+
+            draw_fn(
+                ax=track_ax,
+                legend_ax=legend_ax,
+                track=track,
+                zorder=idx,
+            )
 
         # Store label if more overlaps.
         track_labels.append(track_label)
@@ -139,8 +147,9 @@ def plot_one_cen(
 
         # Make legend title invisible for HORs split after 1.
         if track.opt == TrackOption.HORSplit:
-            if num_hor_split != 0:
-                legend_title = legend_ax.get_legend().get_title()
+            legend_ax_legend = legend_ax.get_legend()
+            if legend_ax_legend and num_hor_split != 0:
+                legend_title = legend_ax_legend.get_title()
                 legend_title.set_alpha(0.0)
             num_hor_split += 1
 

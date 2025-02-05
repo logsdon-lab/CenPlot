@@ -23,7 +23,7 @@ class DefaultPlotSettings:
     Show the legend.
     """
 
-    legend_ncols: int = 4
+    legend_ncols: int | None = None
     """
     Number of columns for legend entries.
     """
@@ -219,12 +219,33 @@ class HORPlotSettings(DefaultPlotSettings):
     """
 
 
+@dataclass
+class LegendPlotSettings(DefaultPlotSettings):
+    index: int | None = None
+    """
+    Index of plot to get legend of.
+    """
+
+
+@dataclass
+class PositionPlotSettings(DefaultPlotSettings):
+    pass
+
+
+@dataclass
+class SpacerPlotSettings(DefaultPlotSettings):
+    pass
+
+
 PlotSettings = (
     HORPlotSettings
     | HOROrtPlotSettings
     | SelfIdentPlotSettings
     | BarPlotSettings
     | LabelPlotSettings
+    | LegendPlotSettings
+    | PositionPlotSettings
+    | SpacerPlotSettings
 )
 """
 Type annotation for all possible settings for the various plot types.

@@ -51,7 +51,9 @@ def get_draw_args(
                         trk.pos,
                         trk.opt,
                         trk.prop,
-                        trk.data.filter(pl.col("chrom") == chrom),
+                        trk.data.filter(pl.col("chrom") == chrom)
+                        if isinstance(trk.data, pl.DataFrame)
+                        else None,
                         trk.options,
                     )
                     for trk in tracks_summary.tracks

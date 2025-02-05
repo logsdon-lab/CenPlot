@@ -18,6 +18,9 @@ class TrackOption(StrEnum):
     Label = auto()
     Bar = auto()
     SelfIdent = auto()
+    Position = auto()
+    Legend = auto()
+    Spacer = auto()
 
 
 class Track(NamedTuple):
@@ -45,3 +48,6 @@ class TrackList(NamedTuple):
 class LegendPosition(StrEnum):
     Left = auto()
     Right = auto()
+
+
+NO_DATA_TRACK_OPTS = {TrackOption.Legend, TrackOption.Position, TrackOption.Spacer}
