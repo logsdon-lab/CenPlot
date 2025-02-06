@@ -16,11 +16,16 @@ def map_value_colors(
 ) -> pl.DataFrame:
     if "item_rgb" in df.columns and use_item_rgb:
         # Convert colors from rgb str -> rgb tuple -> hex
+        # If already hex, allow.
         df = df.with_columns(
-            color=pl.col("item_rgb")
-            .str.split(",")
-            .list.eval(pl.element().cast(pl.Int16) / 255)
-            .map_elements(lambda x: rgb2hex(x), return_dtype=pl.String)
+            color=pl.when(pl.col("item_rgb").str.starts_with("#"))
+            .then(pl.col("item_rgb"))
+            .otherwise(
+                pl.col("item_rgb")
+                .str.split(",")
+                .list.eval(pl.element().cast(pl.Int16) / 255)
+                .map_elements(lambda x: rgb2hex(x), return_dtype=pl.String)
+            )
         )
     elif map_col:
         if map_values:
