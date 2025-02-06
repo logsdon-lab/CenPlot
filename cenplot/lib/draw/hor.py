@@ -70,7 +70,7 @@ def draw_hor_ort(
             track,
             ref_ax=ax,
             ncols=track.options.legend_ncols,
-            loc="center left",
+            loc="center",
         )
 
 
@@ -135,5 +135,5 @@ def draw_hor(
             track,
             ref_ax=ax,
             ncols=track.options.legend_ncols,
-            loc="center left",
+            loc="center",
         )

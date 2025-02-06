@@ -1,4 +1,3 @@
-from matplotlib.patches import Rectangle
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -6,6 +5,7 @@ from typing import Any
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.patches import Rectangle
 from matplotlib.backends.backend_pdf import PdfPages
 
 from ..utils import Unit
@@ -147,19 +147,31 @@ def draw_uniq_entry_legend(
     handles, labels = ref_ax.get_legend_handles_labels()
     by_label: dict[str, Rectangle] = dict(zip(labels, handles))
 
-    # Add outline to markers
-    for _, handle in by_label.items():
-        handle.set_linewidth(1.0)
-        handle.set_edgecolor("black")
-        handle.set_height(1.0)
-        handle.set_width(1.0)
-
     if not ncols:
         ncols = 4
 
-    legend = ax.legend(
-        by_label.values(), by_label.keys(), ncols=ncols, frameon=False, **kwargs
-    )
+    if not track.options.legend_title_only:
+        legend = ax.legend(
+            by_label.values(),
+            by_label.keys(),
+            ncols=ncols,
+            # Set aspect ratio of handles so square.
+            handlelength=1.0,
+            handleheight=1.0,
+            frameon=False,
+            **kwargs,
+        )
+
+        # Set patches edge color manually.
+        # Turns out get_legend_handles_labels will get all rect patches and setting linewidth will cause all patches to be black.
+        for ptch in legend.get_patches():
+            ptch.set_linewidth(1.0)
+            ptch.set_edgecolor("black")
+    else:
+        legend = ax.legend([], [], frameon=False)
+        legend.set_loc("center")
+
+    legend.set_alignment("center")
 
     # Wrap text.
     for txt in legend.get_texts():
@@ -169,7 +181,6 @@ def draw_uniq_entry_legend(
     if track.options.legend_title:
         legend.set_title(track.options.legend_title)
         legend.get_title().set_fontsize(track.options.legend_title_fontsize)
-        legend.set_alignment("left")
 
 
 def add_border(ax: Axes, height: float, zorder: float):

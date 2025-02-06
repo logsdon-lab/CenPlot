@@ -44,6 +44,11 @@ class DefaultPlotSettings:
     Legend title font size.
     """
 
+    legend_title_only: bool = False
+    """
+    Hide all legend elements except titile.
+    """
+
     hide_x: bool = True
     """
     Hide the x-axis ticks, ticklabels, and spines.

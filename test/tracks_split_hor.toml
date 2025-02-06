@@ -1,12 +1,11 @@
 [settings]
-title = "{chrom}"
 format = "png"
 transparent = false
-dim = [16.0, 16.0]
+dim = [20.0, 12.0]
 dpi = 600
 axis_h_pad = 0.0
 legend_pos = "left"
-legend_prop = 0.1
+legend_prop = 0.075
 layout = "compressed"
 
 [[tracks]]
@@ -15,23 +14,20 @@ type = "spacer"
 proportion = 0.05
 
 [[tracks]]
-# title = "Alpha-satellite HOR monomer"
 position = "relative"
 type = "hor"
 proportion = 0.1
 path = "test/chm13/chm13_stv_row.bed"
-options = { legend = false, legend_title = "HOR monomer number", sort_order = "descending", live_only = true, hide_x = true, border = true }
+options = { legend = true, legend_title = "{chrom}", legend_title_only = true, sort_order = "descending", live_only = true, hide_x = true, border = true }
 
 [[tracks]]
-# title = "Alpha-satellite HOR monomer ort"
 position = "relative"
 type = "horort"
 proportion = 0.05
 path = "test/chm13/chm13_stv_row.bed"
-options = { legend = false, hide_x = true, live_only = true, scale = 12 }
+options = { legend = true, legend_title = "α-satellite HOR composition", legend_title_only = true, hide_x = true, live_only = true, scale = 12 }
 
 [[tracks]]
-# title = "Alpha-satellite HOR monomers"
 position = "relative"
 type = "horsplit"
 proportion = 0.1
@@ -47,4 +43,4 @@ proportion = 0.01
 position = "relative"
 type = "legend"
 proportion = 0.1
-options = { index = 1, legend_ncols = 10 }
+options = { legend = true, legend_title = "# of monomers in α-satellite HOR", index = 1, legend_ncols = 10 }

@@ -36,6 +36,7 @@ def split_hor_track(
     split_colname: str,
     split_prop: bool,
     options: dict[str, Any],
+    chrom: str | None = None,
 ) -> Generator[Track, None, None]:
     srs_split_names = df_track[split_colname].unique()
     # Split proportion across tracks.
@@ -50,15 +51,23 @@ def split_hor_track(
             file=sys.stderr,
         )
 
+    plot_options = HORPlotSettings(**options)
     for split, df_split_track in df_track.group_by(
         [split_colname], maintain_order=True
     ):
         split = split[0]
         # Add mer to name if formatted.
         try:
-            mer_title = str(title).format(mer=split) if title else ""
+            mer_title = str(title).format(**{split_colname: split}) if title else ""
         except KeyError:
             mer_title = str(title) if title else ""
+
+        # Update legend title.
+        if plot_options.legend_title and chrom:
+            plot_options.legend_title = plot_options.legend_title.format(
+                **{split_colname: split, "chrom": chrom}
+            )
+
         # Disallow overlap.
         # Split proportion over uniq monomers.
         yield Track(
@@ -67,7 +76,7 @@ def split_hor_track(
             TrackOption.HORSplit,
             track_prop,
             df_split_track,
-            HORPlotSettings(**options),
+            plot_options,
         )
 
 
@@ -159,6 +168,7 @@ def read_one_track_info(
             split_colname,
             split_prop,
             options,
+            chrom=chrom,
         )
         return None
 
@@ -181,6 +191,9 @@ def read_one_track_info(
             use_item_rgb=use_item_rgb,
         )
         track_options = HORPlotSettings(**options)
+        # Update legend title.
+        if track_options.legend_title:
+            track_options.legend_title = track_options.legend_title.format(chrom=chrom)
 
         yield Track(title, track_pos, track_opt, prop, df_track, track_options)
         return None
@@ -215,6 +228,9 @@ def read_one_track_info(
         track_options = LabelPlotSettings(**options)
 
     df_track = map_value_colors(df_track)
+    # Update legend title.
+    if track_options.legend_title:
+        track_options.legend_title = track_options.legend_title.format(chrom=chrom)
 
     yield Track(title, track_pos, track_opt, prop, df_track, track_options)
 

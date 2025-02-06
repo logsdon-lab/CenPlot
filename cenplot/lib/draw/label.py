@@ -79,5 +79,5 @@ def draw_label(
             track,
             ref_ax=ax,
             ncols=track.options.legend_ncols,
-            loc="center left",
+            loc="center",
         )
