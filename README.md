@@ -26,7 +26,6 @@ Library for producing centromere figures.
 ### Plot Settings
 General settings for output plots.
 
-#### `single`
 ```toml
 [settings]
 format = "png"
@@ -35,10 +34,6 @@ dim = [16.0, 12.0]
 dpi = 600
 legend_pos = "right"
 axis_h_pad = 0.2
-```
-
-#### `multiple`
-```toml
 ```
 
 ### Tracks

@@ -4,4 +4,5 @@ __pycache__
 venv/
 dist/
 exp/
+docs/
 *.egg-info

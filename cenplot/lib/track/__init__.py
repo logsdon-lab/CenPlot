@@ -5,6 +5,9 @@ from .settings import (
     LabelPlotSettings,
     HORPlotSettings,
     HOROrtPlotSettings,
+    PositionPlotSettings,
+    LegendPlotSettings,
+    SpacerPlotSettings,
     PlotSettings,
 )
 
@@ -19,5 +22,8 @@ __all__ = [
     "LabelPlotSettings",
     "HORPlotSettings",
     "HOROrtPlotSettings",
+    "PositionPlotSettings",
+    "LegendPlotSettings",
+    "SpacerPlotSettings",
     "PlotSettings",
 ]

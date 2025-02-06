@@ -29,6 +29,9 @@ from .lib.track import (
     HOROrtPlotSettings,
     BarPlotSettings,
     LabelPlotSettings,
+    PositionPlotSettings,
+    LegendPlotSettings,
+    SpacerPlotSettings,
 )
 
 __author__ = "Keith Oshima (oshimak@pennmedicine.upenn.edu)"
@@ -58,6 +61,9 @@ __all__ = [
     "BarPlotSettings",
     "LabelPlotSettings",
     "SinglePlotSettings",
+    "PositionPlotSettings",
+    "LegendPlotSettings",
+    "SpacerPlotSettings",
 ]
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
