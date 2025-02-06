@@ -168,10 +168,7 @@ def draw_uniq_entry_legend(
             ptch.set_linewidth(1.0)
             ptch.set_edgecolor("black")
     else:
-        legend = ax.legend([], [], frameon=False)
-        legend.set_loc("center")
-
-    legend.set_alignment("center")
+        legend = ax.legend([], [], frameon=False, loc="center left", alignment="left")
 
     # Wrap text.
     for txt in legend.get_texts():

@@ -44,6 +44,7 @@ def draw_legend(
         if track.options.legend_ncols
         else srs_track.n_unique(),
         loc="center",
+        alignment="center",
     )
     format_ax(
         ax,
