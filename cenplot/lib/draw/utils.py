@@ -170,10 +170,6 @@ def draw_uniq_entry_legend(
     else:
         legend = ax.legend([], [], frameon=False, loc="center left", alignment="left")
 
-    # Wrap text.
-    for txt in legend.get_texts():
-        txt.set_wrap(True)
-
     # Set legend title.
     if track.options.legend_title:
         legend.set_title(track.options.legend_title)

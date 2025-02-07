@@ -14,19 +14,19 @@ def map_value_colors(
     map_values: dict[Any, Any] | None = None,
     use_item_rgb: bool = False,
 ) -> pl.DataFrame:
+    def rgb_to_hex(srs: pl.Series) -> pl.Series:
+        color_hex = []
+        for elem in srs:
+            if elem.startswith("#"):
+                color_hex.append(elem)
+            else:
+                rgb = [int(e) / 255 for e in elem.split(",")]
+                color_hex.append(rgb2hex(rgb))
+        return pl.Series(name="color", values=color_hex)
+
     if "item_rgb" in df.columns and use_item_rgb:
         # Convert colors from rgb str -> rgb tuple -> hex
-        # If already hex, allow.
-        df = df.with_columns(
-            color=pl.when(pl.col("item_rgb").str.starts_with("#"))
-            .then(pl.col("item_rgb"))
-            .otherwise(
-                pl.col("item_rgb")
-                .str.split(",")
-                .list.eval(pl.element().cast(pl.Int16) / 255)
-                .map_elements(lambda x: rgb2hex(x), return_dtype=pl.String)
-            )
-        )
+        df = df.with_columns(color=rgb_to_hex(df["item_rgb"]))
     elif map_col:
         if map_values:
             val_color_mapping = map_values
