@@ -2,4 +2,4 @@ matplotlib==3.10.0
 polars==1.19.0
 numpy==2.2.1
 intervaltree==3.1.0
-censtats==0.0.9
+censtats==0.0.10
