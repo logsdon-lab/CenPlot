@@ -8,15 +8,15 @@ from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
 from matplotlib.backends.backend_pdf import PdfPages
 
-from .settings import SinglePlotSettings
+from .settings import PlotSettings
 from ..utils import Unit
-from ..track.types import LegendPosition, Track, TrackOption, TrackPosition
-from ..track.settings import DefaultPlotSettings
+from ..track.types import LegendPosition, Track, TrackType, TrackPosition
+from ..track.settings import DefaultTrackSettings
 
 
 def create_subplots(
     tracks: list[Track],
-    settings: SinglePlotSettings,
+    settings: PlotSettings,
     **kwargs: Any,
 ) -> tuple[Figure, np.ndarray, dict[int, int]]:
     """
@@ -48,7 +48,7 @@ def create_subplots(
             track_props.append(track.prop)
         # For each unique HOR monomer number, create a new track.
         # Divide the proportion of the image allocated between each mer track.
-        elif track.opt == TrackOption.HORSplit:
+        elif track.opt == TrackType.HORSplit:
             if track.options.mode == "hor":
                 n_subplots = track.data["name"].unique()
             else:
@@ -168,7 +168,7 @@ def draw_uniq_entry_legend(
     ax: Axes,
     track: Track,
     ref_ax: Axes | None = None,
-    ncols: int | None = DefaultPlotSettings.legend_ncols,
+    ncols: int | None = DefaultTrackSettings.legend_ncols,
     **kwargs: Any,
 ) -> None:
     """

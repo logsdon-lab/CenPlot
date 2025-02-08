@@ -5,7 +5,7 @@ import polars as pl
 from typing import Any
 from matplotlib.colors import ListedColormap, rgb2hex
 
-from ..track.types import NO_DATA_TRACK_OPTS, Track, TrackOption
+from ..track.types import NO_DATA_TRACK_OPTS, Track, TrackType
 
 
 def map_value_colors(
@@ -74,7 +74,7 @@ def get_min_max_track(
         pos = 0
 
     for trk in tracks:
-        if trk.opt == TrackOption.SelfIdent:
+        if trk.opt == TrackType.SelfIdent:
             col = "x"
         # Skip tracks which carry no data.
         elif trk.opt in NO_DATA_TRACK_OPTS:

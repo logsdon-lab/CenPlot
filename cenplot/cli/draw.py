@@ -13,7 +13,7 @@ from cenplot import (
     merge_plots,
     read_one_cen_tracks,
     Track,
-    SinglePlotSettings,
+    PlotSettings,
 )
 
 if TYPE_CHECKING:
@@ -24,7 +24,7 @@ else:
 
 def get_draw_args(
     input_tracks: str, chroms: TextIO, share_xlim: bool, outdir: str
-) -> list[tuple[list[Track], str, str, SinglePlotSettings]]:
+) -> list[tuple[list[Track], str, str, PlotSettings]]:
     all_chroms: Iterable[str] = [line.strip() for line in chroms.readlines()]
 
     inputs = []

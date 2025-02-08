@@ -3,7 +3,7 @@ import polars as pl
 from enum import StrEnum, auto
 from typing import NamedTuple
 
-from ..track.settings import PlotSettings
+from ..track.settings import TrackSettings
 
 
 class TrackPosition(StrEnum):
@@ -11,7 +11,7 @@ class TrackPosition(StrEnum):
     Relative = auto()
 
 
-class TrackOption(StrEnum):
+class TrackType(StrEnum):
     """
     Track options.
     * Input track data is expected to be headerless.
@@ -90,7 +90,7 @@ class TrackOption(StrEnum):
     Legend = auto()
     """
     Legend track. Displays the legend of a specified track.
-    * NOTE: This does not work with `TrackOption.HORSplit`
+    * NOTE: This does not work with `TrackType.HORSplit`
 
     Expected format:
     * None
@@ -120,7 +120,7 @@ class Track(NamedTuple):
     """
     Track position.
     """
-    opt: TrackOption
+    opt: TrackType
     """
     Track option.
     """
@@ -132,7 +132,7 @@ class Track(NamedTuple):
     """
     Track data.
     """
-    options: PlotSettings
+    options: TrackSettings
     """
     Plot settings.
     """
@@ -158,4 +158,4 @@ class LegendPosition(StrEnum):
     Right = auto()
 
 
-NO_DATA_TRACK_OPTS = {TrackOption.Legend, TrackOption.Position, TrackOption.Spacer}
+NO_DATA_TRACK_OPTS = {TrackType.Legend, TrackType.Position, TrackType.Spacer}

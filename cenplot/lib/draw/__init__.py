@@ -9,7 +9,7 @@ from .self_ident import draw_self_ident, draw_self_ident_hist
 from .bar import draw_bars
 from .utils import merge_plots
 from .legend import draw_legend
-from .settings import SinglePlotSettings
+from .settings import PlotSettings
 
 __all__ = [
     "plot_one_cen",
@@ -21,5 +21,5 @@ __all__ = [
     "draw_bars",
     "draw_legend",
     "merge_plots",
-    "SinglePlotSettings",
+    "PlotSettings",
 ]

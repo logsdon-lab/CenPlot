@@ -3,7 +3,7 @@ from typing import Literal
 
 
 @dataclass
-class DefaultPlotSettings:
+class DefaultTrackSettings:
     """
     Default plot options settings.
     """
@@ -56,7 +56,7 @@ class DefaultPlotSettings:
 
 
 @dataclass
-class SelfIdentPlotSettings(DefaultPlotSettings):
+class SelfIdentTrackSettings(DefaultTrackSettings):
     """
     Self-identity heatmap triangle plot options.
     """
@@ -80,7 +80,7 @@ class SelfIdentPlotSettings(DefaultPlotSettings):
 
 
 @dataclass
-class LabelPlotSettings(DefaultPlotSettings):
+class LabelTrackSettings(DefaultTrackSettings):
     """
     Label plot options.
     """
@@ -112,7 +112,7 @@ class LabelPlotSettings(DefaultPlotSettings):
 
 
 @dataclass
-class BarPlotSettings(DefaultPlotSettings):
+class BarTrackSettings(DefaultTrackSettings):
     """
     Bar plot options.
     """
@@ -149,7 +149,7 @@ class BarPlotSettings(DefaultPlotSettings):
 
 
 @dataclass
-class HOROrtPlotSettings(DefaultPlotSettings):
+class HOROrtTrackSettings(DefaultTrackSettings):
     """
     Higher order repeat orientation arrow plot options.
     """
@@ -181,7 +181,7 @@ class HOROrtPlotSettings(DefaultPlotSettings):
 
 
 @dataclass
-class HORPlotSettings(DefaultPlotSettings):
+class HORTrackSettings(DefaultTrackSettings):
     """
     Higher order repeat plot options.
     """
@@ -225,7 +225,7 @@ class HORPlotSettings(DefaultPlotSettings):
 
 
 @dataclass
-class LegendPlotSettings(DefaultPlotSettings):
+class LegendTrackSettings(DefaultTrackSettings):
     index: int | None = None
     """
     Index of plot to get legend of.
@@ -233,24 +233,24 @@ class LegendPlotSettings(DefaultPlotSettings):
 
 
 @dataclass
-class PositionPlotSettings(DefaultPlotSettings):
+class PositionTrackSettings(DefaultTrackSettings):
     pass
 
 
 @dataclass
-class SpacerPlotSettings(DefaultPlotSettings):
+class SpacerTrackSettings(DefaultTrackSettings):
     pass
 
 
-PlotSettings = (
-    HORPlotSettings
-    | HOROrtPlotSettings
-    | SelfIdentPlotSettings
-    | BarPlotSettings
-    | LabelPlotSettings
-    | LegendPlotSettings
-    | PositionPlotSettings
-    | SpacerPlotSettings
+TrackSettings = (
+    HORTrackSettings
+    | HOROrtTrackSettings
+    | SelfIdentTrackSettings
+    | BarTrackSettings
+    | LabelTrackSettings
+    | LegendTrackSettings
+    | PositionTrackSettings
+    | SpacerTrackSettings
 )
 """
 Type annotation for all possible settings for the various plot types.

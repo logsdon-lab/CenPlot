@@ -2,32 +2,32 @@
 Module for track settings and types.
 """
 
-from .types import Track, TrackOption, TrackPosition, TrackList, LegendPosition
+from .types import Track, TrackType, TrackPosition, TrackList, LegendPosition
 from .settings import (
-    SelfIdentPlotSettings,
-    BarPlotSettings,
-    LabelPlotSettings,
-    HORPlotSettings,
-    HOROrtPlotSettings,
-    PositionPlotSettings,
-    LegendPlotSettings,
-    SpacerPlotSettings,
-    PlotSettings,
+    SelfIdentTrackSettings,
+    BarTrackSettings,
+    LabelTrackSettings,
+    HORTrackSettings,
+    HOROrtTrackSettings,
+    PositionTrackSettings,
+    LegendTrackSettings,
+    SpacerTrackSettings,
+    TrackSettings,
 )
 
 __all__ = [
     "Track",
-    "TrackOption",
+    "TrackType",
     "TrackPosition",
     "TrackList",
     "LegendPosition",
-    "SelfIdentPlotSettings",
-    "BarPlotSettings",
-    "LabelPlotSettings",
-    "HORPlotSettings",
-    "HOROrtPlotSettings",
-    "PositionPlotSettings",
-    "LegendPlotSettings",
-    "SpacerPlotSettings",
-    "PlotSettings",
+    "SelfIdentTrackSettings",
+    "BarTrackSettings",
+    "LabelTrackSettings",
+    "HORTrackSettings",
+    "HOROrtTrackSettings",
+    "PositionTrackSettings",
+    "LegendTrackSettings",
+    "SpacerTrackSettings",
+    "TrackSettings",
 ]

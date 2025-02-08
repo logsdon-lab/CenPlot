@@ -5,7 +5,7 @@ from typing import TextIO
 from .bed9 import read_bed9
 from .utils import map_value_colors
 from ..defaults import MONOMER_COLORS, MONOMER_LEN
-from ..track.settings import HORPlotSettings
+from ..track.settings import HORTrackSettings
 
 
 def read_bed_hor(
@@ -13,11 +13,11 @@ def read_bed_hor(
     *,
     chrom: str | None = None,
     live_only: bool = True,
-    mer_filter: int = HORPlotSettings.mer_filter,
+    mer_filter: int = HORTrackSettings.mer_filter,
     hor_filter: int | None = None,
     sort_col: str = "mer",
-    sort_order: str = HORPlotSettings.sort_order,
-    use_item_rgb: bool = HORPlotSettings.use_item_rgb,
+    sort_order: str = HORTrackSettings.sort_order,
+    use_item_rgb: bool = HORTrackSettings.use_item_rgb,
 ) -> pl.DataFrame:
     """
     Read a HOR BED9 file with no header.
@@ -72,8 +72,8 @@ def read_bed_hor(
         df = df.filter(pl.col("hor_count") >= hor_filter)
 
     if sort_col == "mer":
-        df = df.sort(sort_col, descending=sort_order == HORPlotSettings.sort_order)
+        df = df.sort(sort_col, descending=sort_order == HORTrackSettings.sort_order)
     else:
-        df = df.sort("hor_count", descending=sort_order == HORPlotSettings.sort_order)
+        df = df.sort("hor_count", descending=sort_order == HORTrackSettings.sort_order)
 
     return df

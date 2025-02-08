@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
-from .settings import SinglePlotSettings
+from .settings import PlotSettings
 from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
 from .self_ident import draw_self_ident
@@ -13,14 +13,14 @@ from .bar import draw_bars
 from .legend import draw_legend
 from .utils import create_subplots, format_ax, set_both_labels
 from ..io.utils import get_min_max_track
-from ..track.types import Track, TrackOption, TrackPosition, LegendPosition
+from ..track.types import Track, TrackType, TrackPosition, LegendPosition
 
 
 def plot_one_cen(
     tracks: list[Track],
     outdir: str,
     chrom: str,
-    settings: SinglePlotSettings,
+    settings: PlotSettings,
 ) -> tuple[Figure, np.ndarray, str]:
     """
     Plot a single centromere figure from a list of `Track`s.
@@ -108,9 +108,9 @@ def plot_one_cen(
         # Set xaxis limits
         track_ax.set_xlim(min_st_pos, max_end_pos)
 
-        if track.opt == TrackOption.Legend:
+        if track.opt == TrackType.Legend:
             draw_legend(track_ax, axes, track, tracks, track_row, track_col)
-        elif track.opt == TrackOption.Position:
+        elif track.opt == TrackType.Position:
             # Hide everything but x-axis
             format_ax(
                 track_ax,
@@ -118,7 +118,7 @@ def plot_one_cen(
                 yticks=True,
                 spines=("right", "left", "top"),
             )
-        elif track.opt == TrackOption.Spacer:
+        elif track.opt == TrackType.Spacer:
             # Hide everything.
             format_ax(
                 track_ax,
@@ -130,19 +130,19 @@ def plot_one_cen(
         else:
             # Switch track option. {bar, label, ident, hor}
             # Add legend.
-            if track.opt == TrackOption.HOR or track.opt == TrackOption.HORSplit:
+            if track.opt == TrackType.HOR or track.opt == TrackType.HORSplit:
                 draw_fn = draw_hor
-            elif track.opt == TrackOption.HOROrt:
+            elif track.opt == TrackType.HOROrt:
                 draw_fn = draw_hor_ort
-            elif track.opt == TrackOption.Label:
+            elif track.opt == TrackType.Label:
                 draw_fn = draw_label
-            elif track.opt == TrackOption.SelfIdent:
+            elif track.opt == TrackType.SelfIdent:
                 draw_fn = draw_self_ident
-            elif track.opt == TrackOption.Bar:
+            elif track.opt == TrackType.Bar:
                 draw_fn = draw_bars
 
             else:
-                raise ValueError("Invalid TrackOption. Unreachable.")
+                raise ValueError("Invalid TrackType. Unreachable.")
 
             draw_fn(
                 ax=track_ax,
@@ -161,7 +161,7 @@ def plot_one_cen(
             continue
 
         # Make legend title invisible for HORs split after 1.
-        if track.opt == TrackOption.HORSplit:
+        if track.opt == TrackType.HORSplit:
             legend_ax_legend = legend_ax.get_legend()
             if legend_ax_legend and num_hor_split != 0:
                 legend_title = legend_ax_legend.get_title()
@@ -169,8 +169,8 @@ def plot_one_cen(
             num_hor_split += 1
 
         # Minimalize all legend cols except self-ident
-        if track.opt != TrackOption.SelfIdent or (
-            track.opt == TrackOption.SelfIdent and not track.options.legend
+        if track.opt != TrackType.SelfIdent or (
+            track.opt == TrackType.SelfIdent and not track.options.legend
         ):
             format_ax(
                 legend_ax,

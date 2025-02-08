@@ -4,7 +4,7 @@ from ..track.types import LegendPosition
 
 
 @dataclass
-class SinglePlotSettings:
+class PlotSettings:
     """
     Plot settings for a single plot.
     """

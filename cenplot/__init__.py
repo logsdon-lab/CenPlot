@@ -30,8 +30,8 @@ position = "relative"
 ```
 
 `[[settings]]` determines figure level settings while `[[tracks]]` determines track level settings.
-* To view all of the possible options for `[[settings]]`, see `cenplot.SinglePlotSettings`
-* To view all of the possible options for `[[tracks]]`, see one of `cenplot.PlotSettings`
+* To view all of the possible options for `[[settings]]`, see `cenplot.PlotSettings`
+* To view all of the possible options for `[[tracks]]`, see one of `cenplot.TrackSettings`
 
 ## Track Order
 Order is determined by placement of tracks. Here the `"Alpha-satellite HOR monomers"` comes before the `"Sequence Composition"` track.
@@ -85,7 +85,7 @@ position = "overlap"
 The preceding track is overlapped and the legend elements are merged.
 
 ## Track Types and Data
-Track types, or `cenplot.TrackOption`s, are specified via the `type` parameter.
+Track types, or `cenplot.TrackType`s, are specified via the `type` parameter.
 ```toml
 [[tracks]]
 title = "Sequence Composition"
@@ -95,7 +95,7 @@ path = "rm.bed"
 ```
 
 Each type will expect different BED files.
-* For example, the option `TrackOption.SelfIdent` expects the following values.
+* For example, the option `TrackType.SelfIdent` expects the following values.
 
 |query|query_st|query_end|reference|reference_st|reference_end|percent_identity_by_events|
 |-|-|-|-|-|-|-|
@@ -106,7 +106,7 @@ When using the `Python` API, each will have an associated `read_*` function (ex.
 
 ## Proportion
 Each track must account for some proportion of the total plot dimensions.
-* The plot dimensions are specified with `cenplot.SinglePlotSettings.dim`
+* The plot dimensions are specified with `cenplot.PlotSettings.dim`
 
 Here, with a total proportion of `0.2`, each track will take up `50%` of the total plot dimensions.
 ```toml
@@ -142,8 +142,8 @@ path = "stv_row.bed"
 ```
 
 ## Options
-Options for specific `cenplot.TrackOption` types can be specified in `options`.
-* See `cenplot.PlotSettings`
+Options for specific `cenplot.TrackType` types can be specified in `options`.
+* See `cenplot.TrackSettings`
 
 ```toml
 [[tracks]]
@@ -181,7 +181,7 @@ from .lib.draw import (
     draw_bars,
     plot_one_cen,
     merge_plots,
-    SinglePlotSettings,
+    PlotSettings,
 )
 from .lib.io import (
     read_bed9,
@@ -192,19 +192,19 @@ from .lib.io import (
 )
 from .lib.track import (
     Track,
-    TrackOption,
+    TrackType,
     TrackPosition,
     TrackList,
     LegendPosition,
-    PlotSettings,
-    SelfIdentPlotSettings,
-    HORPlotSettings,
-    HOROrtPlotSettings,
-    BarPlotSettings,
-    LabelPlotSettings,
-    PositionPlotSettings,
-    LegendPlotSettings,
-    SpacerPlotSettings,
+    TrackSettings,
+    SelfIdentTrackSettings,
+    HORTrackSettings,
+    HOROrtTrackSettings,
+    BarTrackSettings,
+    LabelTrackSettings,
+    PositionTrackSettings,
+    LegendTrackSettings,
+    SpacerTrackSettings,
 )
 
 __author__ = "Keith Oshima (oshimak@pennmedicine.upenn.edu)"
@@ -223,20 +223,20 @@ __all__ = [
     "read_bed_label",
     "read_one_cen_tracks",
     "Track",
-    "TrackOption",
+    "TrackType",
     "TrackPosition",
     "TrackList",
     "LegendPosition",
+    "TrackSettings",
+    "SelfIdentTrackSettings",
+    "HORTrackSettings",
+    "HOROrtTrackSettings",
+    "BarTrackSettings",
+    "LabelTrackSettings",
     "PlotSettings",
-    "SelfIdentPlotSettings",
-    "HORPlotSettings",
-    "HOROrtPlotSettings",
-    "BarPlotSettings",
-    "LabelPlotSettings",
-    "SinglePlotSettings",
-    "PositionPlotSettings",
-    "LegendPlotSettings",
-    "SpacerPlotSettings",
+    "PositionTrackSettings",
+    "LegendTrackSettings",
+    "SpacerTrackSettings",
 ]
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
