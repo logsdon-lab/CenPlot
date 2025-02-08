@@ -1,7 +1,7 @@
 .PHONY: build test venv clean install upload
 
 BIN=venv/bin/
-PROJECT_NAME=nucflag
+PROJECT_NAME=cenplot
 
 test:
 	$(BIN)python3 -m pip install pytest
@@ -19,7 +19,7 @@ venv:
 	python3 -m venv venv
 
 clean:
-	rm -rf dist/ venv/ .*cache/ *.egg-info/ benchmarks/ logs/ output/
+	rm -rf dist/ venv/ .*cache/ *.egg-info/
 
 upload:
 	$(BIN)python3 -m pip install --upgrade twine
