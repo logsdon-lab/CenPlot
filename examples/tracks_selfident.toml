@@ -1,0 +1,15 @@
+[settings]
+title = "{chrom}"
+format = "png"
+transparent = false
+dim = [16.0, 8.0]
+axis_h_pad = 0.1
+dpi = 600
+
+[[tracks]]
+# Average Nucleotide Identity
+position = "relative"
+type = "selfident"
+proportion = 0.5
+path = "self_ident/ident.bed"
+options = { legend = true, hide_x = false, invert = true, legend_asp_ratio = 1.0 }

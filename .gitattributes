@@ -13,4 +13,7 @@ test/cdr/HG02953_cov_methyl.bed filter=lfs diff=lfs merge=lfs -text
 test/cdr/HG02953_rm.bed filter=lfs diff=lfs merge=lfs -text
 test/cdr/HG02953_avg_methyl.bed filter=lfs diff=lfs merge=lfs -text
 test/cdr/HG02953_cdr.bed filter=lfs diff=lfs merge=lfs -text
-examples/hor/chm13_stv_row.bed filter=lfs diff=lfs merge=lfs -text
+examples/hor/stv.bed filter=lfs diff=lfs merge=lfs -text
+examples/self_ident/ident.bed filter=lfs diff=lfs merge=lfs -text
+examples/bar_label/avg_methyl.bed filter=lfs diff=lfs merge=lfs -text
+examples/bar_label/cdr.bed filter=lfs diff=lfs merge=lfs -text

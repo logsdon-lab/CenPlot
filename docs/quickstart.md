@@ -27,8 +27,10 @@ fig, axes, outfile = plot_one_cen(track_list.tracks, "plots", chrom, settings)
 ```
 
 ### Development
+Requires `Git LFS` to pull test files.
 Create a `venv`, build `cenplot`, and install it. Also, generate the docs.
 ```bash
+git lfs install && git lfs pull
 make dev && make build && make install
 pdoc ./cenplot -o docs/
 ```

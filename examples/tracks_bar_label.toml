@@ -1,0 +1,24 @@
+[settings]
+title = "{chrom}"
+format = "png"
+transparent = false
+dim = [16.0, 6.0]
+dpi = 600
+axis_h_pad = 0.1
+legend_prop = 0.05
+layout = "constrained"
+
+[[tracks]]
+position = "relative"
+type = "label"
+proportion = 0.01
+path = "bar_label/cdr.bed"
+options = { legend = false, hide_x = true, color = "black" }
+
+[[tracks]]
+title = "Mean CpG\nmethylation\n(%)"
+position = "relative"
+type = "bar"
+proportion = 0.1
+path = "bar_label/avg_methyl.bed"
+options = { hide_x = false, color = "black", ymax = 100 }

@@ -27,13 +27,6 @@ def read_bed_identity(
     df = pl.read_csv(
         infile, separator="\t", has_header=False, new_columns=BED_SELF_IDENT_COLS
     )
-    if (
-        df["query"].n_unique() != 1
-        or df["ref"].n_unique() != 1
-        or not df["query"].unique().equals(df["ref"].unique())
-    ):
-        raise ValueError("Multiple ref/query names or query/ref names not shared.")
-
     if chrom:
         df = df.filter(pl.col("query") == chrom)
 
