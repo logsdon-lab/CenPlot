@@ -30,7 +30,7 @@ def read_bed_identity(
     if (
         df["query"].n_unique() != 1
         or df["ref"].n_unique() != 1
-        or df["query"].unique() != df["ref"].unique()
+        or not df["query"].unique().equals(df["ref"].unique())
     ):
         raise ValueError("Multiple ref/query names or query/ref names not shared.")
 

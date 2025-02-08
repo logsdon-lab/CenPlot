@@ -1,0 +1,40 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout directory.
+      uses: actions/checkout@v3
+
+    - name: Set up Python.
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies.
+      run: |
+        make venv && make build && make install
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout directory.
+      uses: actions/checkout@v3
+      with:
+        lfs: 'true'
+
+    - name: Set up Python.
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies.
+      run: |
+        make dev && make build
+
+    - name: Run tests.
+      run: |
+        source venv/bin/activate
+        make test

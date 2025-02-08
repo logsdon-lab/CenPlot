@@ -19,7 +19,7 @@ venv:
 
 dev:
 	$(MAKE) venv
-	$(BIN)python3 -m pip install pytest pdoc
+	$(BIN)python3 -m pip install pytest pdoc pre-commit
 
 clean:
 	rm -rf dist/ venv/ .*cache/ *.egg-info/
