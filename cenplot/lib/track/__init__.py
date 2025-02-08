@@ -1,3 +1,7 @@
+"""
+Module for track settings and types.
+"""
+
 from .types import Track, TrackOption, TrackPosition, TrackList, LegendPosition
 from .settings import (
     SelfIdentPlotSettings,

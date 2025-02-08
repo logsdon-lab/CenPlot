@@ -5,11 +5,14 @@ from ..track.types import LegendPosition
 
 @dataclass
 class SinglePlotSettings:
+    """
+    Plot settings for a single plot.
+    """
+
     title: str | None = None
     """
     Figure title. ex. "{chrom}"
     """
-
     format: Literal["png", "pdf"] = "png"
     """
     Output format. Either `"pdf"` or `"png"`.

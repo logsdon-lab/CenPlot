@@ -17,37 +17,52 @@ from ..track.types import Track, TrackOption, TrackPosition, LegendPosition
 
 
 def plot_one_cen(
-    dfs_track: list[Track],
+    tracks: list[Track],
     outdir: str,
     chrom: str,
     settings: SinglePlotSettings,
 ) -> tuple[Figure, np.ndarray, str]:
+    """
+    Plot a single centromere figure from a list of `Track`s.
+
+    # Args
+    * `tracks`
+        * List of tracks to plot. The order in the list determines placement on the figure.
+    * `outdir`
+        * Output directory.
+    * `chrom`
+        * Chromosome name to filter for in `Track.data`
+
+    # Returns
+    * Figure, its axes, and the output filename.
+
+    # Usage
+    ```python
+    import cenplot
+
+    chrom = "chm13_chr10:38568472-42561808"
+    track_list, settings = cenplot.read_one_cen_tracks("tracks_example_api.toml", chrom=chrom)
+    fig, axes, outfile = cenplot.plot_one_cen(track_list.tracks, "plots", chrom, settings)
+    ```
+    """
     # Show chrom trimmed of spaces for logs and filenames.
     print(f"Plotting {chrom}...", file=sys.stderr)
 
     if not settings.xlim:
         # Get min and max position of all tracks for this cen.
-        _, min_st_pos = get_min_max_track(dfs_track, typ="min")
-        _, max_end_pos = get_min_max_track(
-            dfs_track, typ="max", default_col="chrom_end"
-        )
+        _, min_st_pos = get_min_max_track(tracks, typ="min")
+        _, max_end_pos = get_min_max_track(tracks, typ="max", default_col="chrom_end")
     else:
         min_st_pos = settings.xlim[0]
         max_end_pos = settings.xlim[1]
-
-    width, height = settings.dim
 
     # # Scale height based on track length.
     # adj_height = height * (trk_max_end / max_end_pos)
     # height = height if adj_height == 0 else adj_height
 
     fig, axes, track_indices = create_subplots(
-        dfs_track,
-        width,
-        height,
-        settings.legend_pos,
-        settings.legend_prop,
-        layout=settings.layout,
+        tracks,
+        settings,
     )
     if settings.legend_pos == LegendPosition.Left:
         track_col, legend_col = 1, 0
@@ -76,7 +91,7 @@ def plot_one_cen(
         return track_label
 
     num_hor_split = 0
-    for idx, track in enumerate(dfs_track):
+    for idx, track in enumerate(tracks):
         track_row = track_indices[idx]
         track_label = get_track_label(chrom, track, track_labels)
 
@@ -94,7 +109,7 @@ def plot_one_cen(
         track_ax.set_xlim(min_st_pos, max_end_pos)
 
         if track.opt == TrackOption.Legend:
-            draw_legend(track_ax, axes, track, dfs_track, track_row, track_col)
+            draw_legend(track_ax, axes, track, tracks, track_row, track_col)
         elif track.opt == TrackOption.Position:
             # Hide everything but x-axis
             format_ax(
@@ -182,6 +197,7 @@ def plot_one_cen(
             title, x=0.02, y=0.98, horizontalalignment="left", fontsize="xx-large"
         )
 
+    os.makedirs(outdir, exist_ok=True)
     outfile = os.path.join(outdir, f"{chrom}.{settings.format}")
 
     # Pad between axes.

@@ -15,6 +15,26 @@ def draw_legend(
     track_row: int,
     track_col: int,
 ) -> None:
+    """
+    Draw legend plot on axis for the given `Track`.
+
+    # Args
+    * `ax`
+        * Axis to plot on.
+    * `axes`
+        * 2D `np.ndarray` of all axes to get reference axis.
+    * `track`
+        * Current `Track`.
+    * `tracks`
+        * All tracks to get reference `Track`.
+    * `track_row`
+        * Reference track row.
+    * `track_col`
+        * Reference track col.
+
+    # Returns
+    * None
+    """
     ref_track_row = (
         track.options.index if isinstance(track.options.index, int) else track_row - 1
     )

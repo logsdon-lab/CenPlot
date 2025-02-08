@@ -8,25 +8,38 @@ from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
 from matplotlib.backends.backend_pdf import PdfPages
 
+from .settings import SinglePlotSettings
 from ..utils import Unit
 from ..track.types import LegendPosition, Track, TrackOption, TrackPosition
 from ..track.settings import DefaultPlotSettings
 
 
 def create_subplots(
-    dfs_track: list[Track],
-    width: float,
-    height: float,
-    legend_pos: LegendPosition,
-    legend_prop: float,
+    tracks: list[Track],
+    settings: SinglePlotSettings,
     **kwargs: Any,
 ) -> tuple[Figure, np.ndarray, dict[int, int]]:
+    """
+    Generate a subplot figure from a list of `Track`s.
+
+    # Args
+    * `tracks`
+        * Input `Track`s
+    * `settings`
+        * Plot settings.
+    * `kwargs`
+        * Additional arguments passed to `plt.subplots`
+
+    # Returns
+    * Figure, its axes, and a mapping of the idx of `tracks` to the row idx of axes.
+    """
     track_props = []
     track_indices = {}
     requires_second_col = False
+    legend_prop = settings.legend_prop
 
     track_idx = 0
-    for i, track in enumerate(dfs_track):
+    for i, track in enumerate(tracks):
         # Store index.
         # Only increment index if takes up a subplot axis.
         if track.pos == TrackPosition.Relative:
@@ -52,7 +65,7 @@ def create_subplots(
 
     # Adjust columns and width ratio.
     num_cols = 2 if requires_second_col else 1
-    if legend_pos == LegendPosition.Left:
+    if settings.legend_pos == LegendPosition.Left:
         width_ratios = (legend_prop, 1 - legend_prop) if requires_second_col else [1.0]
     else:
         width_ratios = (1 - legend_prop, legend_prop) if requires_second_col else [1.0]
@@ -61,11 +74,12 @@ def create_subplots(
         # Count number of tracks
         len(track_props),
         num_cols,
-        figsize=(width, height),
+        figsize=settings.dim,
         height_ratios=track_props,
         width_ratios=width_ratios,
         # Always return 2D ndarray
         squeeze=0,
+        layout=settings.layout,
         **kwargs,
     )
 
@@ -73,6 +87,19 @@ def create_subplots(
 
 
 def merge_plots(figures: list[tuple[Figure, np.ndarray, str]], outfile: str) -> None:
+    """
+    Merge plots produced by `plot_one_cen`.
+
+    # Args
+    * `figures`
+        * List of figures, their axes, and the name of the output file.
+    * `outfile`
+        * Output merged file.
+        * Either `png` or `pdf`
+
+    # Returns
+    * None
+    """
     if outfile.endswith(".pdf"):
         with PdfPages(outfile) as pdf:
             for fig, _, _ in figures:
@@ -92,6 +119,9 @@ def format_ax(
     yticklabel_fontsize: float | str | None = None,
     spines: tuple[str, ...] | None = None,
 ) -> None:
+    """
+    Format an axis by removing elements and adjusting fontsize.
+    """
     if grid:
         ax.grid(False)
     if xticks:
@@ -141,6 +171,24 @@ def draw_uniq_entry_legend(
     ncols: int | None = DefaultPlotSettings.legend_ncols,
     **kwargs: Any,
 ) -> None:
+    """
+    Draw a legend with only unique entries.
+
+    # Args
+    * `ax`
+        * Axis to plot on.
+    * `track`
+        * `Track` legend to plot.
+    * `ref_ax`
+        * Reference axis to use in getting legend handles and labels.
+    * `ncols`
+        * Number of columns for legend.
+    * `kwargs`
+        * Additional parameters passed to `ax.legend`
+
+    # Returns
+    * None
+    """
     ref_ax = ref_ax if ref_ax else ax
 
     # Dedupe labels.

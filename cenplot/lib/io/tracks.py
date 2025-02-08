@@ -3,7 +3,6 @@ import sys
 import tomllib
 import polars as pl
 
-
 from typing import Any, Generator
 from censtats.length import hor_array_length
 
@@ -239,16 +238,40 @@ def read_one_cen_tracks(
     input_track: str, *, chrom: str | None = None
 ) -> tuple[TrackList, SinglePlotSettings]:
     """
-    Read a `cenplot` track file optionally filtering for a chrom name.
+    Read a `TOML` file of tracks to plot optionally filtering for a chrom name.
 
-    Args:
-        input_track:
-            Input track file.
-        chrom:
-            Chromosome name in 1st column (`chrom`) to filter for. ex. `chr4`
+    Expected to have two items:
+    * `[settings]`
+        * See `cenplot.SinglePlotSettings`
+    * `[[tracks]]`
+        * See one of the `cenplot.PlotSettings` for more details.
 
-    Returns:
-        List of tracks w/contained chroms and plot settings.
+    Example:
+    ```toml
+    [settings]
+    format = "png"
+    transparent = true
+    dim = [16.0, 8.0]
+    dpi = 600
+
+    [[tracks]]
+    title = "Alpha-satellite HOR monomers"
+    position = "relative"
+    type = "hor"
+    proportion = 0.5
+    path = "test/chrY/stv.bed"
+    options = { sort_order = "descending" }
+    ```
+
+    # Args:
+    * input_track:
+        * Input track `TOML` file.
+    * chrom:
+        * Chromosome name in 1st column (`chrom`) to filter for.
+        * ex. `chr4`
+
+    # Returns:
+    * List of tracks w/contained chroms and plot settings.
     """
     all_tracks = []
     chroms = set()

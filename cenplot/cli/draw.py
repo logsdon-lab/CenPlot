@@ -86,7 +86,7 @@ def add_draw_cli(parser: SubArgumentParser) -> None:
         "--chroms",
         type=argparse.FileType("rt"),
         help="Names to plot in this order. Corresponds to 1st col in BED files.",
-        default=None,
+        required=True,
     )
     ap.add_argument(
         "-d",
@@ -127,7 +127,16 @@ def draw(
         with ProcessPoolExecutor(
             max_workers=processes, mp_context=multiprocessing.get_context("spawn")
         ) as pool:
-            plots = pool.map(plot_one_cen, *zip(*draw_args))  # type: ignore[assignment]
+            futures = [
+                (draw_arg[2], pool.submit(plot_one_cen, *draw_arg))
+                for draw_arg in draw_args
+            ]  # type: ignore[assignment]
+            plots = []
+            for chrom, future in futures:
+                if future.exception():
+                    print(f"Failed to plot {chrom} ({future.exception()})")
+                    continue
+                plots.append(future.result())
 
     if outfile:
         merge_plots(plots, outfile)

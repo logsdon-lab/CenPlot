@@ -9,9 +9,31 @@ from ..defaults import BED_SELF_IDENT_COLS, IDENT_COLOR_RANGE
 def read_bed_identity(
     infile: str | TextIO, *, chrom: str | None = None
 ) -> pl.DataFrame:
+    """
+    Read a self, sequence identity BED file generate by `ModDotPlot`.
+
+    Requires the following columns
+    * `query,query_st,query_end,ref,ref_st,ref_end,percent_identity_by_events`
+
+    # Args
+    * `infile`
+        * File or IO stream.
+    * `chrom`
+        * Chromosome name in `query` column to filter for.
+
+    # Returns
+    * Coordinates of colored polygons in 2D space.
+    """
     df = pl.read_csv(
         infile, separator="\t", has_header=False, new_columns=BED_SELF_IDENT_COLS
     )
+    if (
+        df["query"].n_unique() != 1
+        or df["ref"].n_unique() != 1
+        or df["query"].unique() != df["ref"].unique()
+    ):
+        raise ValueError("Multiple ref/query names or query/ref names not shared.")
+
     if chrom:
         df = df.filter(pl.col("query") == chrom)
 

@@ -4,7 +4,6 @@ BIN=venv/bin/
 PROJECT_NAME=cenplot
 
 test:
-	$(BIN)python3 -m pip install pytest
 	$(BIN)python3 -m pytest -vv
 
 build:
@@ -17,6 +16,10 @@ install:
 
 venv:
 	python3 -m venv venv
+
+dev:
+	$(MAKE) venv
+	$(BIN)python3 -m pip install pytest pdoc
 
 clean:
 	rm -rf dist/ venv/ .*cache/ *.egg-info/

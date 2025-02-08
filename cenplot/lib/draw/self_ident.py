@@ -9,7 +9,10 @@ from ..track.types import Track
 from ..defaults import IDENT_COLOR_RANGE
 
 
-def draw_self_ident_hist(ax: Axes, track: Track, zorder: float):
+def draw_self_ident_hist(ax: Axes, track: Track, *, zorder: float = 1.0):
+    """
+    Draw self identity histogram plot on axis with the given `Track`.
+    """
     legend_bins = track.options.legend_bins
     legend_xmin = track.options.legend_xmin
     legend_asp_ratio = track.options.legend_asp_ratio
@@ -49,9 +52,12 @@ def draw_self_ident(
     ax: Axes,
     track: Track,
     *,
-    zorder: float,
+    zorder: float = 1.0,
     legend_ax: Axes | None = None,
 ) -> None:
+    """
+    Draw self identity plot on axis with the given `Track`.
+    """
     hide_x = track.options.hide_x
     invert = track.options.invert
     legend = track.options.legend
@@ -86,4 +92,4 @@ def draw_self_ident(
     ax.set_ylim(df_track["y"].min(), df_track["y"].max())
 
     if legend_ax and legend:
-        draw_self_ident_hist(legend_ax, track, zorder)
+        draw_self_ident_hist(legend_ax, track, zorder=zorder)

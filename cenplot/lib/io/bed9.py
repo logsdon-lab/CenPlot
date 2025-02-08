@@ -7,6 +7,18 @@ from ..defaults import BED9_COL_MAP
 
 
 def read_bed9(infile: str | TextIO, *, chrom: str | None = None) -> pl.DataFrame:
+    """
+    Read a BED9 file with no header.
+
+    # Args
+    * `infile`
+        * Input file or IO stream.
+    * `chrom`
+        * Chromsome in `chrom` column to filter for.
+
+    # Returns
+    * BED9 pl.DataFrame.
+    """
     df = pl.read_csv(infile, separator="\t", has_header=False)
     df = df.rename({col: val for col, val in BED9_COL_MAP.items() if col in df.columns})
     df_adj = adj_by_ctg_coords(df, "chrom").sort(by="chrom_st")

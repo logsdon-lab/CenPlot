@@ -9,9 +9,12 @@ def draw_hor_ort(
     ax: Axes,
     track: Track,
     *,
-    zorder: float,
+    zorder: float = 1.0,
     legend_ax: Axes | None = None,
 ):
+    """
+    Draw HOR ort plot on axis with the given `Track`.
+    """
     hide_x = track.options.hide_x
     fwd_color = (
         track.options.fwd_color if track.options.fwd_color else track.options.DEF_COLOR
@@ -78,9 +81,12 @@ def draw_hor(
     ax: Axes,
     track: Track,
     *,
-    zorder: float,
+    zorder: float = 1.0,
     legend_ax: Axes | None = None,
 ):
+    """
+    Draw HOR plot on axis with the given `Track`.
+    """
     hide_x = track.options.hide_x
     legend = track.options.legend
     border = track.options.border

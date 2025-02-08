@@ -1,0 +1,46 @@
+[settings]
+format = "png"
+transparent = false
+dim = [20.0, 12.0]
+dpi = 600
+axis_h_pad = 0.0
+legend_pos = "left"
+legend_prop = 0.075
+layout = "compressed"
+
+[[tracks]]
+position = "relative"
+type = "spacer"
+proportion = 0.05
+
+[[tracks]]
+position = "relative"
+type = "hor"
+proportion = 0.1
+path = "chm13/chm13_stv_row.bed"
+options = { legend = true, legend_title = "{chrom}", legend_title_only = true, sort_order = "descending", live_only = true, hide_x = true, border = true }
+
+[[tracks]]
+position = "relative"
+type = "horort"
+proportion = 0.05
+path = "chm13/chm13_stv_row.bed"
+options = { legend = true, legend_title = "α-satellite HOR composition", legend_title_only = true, hide_x = true, live_only = true, scale = 12 }
+
+[[tracks]]
+position = "relative"
+type = "horsplit"
+proportion = 0.1
+path = "chm13/chm13_stv_row.bed"
+options = { legend = true, mode = "hor", sort_order = "descending", live_only = true, mer_filter = 2, hor_filter = 5, hide_x = true, split_prop = false, border = true }
+
+[[tracks]]
+position = "relative"
+type = "position"
+proportion = 0.01
+
+[[tracks]]
+position = "relative"
+type = "legend"
+proportion = 0.1
+options = { legend = true, legend_title = "# of monomers in α-satellite HOR", index = 1, legend_ncols = 10 }

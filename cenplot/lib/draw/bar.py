@@ -9,9 +9,12 @@ def draw_bars(
     ax: Axes,
     track: Track,
     *,
-    zorder: float,
+    zorder: float = 1.0,
     legend_ax: Axes | None = None,
 ) -> None:
+    """
+    Draw bar plot on axis with the given `Track`.
+    """
     hide_x = track.options.hide_x
     color = track.options.color
     alpha = track.options.alpha

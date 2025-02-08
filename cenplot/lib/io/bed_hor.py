@@ -19,6 +19,31 @@ def read_bed_hor(
     sort_order: str = HORPlotSettings.sort_order,
     use_item_rgb: bool = HORPlotSettings.use_item_rgb,
 ) -> pl.DataFrame:
+    """
+    Read a HOR BED9 file with no header.
+
+    # Args
+    * `infile`
+        * Input file or IO stream.
+    * `chrom`
+        * Chromsome in `chrom` column to filter for.
+    * `live_only`
+        * Filter for only live data.
+        * Contains `L` in `name` column.
+    * `mer_filter`
+        * Filter for HORs with at least this many monomers.
+    * `hor_filter`
+        * Filter for HORs that occur at least this many times.
+    * `sort_col`
+        * Sort `pl.DataFrame` by `mer` or `hor_count`.
+    * `sort_order`
+        * Sort in ascending or descending order.
+    * `use_item_rgb`
+        * Use `item_rgb` column or generate random colors.
+
+    # Returns
+    * HOR `pl.DataFrame`
+    """
     df = (
         read_bed9(infile, chrom=chrom)
         .lazy()
