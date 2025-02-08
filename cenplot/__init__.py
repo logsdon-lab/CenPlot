@@ -75,7 +75,7 @@ position = "overlap"
 ```
 
 <figure float="left">
-    <img align="middle" src="https://raw.githubusercontent.com/logsdon-lab/cenplot/refs/heads/main/docs/simple_overlap.png" width="100%">
+    <img align="middle" src="https://raw.githubusercontent.com/logsdon-lab/cenplot/refs/heads/main/docs/simple_hor_overlap.png" width="100%">
 </figure>
 
 The preceding track is overlapped and the legend elements are merged.
