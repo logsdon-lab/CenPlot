@@ -10,9 +10,9 @@ tracks:
   proportion: 0.5
   type: "label"
   path: "test/chrY/sat_annot.bed"
-  options:  { hide_x: false }
+  options:  { hide_x: false, units_x: "kbp" }
 - title: "Alpha-satellite HOR monomers"
   position: "overlap"
   type: "hor"
   path: "test/chrY/stv.bed"
-  options: { hide_x:  false }
+  options: { hide_x: false, units_x: "kbp" }
