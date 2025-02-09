@@ -54,6 +54,11 @@ class DefaultTrackSettings:
     Hide the x-axis ticks, ticklabels, and spines.
     """
 
+    units_x: Literal["bp", "kbp", "mbp"] = "mbp"
+    """
+    Set x-axis units.
+    """
+
 
 @dataclass
 class SelfIdentTrackSettings(DefaultTrackSettings):

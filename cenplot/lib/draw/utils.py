@@ -151,17 +151,30 @@ def set_both_labels(y_lbl: str, ax: Axes, track: Track):
             fontsize=track.options.title_fontsize,
         )
     # Set x-label.
-    # Set correct units based on xlim.
     if not track.options.hide_x:
-        xmin, xmax = ax.get_xlim()
-        xlen = xmax - xmin
-        if (xlen / 1_000_000) > 1:
-            unit = Unit.Mbp
-        else:
-            unit = Unit.Bp
-        ax.set_xlabel(
-            f"Position ({unit.capitalize()})", fontsize=track.options.title_fontsize
-        )
+        format_xaxis_ticklabels(ax, track)
+
+
+def format_xaxis_ticklabels(ax: Axes, track: Track):
+    """
+    Format x-axis ticklabels with `Track.options.units_x`.
+    """
+    # Remove scientific notation.
+    ax.xaxis.set_major_formatter("plain")
+    new_xtick_labels = []
+    units = Unit(track.options.units_x)
+    xticks, xticklabels = ax.get_xticks(), ax.get_xticklabels()
+    for txt in xticklabels:
+        x, _ = txt.get_position()
+        # Convert units and round.
+        new_x_txt = units.convert_value(x, 3)
+        txt.set_text(new_x_txt)
+        new_xtick_labels.append(txt)
+
+    ax.set_xticks(xticks, new_xtick_labels)
+    ax.set_xlabel(
+        f"Position ({units.capitalize()})", fontsize=track.options.title_fontsize
+    )
 
 
 def draw_uniq_entry_legend(
