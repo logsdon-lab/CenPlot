@@ -1,9 +1,10 @@
 import os
-import sys
+import yaml
 import tomllib
+import logging
 import polars as pl
 
-from typing import Any, Generator
+from typing import Any, Generator, BinaryIO
 from censtats.length import hor_array_length
 
 from .utils import get_min_max_track, map_value_colors
@@ -45,9 +46,8 @@ def split_hor_track(
         track_prop = prop
 
     if track_pos == TrackPosition.Overlap:
-        print(
+        logging.error(
             f"Overlap not supported for {track_opt}. Using relative position.",
-            file=sys.stderr,
         )
 
     plot_options = HORTrackSettings(**options)
@@ -92,18 +92,12 @@ def read_one_track_info(
     try:
         track_pos = TrackPosition(pos)  # type: ignore[arg-type]
     except ValueError:
-        print(
-            f"Invalid plot position ({pos}) for {path}. Skipping.",
-            file=sys.stderr,
-        )
+        logging.error(f"Invalid plot position ({pos}) for {path}. Skipping.")
         return None
     try:
         track_opt = TrackType(opt)  # type: ignore[arg-type]
     except ValueError:
-        print(
-            f"Invalid plot option ({opt}) for {path}. Skipping.",
-            file=sys.stderr,
-        )
+        logging.error(f"Invalid plot option ({opt}) for {path}. Skipping.")
         return None
 
     track_options: TrackSettings
@@ -152,9 +146,8 @@ def read_one_track_info(
             use_item_rgb=use_item_rgb,
         )
         if df_track.is_empty():
-            print(
-                f"Empty file or chrom not found for {track_opt} and {path}. Skipping",
-                file=sys.stderr,
+            logging.error(
+                f"Empty file or chrom not found for {track_opt} and {path}. Skipping"
             )
             return None
 
@@ -235,10 +228,10 @@ def read_one_track_info(
 
 
 def read_one_cen_tracks(
-    input_track: str, *, chrom: str | None = None
+    input_track: BinaryIO, *, chrom: str | None = None
 ) -> tuple[TrackList, PlotSettings]:
     """
-    Read a `TOML` file of tracks to plot optionally filtering for a chrom name.
+    Read a `TOML` or `YAML` file of tracks to plot optionally filtering for a chrom name.
 
     Expected to have two items:
     * `[settings]`
@@ -253,19 +246,19 @@ def read_one_cen_tracks(
     transparent = true
     dim = [16.0, 8.0]
     dpi = 600
+    ```
 
-    [[tracks]]
-    title = "Alpha-satellite HOR monomers"
-    position = "relative"
-    type = "hor"
-    proportion = 0.5
-    path = "test/chrY/stv.bed"
-    options = { sort_order = "descending" }
+    ```yaml
+    settings:
+        format: "png"
+        transparent: true
+        dim: [16.0, 8.0]
+        dpi: 600
     ```
 
     # Args:
     * input_track:
-        * Input track `TOML` file.
+        * Input track `TOML` or `YAML` file.
     * chrom:
         * Chromosome name in 1st column (`chrom`) to filter for.
         * ex. `chr4`
@@ -275,28 +268,39 @@ def read_one_cen_tracks(
     """
     all_tracks = []
     chroms = set()
-    with open(input_track, "rb") as fh:
-        toml = tomllib.load(fh)
-        settings: dict[str, Any] = toml.get("settings", {})
-        title = settings.get("title", PlotSettings.title)
-        format = settings.get("format", PlotSettings.format)
-        transparent = settings.get("transparent", PlotSettings.transparent)
-        dim = tuple(settings.get("dim", PlotSettings.dim))
-        dpi = settings.get("dpi", PlotSettings.dpi)
-        legend_pos = settings.get("legend_pos", PlotSettings.legend_pos)
-        legend_prop = settings.get("legend_prop", PlotSettings.legend_prop)
-        axis_h_pad = settings.get("axis_h_pad", PlotSettings.axis_h_pad)
-        layout = settings.get("layout", PlotSettings.layout)
+    # Reset file position.
+    input_track.seek(0)
+    # Try TOML
+    try:
+        dict_settings = tomllib.load(input_track)
+    except Exception:
+        input_track.seek(0)
+        # Then YAML
+        try:
+            dict_settings = yaml.safe_load(input_track)
+        except Exception:
+            raise TypeError("Invalid file type for settings.")
 
-        tracks = toml.get("tracks", [])
+    settings: dict[str, Any] = dict_settings.get("settings", {})
+    title = settings.get("title", PlotSettings.title)
+    format = settings.get("format", PlotSettings.format)
+    transparent = settings.get("transparent", PlotSettings.transparent)
+    dim = tuple(settings.get("dim", PlotSettings.dim))
+    dpi = settings.get("dpi", PlotSettings.dpi)
+    legend_pos = settings.get("legend_pos", PlotSettings.legend_pos)
+    legend_prop = settings.get("legend_prop", PlotSettings.legend_prop)
+    axis_h_pad = settings.get("axis_h_pad", PlotSettings.axis_h_pad)
+    layout = settings.get("layout", PlotSettings.layout)
 
-        for track_info in tracks:
-            for track in read_one_track_info(track_info, chrom=chrom):
-                all_tracks.append(track)
-                # Tracks legend and position have no data.
-                if not isinstance(track.data, pl.DataFrame):
-                    continue
-                chroms.update(track.data["chrom"])
+    tracks = dict_settings.get("tracks", [])
+
+    for track_info in tracks:
+        for track in read_one_track_info(track_info, chrom=chrom):
+            all_tracks.append(track)
+            # Tracks legend and position have no data.
+            if not isinstance(track.data, pl.DataFrame):
+                continue
+            chroms.update(track.data["chrom"])
 
     _, min_st_pos = get_min_max_track(all_tracks, typ="min")
     _, max_end_pos = get_min_max_track(all_tracks, typ="max", default_col="chrom_end")

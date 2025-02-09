@@ -77,10 +77,6 @@ def read_bed_identity(
             new_x=[tri_side, 0.0, -tri_side, 0.0],
             new_y=[0.0, tri_side, 0.0, -tri_side],
         )
-        # Convert to array to save memory
-        .with_columns(
-            pl.col("new_x").list.to_array(4), pl.col("new_y").list.to_array(4)
-        )
         # Rescale x and y.
         .with_columns(
             ((pl.col("new_x") * pl.col("window")) + pl.col("x")) * pl.col("scale"),

@@ -5,7 +5,7 @@ import multiprocessing
 
 import polars as pl
 
-from typing import Any, Iterable, TYPE_CHECKING, TextIO
+from typing import Any, BinaryIO, Iterable, TYPE_CHECKING, TextIO
 from concurrent.futures import ProcessPoolExecutor
 
 from cenplot import (
@@ -23,7 +23,7 @@ else:
 
 
 def get_draw_args(
-    input_tracks: str, chroms: TextIO, share_xlim: bool, outdir: str
+    input_tracks: BinaryIO, chroms: TextIO, share_xlim: bool, outdir: str
 ) -> list[tuple[list[Track], str, str, PlotSettings]]:
     all_chroms: Iterable[str] = [line.strip() for line in chroms.readlines()]
 
@@ -75,9 +75,9 @@ def add_draw_cli(parser: SubArgumentParser) -> None:
         "-t",
         "--input_tracks",
         required=True,
-        type=str,
+        type=argparse.FileType("rb"),
         help=(
-            "TOML file with headerless BED files to plot. "
+            "TOML or YAML file with headerless BED files to plot. "
             "Specify under tracks the following fields: {name, position, type, proportion, path, or options}."
         ),
     )
@@ -109,7 +109,7 @@ def add_draw_cli(parser: SubArgumentParser) -> None:
 
 
 def draw(
-    input_tracks: str,
+    input_tracks: BinaryIO,
     chroms: TextIO,
     outdir: str,
     outfile: str,

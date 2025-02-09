@@ -17,6 +17,8 @@ import tempfile
         ("test/tracks_simple_overlap.toml", "test/chrY/cdrs.bed"),
         # Split HOR
         ("test/tracks_split_hor.toml", "test/chr1/cdrs.bed"),
+        # YAML
+        ("test/tracks_simple.yaml", "test/chrY/cdrs.bed"),
     ],
 )
 def test_cli_draw(track_file, ctg_file):
