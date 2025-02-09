@@ -1,5 +1,5 @@
 import os
-import sys
+import logging
 import numpy as np
 
 from matplotlib.axes import Axes
@@ -46,7 +46,7 @@ def plot_one_cen(
     ```
     """
     # Show chrom trimmed of spaces for logs and filenames.
-    print(f"Plotting {chrom}...", file=sys.stderr)
+    logging.info(f"Plotting {chrom}...")
 
     if not settings.xlim:
         # Get min and max position of all tracks for this cen.

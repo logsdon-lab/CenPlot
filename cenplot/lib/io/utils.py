@@ -92,5 +92,7 @@ def get_min_max_track(
                 track = trk
                 pos = trk_max
     if not track:
-        raise ValueError("No tracks.")
+        raise ValueError(
+            f"No {typ} track. Check if bedfile has correct columns or is empty."
+        )
     return track, pos
