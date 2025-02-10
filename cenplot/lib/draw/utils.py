@@ -163,6 +163,7 @@ def format_xaxis_ticklabels(ax: Axes, track: Track):
     ax.xaxis.set_major_formatter("plain")
     new_xtick_labels = []
     units = Unit(track.options.units_x)
+    xmin, xmax = ax.get_xlim()
     xticks, xticklabels = ax.get_xticks(), ax.get_xticklabels()
     for txt in xticklabels:
         x, _ = txt.get_position()
@@ -175,6 +176,7 @@ def format_xaxis_ticklabels(ax: Axes, track: Track):
     ax.set_xlabel(
         f"Position ({units.capitalize()})", fontsize=track.options.title_fontsize
     )
+    ax.set_xlim(xmin, xmax)
 
 
 def draw_uniq_entry_legend(

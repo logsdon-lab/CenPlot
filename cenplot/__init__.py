@@ -94,7 +94,7 @@ type = "label"
 path = "rm.bed"
 ```
 
-Each type will expect different BED files.
+Each type will expect different BED files in the `path` option.
 * For example, the option `TrackType.SelfIdent` expects the following values.
 
 |query|query_st|query_end|reference|reference_st|reference_end|percent_identity_by_events|
@@ -103,6 +103,13 @@ Each type will expect different BED files.
 
 When using the `Python` API, each will have an associated `read_*` function (ex. `cenplot.read_bed_identity`).
 * Using `cenplot.read_one_cen_tracks` is preferred.
+
+> [!NOTE] If input BED files have contigs with coordinates in their name, the coordinates are expected to be in absolute coordinates.
+
+Absolute coordinates
+|chrom|chrom_st|chrom_end|
+|-|-|-|
+|chm13:100-200|105|130|
 
 ## Proportion
 Each track must account for some proportion of the total plot dimensions.

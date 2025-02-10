@@ -82,7 +82,7 @@ def get_min_max_track(
         else:
             col = default_col
         if typ == "min":
-            trk_min = trk.data.filter(pl.col(col) > 0)[col].min()
+            trk_min = trk.data.filter(pl.col(col) >= 0)[col].min()
             if trk_min < pos:
                 track = trk
                 pos = trk_min
