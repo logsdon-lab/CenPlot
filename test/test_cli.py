@@ -44,6 +44,8 @@ def test_cli_draw(track_file, ctg_file):
                 tmp_file.name,
                 "-d",
                 tmp_dir,
+                "-p",
+                "1",
             ],
             check=True,
         )

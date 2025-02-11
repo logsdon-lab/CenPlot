@@ -86,13 +86,15 @@ def create_subplots(
     return fig, axes, track_indices
 
 
-def merge_plots(figures: list[tuple[Figure, np.ndarray, str]], outfile: str) -> None:
+def merge_plots(
+    figures: list[tuple[Figure, np.ndarray, list[str]]], outfile: str
+) -> None:
     """
     Merge plots produced by `plot_one_cen`.
 
     # Args
     * `figures`
-        * List of figures, their axes, and the name of the output file.
+        * List of figures, their axes, and the name of the output files. Only pngs are concatentated.
     * `outfile`
         * Output merged file.
         * Either `png` or `pdf`
@@ -105,7 +107,14 @@ def merge_plots(figures: list[tuple[Figure, np.ndarray, str]], outfile: str) -> 
             for fig, _, _ in figures:
                 pdf.savefig(fig)
     else:
-        merged_images = np.concatenate([plt.imread(file) for _, _, file in figures])
+        merged_images = np.concatenate(
+            [
+                plt.imread(files)
+                for _, _, files in figures
+                for file in files
+                if file.endswith("png")
+            ]
+        )
         plt.imsave(outfile, merged_images)
 
 
