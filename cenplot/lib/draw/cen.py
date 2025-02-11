@@ -198,10 +198,28 @@ def plot_one_cen(
         )
 
     os.makedirs(outdir, exist_ok=True)
-    outfile = os.path.join(outdir, f"{chrom}.{settings.format}")
-
+    if isinstance(settings.format, str):
+        output_format = [settings.format]
+    else:
+        output_format = settings.format
     # Pad between axes.
     fig.get_layout_engine().set(h_pad=settings.axis_h_pad)
-    fig.savefig(outfile, dpi=settings.dpi, transparent=settings.transparent)
+
+    # PNG must always be plotted last.
+    # Matplotlib modifies figure settings causing formatting errors in vectorized image formats (svg, pdf)
+    png_output = "png" in output_format
+    if png_output:
+        output_format.remove("png")
+
+    for fmt in output_format:
+        outfile = os.path.join(outdir, f"{chrom}.{fmt}")
+        fig.savefig(outfile, dpi=settings.dpi, transparent=settings.transparent)
+
+    if png_output:
+        fig.savefig(
+            os.path.join(outdir, f"{chrom}.png"),
+            dpi=settings.dpi,
+            transparent=settings.transparent,
+        )
 
     return fig, axes, outfile
