@@ -2,6 +2,8 @@ from typing import Literal
 from dataclasses import dataclass
 from ..track.types import LegendPosition
 
+OutputFormat = Literal["png", "pdf", "svg"]
+
 
 @dataclass
 class PlotSettings:
@@ -13,9 +15,9 @@ class PlotSettings:
     """
     Figure title. ex. "{chrom}"
     """
-    format: Literal["png", "pdf"] = "png"
+    format: list[OutputFormat] | OutputFormat = "png"
     """
-    Output format. Either `"pdf"` or `"png"`.
+    Output format(s). Either `"pdf"`, `"png"`, or `"svg"`.
     """
     transparent: bool = True
     """

@@ -1,5 +1,6 @@
 *.pdf
 *.png
+*.svg
 __pycache__
 venv/
 dist/
