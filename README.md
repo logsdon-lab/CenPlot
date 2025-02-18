@@ -1,4 +1,4 @@
-# `cenplot`
+# `CenPlot`
 [![PyPI - Version](https://img.shields.io/pypi/v/cenplot)](https://pypi.org/project/cenplot/)
 [![CI](https://github.com/logsdon-lab/cenplot/actions/workflows/main.yaml/badge.svg)](https://github.com/logsdon-lab/cenplot/actions/workflows/main.yaml)
 [![docs](https://github.com/logsdon-lab/cenplot/actions/workflows/docs.yaml/badge.svg)](https://github.com/logsdon-lab/cenplot/actions/workflows/docs.yaml)
