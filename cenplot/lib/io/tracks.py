@@ -11,7 +11,7 @@ from .utils import get_min_max_track, map_value_colors
 from .bed9 import read_bed9
 from .bed_identity import read_bed_identity
 from .bed_label import read_bed_label
-from .bed_hor import read_bed_hor
+from .bed_hor import read_bed_hor, read_bed_hor_from_settings
 from ..track.settings import (
     HORTrackSettings,
     HOROrtTrackSettings,
@@ -122,35 +122,17 @@ def read_one_track_info(
         raise FileNotFoundError(f"Data does not exist for track ({track})")
 
     if track_opt == TrackType.HORSplit:
-        live_only = options.get("live_only", HORTrackSettings.live_only)
-        mer_filter = options.get("mer_filter", HORTrackSettings.mer_filter)
-        hor_filter = options.get("hor_filter", HORTrackSettings.hor_filter)
-        split_prop = options.get("split_prop", HORTrackSettings.split_prop)
-        use_item_rgb = options.get("use_item_rgb", HORTrackSettings.use_item_rgb)
-        sort_order = options.get("sort_order", HORTrackSettings.sort_order)
-
-        # Use item_rgb column otherwise, map name or mer to a color.
-        if options.get("mode", HORTrackSettings.mode) == "hor":
-            split_colname = "name"
-        else:
-            split_colname = "mer"
-
-        df_track = read_bed_hor(
-            path,
-            chrom=chrom,
-            sort_col=split_colname,
-            sort_order=sort_order,
-            live_only=live_only,
-            mer_filter=mer_filter,
-            hor_filter=hor_filter,
-            use_item_rgb=use_item_rgb,
-        )
+        df_track = read_bed_hor_from_settings(path, options, chrom)
         if df_track.is_empty():
             logging.error(
                 f"Empty file or chrom not found for {track_opt} and {path}. Skipping"
             )
             return None
-
+        if options.get("mode", HORTrackSettings.mode) == "hor":
+            split_colname = "name"
+        else:
+            split_colname = "mer"
+        split_prop = options.get("split_prop", HORTrackSettings.split_prop)
         yield from split_hor_track(
             df_track,
             track_pos,
@@ -165,27 +147,7 @@ def read_one_track_info(
         return None
 
     elif track_opt == TrackType.HOR:
-        sort_order = options.get("sort_order", HORTrackSettings.sort_order)
-        live_only = options.get("live_only", HORTrackSettings.live_only)
-        mer_size = options.get("mer_size", HORTrackSettings.mer_size)
-        mer_filter = options.get("mer_filter", HORTrackSettings.mer_filter)
-        hor_filter = options.get("hor_filter", HORTrackSettings.hor_filter)
-
-        # Use item_rgb column otherwise, map name or mer to a color.
-        use_item_rgb = options.get("use_item_rgb", HORTrackSettings.use_item_rgb)
-        color_map_file = options.get("color_map_file", HORTrackSettings.color_map_file)
-        df_track = read_bed_hor(
-            path,
-            chrom=chrom,
-            mer_size=mer_size,
-            sort_col="mer",
-            sort_order=sort_order,
-            live_only=live_only,
-            mer_filter=mer_filter,
-            hor_filter=hor_filter,
-            color_map_file=color_map_file,
-            use_item_rgb=use_item_rgb,
-        )
+        df_track = read_bed_hor_from_settings(path, options, chrom)
         track_options = HORTrackSettings(**options)
         # Update legend title.
         if track_options.legend_title:

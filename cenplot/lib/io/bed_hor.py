@@ -1,7 +1,7 @@
 import logging
 import polars as pl
 
-from typing import TextIO
+from typing import Any, TextIO
 
 from .bed9 import read_bed9
 from .utils import map_value_colors
@@ -99,3 +99,33 @@ def read_bed_hor(
         df = df.sort("hor_count", descending=sort_order == HORTrackSettings.sort_order)
 
     return df
+
+
+def read_bed_hor_from_settings(
+    path: str, options: dict[str, Any], chrom: str | None = None
+) -> pl.DataFrame:
+    live_only = options.get("live_only", HORTrackSettings.live_only)
+    mer_filter = options.get("mer_filter", HORTrackSettings.mer_filter)
+    hor_filter = options.get("hor_filter", HORTrackSettings.hor_filter)
+    use_item_rgb = options.get("use_item_rgb", HORTrackSettings.use_item_rgb)
+    sort_order = options.get("sort_order", HORTrackSettings.sort_order)
+    color_map_file = options.get("color_map_file", HORTrackSettings.color_map_file)
+    mer_size = options.get("mer_size", HORTrackSettings.mer_size)
+
+    if options.get("mode", HORTrackSettings.mode) == "hor":
+        split_colname = "name"
+    else:
+        split_colname = "mer"
+
+    return read_bed_hor(
+        path,
+        chrom=chrom,
+        mer_size=mer_size,
+        sort_col=split_colname,
+        sort_order=sort_order,
+        live_only=live_only,
+        mer_filter=mer_filter,
+        hor_filter=hor_filter,
+        use_item_rgb=use_item_rgb,
+        color_map_file=color_map_file,
+    )
