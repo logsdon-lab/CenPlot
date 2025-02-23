@@ -1,3 +1,4 @@
+import logging
 import sys
 import numpy as np
 import polars as pl
@@ -73,7 +74,7 @@ def get_min_max_track(
     else:
         pos = 0
 
-    for trk in tracks:
+    for i, trk in enumerate(tracks):
         if trk.opt == TrackType.SelfIdent:
             col = "x"
         # Skip tracks which carry no data.
@@ -82,7 +83,15 @@ def get_min_max_track(
         else:
             col = default_col
         if typ == "min":
-            trk_min = trk.data.filter(pl.col(col) >= 0)[col].min()
+            trk_data = trk.data.filter(pl.col(col) >= 0)
+            if trk_data.is_empty():
+                logging.error(
+                    f"No data for track {i} ({trk.title=}). "
+                    f"Check that data is in absolute coordinates and/or is in the correct column ({col}). "
+                    "Skipping..."
+                )
+                continue
+            trk_min = trk_data[col].min()
             if trk_min < pos:
                 track = trk
                 pos = trk_min

@@ -205,19 +205,27 @@ class HORTrackSettings(DefaultTrackSettings):
     """
     live_only: bool = True
     """
-    Only plot live HORs.
+    Only plot live HORs. Filters only for rows with `L` character in `name` column.
+    """
+    mer_size: int = 171
+    """
+    Monomer size to calculate number of monomers for mer_filter.
     """
     mer_filter: int = 2
     """
-    Filter HORs that have at least 2 monomers.
+    Filter HORs that have less than `mer_filter` monomers.
     """
     hor_filter: int = 5
     """
-    Filter HORs that have occur fewer than hor_filter times.
+    Filter HORs that occur less than `hor_filter` times.
+    """
+    color_map_file: str | None = None
+    """
+    Monomer color map TSV file. Two column headerless file that has `mode` to `color` mapping.
     """
     use_item_rgb: bool = False
     """
-    Use `item_rgb` column for color.
+    Use `item_rgb` column for color. If omitted, use default mode color map or `color_map`.
     """
     split_prop: bool = False
     """

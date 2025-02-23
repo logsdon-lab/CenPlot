@@ -65,4 +65,4 @@ pdoc ./cenplot -o docs/
 ```
 
 ## Documentation
-Read the documentation [here](https://logsdon-lab.github.io/cenplot/cenplot.html).
+Read the documentation [here](https://logsdon-lab.github.io/CenPlot/cenplot.html).
