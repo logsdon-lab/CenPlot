@@ -1,7 +1,6 @@
 import itertools
 
 
-MONOMER_LEN = 170
 MONOMER_COLORS = {
     "1": "#A8275C",
     "10": "#9AC78A",
