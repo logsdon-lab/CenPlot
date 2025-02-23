@@ -12,7 +12,7 @@ build:
 
 install:
 	$(BIN)python3 -m pip uninstall -y $(PROJECT_NAME)
-	$(BIN)python3 -m pip install $(shell find dist -name "*.whl" | sort -r | head -1) --no-input
+	$(BIN)python3 -m pip install $(shell find dist -name "*.whl" | sort | head -1) --no-input
 
 venv:
 	python3 -m venv venv

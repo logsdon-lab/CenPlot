@@ -4,18 +4,19 @@ Install the package from `pypi`.
 pip install cenplot
 ```
 
-### CLI
+## CLI
 Generating a split HOR tracks using the `cenplot draw` command.
 ```bash
 # examples/example_cli.sh
 cenplot draw \
 -t tracks_hor.toml \
+-c "chm13_chr10:38568472-42561808" \
 -p 4 \
 -d plots \
 -o "plot/merged_image.png"
 ```
 
-### Python API
+## Python API
 The same HOR track can be created with a few lines of code.
 ```python
 # examples/example_api.py

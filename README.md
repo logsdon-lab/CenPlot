@@ -38,6 +38,7 @@ Generating a split HOR tracks using the `cenplot draw` command.
 # examples/example_cli.sh
 cenplot draw \
 -t tracks_hor.toml \
+-c "chm13_chr10:38568472-42561808" \
 -p 4 \
 -d plots \
 -o "plot/merged_image.png"
