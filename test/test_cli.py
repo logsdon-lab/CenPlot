@@ -25,13 +25,10 @@ def test_cli_draw(track_file, ctg_file):
     prefix = str(hash(track_file + ctg_file))
     with (
         tempfile.TemporaryDirectory(prefix=prefix) as tmp_dir,
-        tempfile.NamedTemporaryFile(mode="wt", prefix=prefix) as tmp_file,
         open(ctg_file, "rt") as fh,
     ):
         # Only read the first line.
         ctg = fh.readlines()[0].split("\t")[0]
-        tmp_file.write(f"{ctg}\n")
-        tmp_file.flush()
         _ = subprocess.run(
             [
                 "python",
@@ -41,7 +38,7 @@ def test_cli_draw(track_file, ctg_file):
                 "-t",
                 track_file,
                 "-c",
-                tmp_file.name,
+                ctg,
                 "-d",
                 tmp_dir,
                 "-p",
