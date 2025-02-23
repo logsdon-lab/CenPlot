@@ -1,11 +1,12 @@
 import os
 import sys
+import logging
 import argparse
 import multiprocessing
 
 import polars as pl
 
-from typing import Any, BinaryIO, Iterable, TYPE_CHECKING, TextIO
+from typing import Any, BinaryIO, TYPE_CHECKING
 from concurrent.futures import ProcessPoolExecutor
 
 from cenplot import (
@@ -22,14 +23,15 @@ else:
     SubArgumentParser = Any
 
 
-def get_draw_args(
-    input_tracks: BinaryIO, chroms: TextIO, share_xlim: bool, outdir: str
-) -> list[tuple[list[Track], str, str, PlotSettings]]:
-    all_chroms: Iterable[str] = [line.strip() for line in chroms.readlines()]
+logging.getLogger().addHandler(logging.StreamHandler(sys.stderr))
 
+
+def get_draw_args(
+    input_tracks: BinaryIO, chroms: list[str], share_xlim: bool, outdir: str
+) -> list[tuple[list[Track], str, str, PlotSettings]]:
     inputs = []
     tracks_settings = [
-        (chrom, *read_one_cen_tracks(input_tracks, chrom=chrom)) for chrom in all_chroms
+        (chrom, *read_one_cen_tracks(input_tracks, chrom=chrom)) for chrom in chroms
     ]
     xmin_all, xmax_all = sys.maxsize, 0
     if share_xlim:
@@ -84,7 +86,7 @@ def add_draw_cli(parser: SubArgumentParser) -> None:
     ap.add_argument(
         "-c",
         "--chroms",
-        type=argparse.FileType("rt"),
+        nargs="+",
         help="Names to plot in this order. Corresponds to 1st col in BED files.",
         required=True,
     )
@@ -110,7 +112,7 @@ def add_draw_cli(parser: SubArgumentParser) -> None:
 
 def draw(
     input_tracks: BinaryIO,
-    chroms: TextIO,
+    chroms: list[str],
     outdir: str,
     outfile: str,
     share_xlim: bool,

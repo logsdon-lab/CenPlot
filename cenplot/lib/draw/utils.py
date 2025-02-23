@@ -109,7 +109,7 @@ def merge_plots(
     else:
         merged_images = np.concatenate(
             [
-                plt.imread(files)
+                plt.imread(file)
                 for _, _, files in figures
                 for file in files
                 if file.endswith("png")
