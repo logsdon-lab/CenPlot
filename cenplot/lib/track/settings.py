@@ -110,6 +110,12 @@ class LabelTrackSettings(DefaultTrackSettings):
     Label alpha.
     """
 
+    shape: Literal["rect", "tri"] = "rect"
+    """
+    Shape to draw.
+    * `"tri"` Always pointed down.
+    """
+
     border: bool = False
     """
     Add black border containing all added labels.
@@ -230,6 +236,10 @@ class HORTrackSettings(DefaultTrackSettings):
     split_prop: bool = False
     """
     If split, divide proportion evenly across each split track.
+    """
+    split_top_n: int | None = None
+    """
+    If split, show top n HORs for a given mode.
     """
     border: bool = False
     """

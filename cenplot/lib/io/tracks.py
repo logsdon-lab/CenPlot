@@ -123,6 +123,11 @@ def read_one_track_info(
 
     if track_opt == TrackType.HORSplit:
         df_track = read_bed_hor_from_settings(path, options, chrom)
+        top_n_counts = (
+            df_track["hor_count"].unique().slice(0, options.get("split_top_n"))
+        )
+        df_track = df_track.filter(pl.col("hor_count").is_in(top_n_counts))
+
         if df_track.is_empty():
             logging.error(
                 f"Empty file or chrom not found for {track_opt} and {path}. Skipping"
