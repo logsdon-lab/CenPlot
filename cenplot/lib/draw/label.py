@@ -81,7 +81,11 @@ def draw_label(
                 (midpt, 0),
             ]
             ptch = Polygon(
-                vertices, closed=True, edgecolor="black", **labels, **patch_options
+                vertices,
+                closed=True,
+                edgecolor=patch_options.get("color"),
+                **labels,
+                **patch_options,
             )
             ax.add_patch(ptch)
 
