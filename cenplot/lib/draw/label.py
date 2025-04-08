@@ -1,6 +1,6 @@
 from typing import Any
 from matplotlib.axes import Axes
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Polygon, Rectangle
 
 from .utils import add_border, draw_uniq_entry_legend, format_ax
 from ..track.types import Track, TrackPosition
@@ -54,22 +54,40 @@ def draw_label(
             labels = {}
         else:
             labels = {"label": row["name"]}
+
         # Allow override.
         if color:
             patch_options["color"] = color
         elif "color" in row:
             patch_options["color"] = row["color"]
 
-        rect = Rectangle(
-            (start, 0),
-            end + 1 - start,
-            height,
-            # No line width on each individual rect.
-            lw=0,
-            **labels,
-            **patch_options,
-        )
-        ax.add_patch(rect)
+        if track.options.shape == "rect":
+            rect = Rectangle(
+                (start, 0),
+                end + 1 - start,
+                height,
+                # No line width on each individual rect.
+                lw=0,
+                **labels,
+                **patch_options,
+            )
+            ax.add_patch(rect)
+        elif track.options.shape == "tri":
+            midpt = ((end - start) / 2) + start
+            vertices = [
+                (start, height),
+                (end, height),
+                # tip
+                (midpt, 0),
+            ]
+            ptch = Polygon(
+                vertices,
+                closed=True,
+                edgecolor=patch_options.get("color"),
+                **labels,
+                **patch_options,
+            )
+            ax.add_patch(ptch)
 
     if border:
         # Ensure border on top with larger zorder.

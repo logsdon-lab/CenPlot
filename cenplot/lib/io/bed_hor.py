@@ -117,7 +117,7 @@ def read_bed_hor_from_settings(
     else:
         split_colname = "mer"
 
-    return read_bed_hor(
+    df_hor = read_bed_hor(
         path,
         chrom=chrom,
         mer_size=mer_size,
@@ -129,3 +129,9 @@ def read_bed_hor_from_settings(
         use_item_rgb=use_item_rgb,
         color_map_file=color_map_file,
     )
+    colnames = (
+        df_hor.unique([split_colname, "hor_count"], maintain_order=True)
+        .slice(0, options.get("split_top_n"))
+        .get_column(split_colname)
+    )
+    return df_hor.filter(pl.col(split_colname).is_in(colnames))
