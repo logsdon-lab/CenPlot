@@ -96,6 +96,9 @@ def get_min_max_track(
                 track = trk
                 pos = trk_min
         else:
+            if trk.data.is_empty():
+                logging.error(f"No data for track {i} ({trk.title=}).")
+                continue
             trk_max = trk.data[col].max()
             if trk_max > pos:
                 track = trk
