@@ -8,12 +8,12 @@ class DefaultTrackSettings:
     Default plot options settings.
     """
 
-    fontsize: float | str = "medium"
+    fontsize: float | str | None = "medium"
     """
     Font size for track text.
     """
 
-    title_fontsize: float | str = "large"
+    title_fontsize: float | str | None = "large"
     """
     Font size for track title.
     """
@@ -28,7 +28,7 @@ class DefaultTrackSettings:
     Number of columns for legend entries.
     """
 
-    legend_fontsize: str = "medium"
+    legend_fontsize: float | str | None = "medium"
     """
     Legend font size.
     """

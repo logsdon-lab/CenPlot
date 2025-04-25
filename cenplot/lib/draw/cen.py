@@ -117,7 +117,9 @@ def plot_one_cen(
             format_ax(
                 track_ax,
                 grid=True,
+                xticklabel_fontsize=track.options.legend_fontsize,
                 yticks=True,
+                yticklabel_fontsize=track.options.legend_fontsize,
                 spines=("right", "left", "top"),
             )
         elif track.opt == TrackType.Spacer:
