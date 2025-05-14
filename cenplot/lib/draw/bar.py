@@ -45,10 +45,10 @@ def draw_bars(
         plot_options["color"] = track.options.DEF_COLOR
 
     # Add bar
-    ax.bar(
+    ax.fill_between(
         track.data["chrom_st"],
         track.data["name"],
-        track.data["chrom_end"] - track.data["chrom_st"],
+        0,
         label=label,
         **plot_options,
     )
