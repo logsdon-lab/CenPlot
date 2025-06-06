@@ -123,6 +123,22 @@ class LabelTrackSettings(DefaultTrackSettings):
 
 
 @dataclass
+class LocalSelfIdentTrackSettings(LabelTrackSettings):
+    """
+    Local self-identity plot options.
+    """
+
+    band_size: int = 5
+    """
+    Number of windows to calculate average sequence identity over.
+    """
+    ignore_band_size: int = 2
+    """
+    Number of windows ignored along self-identity diagonal.
+    """
+
+
+@dataclass
 class BarTrackSettings(DefaultTrackSettings):
     """
     Bar plot options.
@@ -269,6 +285,7 @@ TrackSettings = (
     HORTrackSettings
     | HOROrtTrackSettings
     | SelfIdentTrackSettings
+    | LocalSelfIdentTrackSettings
     | BarTrackSettings
     | LabelTrackSettings
     | LegendTrackSettings

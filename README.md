@@ -8,20 +8,24 @@ Library for producing centromere figures.
 <table>
   <tr>
     <td>
-        <figure float="left">
-            <img align="middle" src="docs/example_cdr.png" width="100%">
-            <figcaption>CDR plot.</figcaption>
-        </figure>
       <figure float="left">
-            <img align="middle" src="docs/example_split_hor.png" width="100%">
-            <figcaption>HOR plot.</figcaption>
-        </figure>
+          <img align="middle" src="docs/example_cdr.png" width="100%">
+          <figcaption>CDR plot.</figcaption>
+      </figure>
+      <figure float="left">
+          <img align="middle" src="docs/example_split_hor.png" width="100%">
+          <figcaption>HOR plot.</figcaption>
+      </figure>
     </td>
     <td>
-        <figure float="left">
-            <img align="middle" src="docs/example_multiple.png" width="100%">
-            <figcaption>Combined plot.</figcaption>
-        </figure>
+      <figure float="left">
+          <img align="middle" src="docs/example_multiple.png" width="100%">
+          <figcaption>Combined plot.</figcaption>
+      </figure>
+      <figure float="left">
+          <img align="middle" src="docs/example_ident.png" width="100%">
+          <figcaption>Identity plots.</figcaption>
+      </figure>
     </td>
   </tr>
 </table>

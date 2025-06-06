@@ -12,6 +12,7 @@ from .settings import (
     PositionTrackSettings,
     LegendTrackSettings,
     SpacerTrackSettings,
+    LocalSelfIdentTrackSettings,
     TrackSettings,
 )
 
@@ -22,6 +23,7 @@ __all__ = [
     "TrackList",
     "LegendPosition",
     "SelfIdentTrackSettings",
+    "LocalSelfIdentTrackSettings",
     "BarTrackSettings",
     "LabelTrackSettings",
     "HORTrackSettings",
