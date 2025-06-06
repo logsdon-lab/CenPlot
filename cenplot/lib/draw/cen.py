@@ -10,6 +10,7 @@ from .settings import PlotSettings
 from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
 from .self_ident import draw_self_ident
+from .strand import draw_strand
 from .bar import draw_bars
 from .legend import draw_legend
 from .local_self_ident import draw_local_self_ident
@@ -119,7 +120,9 @@ def plot_one_cen(
             format_ax(
                 track_ax,
                 grid=True,
+                xticklabel_fontsize=track.options.legend_fontsize,
                 yticks=True,
+                yticklabel_fontsize=track.options.legend_fontsize,
                 spines=("right", "left", "top"),
             )
         elif track.opt == TrackType.Spacer:
@@ -146,7 +149,8 @@ def plot_one_cen(
                 draw_fn = draw_local_self_ident
             elif track.opt == TrackType.Bar:
                 draw_fn = draw_bars
-
+            elif track.opt == TrackType.Strand:
+                draw_fn = draw_strand
             else:
                 raise ValueError("Invalid TrackType. Unreachable.")
 

@@ -8,12 +8,12 @@ class DefaultTrackSettings:
     Default plot options settings.
     """
 
-    fontsize: float | str = "medium"
+    fontsize: float | str | None = "medium"
     """
     Font size for track text.
     """
 
-    title_fontsize: float | str = "large"
+    title_fontsize: float | str | None = "large"
     """
     Font size for track title.
     """
@@ -28,7 +28,7 @@ class DefaultTrackSettings:
     Number of columns for legend entries.
     """
 
-    legend_fontsize: str = "medium"
+    legend_fontsize: float | str | None = "medium"
     """
     Legend font size.
     """
@@ -176,9 +176,9 @@ class BarTrackSettings(DefaultTrackSettings):
 
 
 @dataclass
-class HOROrtTrackSettings(DefaultTrackSettings):
+class StrandTrackSettings(DefaultTrackSettings):
     """
-    Higher order repeat orientation arrow plot options.
+    Strand arrow plot options.
     """
 
     DEF_COLOR = "black"
@@ -197,6 +197,18 @@ class HOROrtTrackSettings(DefaultTrackSettings):
     """
     Color of `-` arrows.
     """
+    use_item_rgb: bool = False
+    """
+    Use `item_rgb` column if provided. Otherwise, use `fwd_color` and `rev_color`.
+    """
+
+
+@dataclass
+class HOROrtTrackSettings(StrandTrackSettings):
+    """
+    Higher order repeat orientation arrow plot options.
+    """
+
     live_only: bool = True
     """
     Only plot live HORs.
@@ -204,6 +216,30 @@ class HOROrtTrackSettings(DefaultTrackSettings):
     mer_filter: int = 2
     """
     Filter HORs that have at least 2 monomers.
+    """
+    bp_merge_units: int | None = 256
+    """
+    Merge HOR units into HOR blocks within this number of base pairs.
+    """
+    bp_merge_blks: int | None = 8000
+    """
+    Merge HOR blocks into HOR arrays within this number of bases pairs.
+    """
+    min_blk_hor_units: int | None = 2
+    """
+    Grouped stv rows must have at least `n` HOR units unbroken.
+    """
+    min_arr_hor_units: int | None = 10
+    """
+    Require that an HOR array have at least `n` HOR units.
+    """
+    min_arr_len: int | None = 30_000
+    """
+    Require that an HOR array is this size in bp.
+    """
+    min_arr_prop: float | None = 0.9
+    """
+    Require that an HOR array has at least this proportion of HORs by length.
     """
 
 
@@ -291,6 +327,7 @@ TrackSettings = (
     | LegendTrackSettings
     | PositionTrackSettings
     | SpacerTrackSettings
+    | StrandTrackSettings
 )
 """
 Type annotation for all possible settings for the various plot types.

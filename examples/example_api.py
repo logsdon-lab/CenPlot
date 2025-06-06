@@ -35,3 +35,12 @@ def local_self_ident():
         track_list, settings = read_one_cen_tracks(fh, chrom=chrom)
     fig, axes, outfile = plot_one_cen(track_list.tracks, "plots", chrom, settings)
     return fig, axes, outfile
+
+
+def strand():
+    chrom = "chm13_chr1:121119216-127324115"
+    tracks = "tracks_strand.toml"
+    with open(tracks, "rb") as fh:
+        track_list, settings = read_one_cen_tracks(fh, chrom=chrom)
+    fig, axes, outfile = plot_one_cen(track_list.tracks, "plots", chrom, settings)
+    return fig, axes, outfile

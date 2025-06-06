@@ -37,9 +37,10 @@ pip install cenplot
 ```
 
 ## CLI
-Generating a split HOR tracks using the `cenplot draw` command.
+Generating a split HOR tracks using the `cenplot draw` command and an input layout.
 ```bash
 # examples/example_cli.sh
+cd examples
 cenplot draw \
 -t tracks_hor.toml \
 -c "chm13_chr10:38568472-42561808" \

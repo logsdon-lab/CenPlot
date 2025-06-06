@@ -25,3 +25,9 @@ cenplot draw \
 -c "HG00096_chr1_haplotype1-0000018" \
 -p 4 \
 -d plots
+
+cenplot draw \
+-t tracks_strand.toml \
+-c "chm13_chr1:121119216-127324115" \
+-p 4 \
+-d plots

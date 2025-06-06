@@ -1,5 +1,9 @@
 import argparse
+from matplotlib import rcParams
 from .cli.draw import add_draw_cli, draw
+
+rcParams["pdf.use14corefonts"] = True
+rcParams["text.usetex"] = False
 
 
 def main() -> int:
