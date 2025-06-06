@@ -1,0 +1,26 @@
+[settings]
+title = "{chrom}"
+format = "png"
+transparent = false
+dim = [16.0, 7.0]
+axis_h_pad = 0.1
+dpi = 600
+
+[[tracks]]
+position = "relative"
+type = "localselfident"
+proportion = 0.05
+path = "examples/local_self_ident/ident.bed"
+options = { legend = true, hide_x = true }
+
+[[tracks]]
+position = "relative"
+type = "spacer"
+proportion = 0.01
+
+[[tracks]]
+position = "relative"
+type = "selfident"
+proportion = 0.5
+path = "examples/local_self_ident/ident.bed"
+options = { legend = true, hide_x = false, invert = true, legend_asp_ratio = 1.0 }

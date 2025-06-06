@@ -5,14 +5,15 @@ import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
-from cenplot.lib.draw.strand import draw_strand
 
 from .settings import PlotSettings
 from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
 from .self_ident import draw_self_ident
+from .strand import draw_strand
 from .bar import draw_bars
 from .legend import draw_legend
+from .local_self_ident import draw_local_self_ident
 from .utils import create_subplots, format_ax, set_both_labels
 from ..io.utils import get_min_max_track
 from ..track.types import Track, TrackType, TrackPosition, LegendPosition
@@ -144,6 +145,8 @@ def plot_one_cen(
                 draw_fn = draw_label
             elif track.opt == TrackType.SelfIdent:
                 draw_fn = draw_self_ident
+            elif track.opt == TrackType.LocalSelfIdent:
+                draw_fn = draw_local_self_ident
             elif track.opt == TrackType.Bar:
                 draw_fn = draw_bars
             elif track.opt == TrackType.Strand:

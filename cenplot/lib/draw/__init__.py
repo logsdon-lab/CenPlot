@@ -7,6 +7,7 @@ from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
 from .strand import draw_strand
 from .self_ident import draw_self_ident, draw_self_ident_hist
+from .local_self_ident import draw_local_self_ident
 from .bar import draw_bars
 from .utils import merge_plots
 from .legend import draw_legend
@@ -20,6 +21,7 @@ __all__ = [
     "draw_strand",
     "draw_self_ident",
     "draw_self_ident_hist",
+    "draw_local_self_ident",
     "draw_bars",
     "draw_legend",
     "merge_plots",
