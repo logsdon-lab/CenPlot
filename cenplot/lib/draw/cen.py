@@ -5,6 +5,8 @@ import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
+from cenplot.lib.draw.strand import draw_strand
+
 from .settings import PlotSettings
 from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
@@ -142,7 +144,8 @@ def plot_one_cen(
                 draw_fn = draw_self_ident
             elif track.opt == TrackType.Bar:
                 draw_fn = draw_bars
-
+            elif track.opt == TrackType.Strand:
+                draw_fn = draw_strand
             else:
                 raise ValueError("Invalid TrackType. Unreachable.")
 
