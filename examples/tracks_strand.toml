@@ -1,0 +1,46 @@
+[settings]
+title = "{chrom}"
+format = "png"
+transparent = false
+dim = [12.0, 5.0]
+dpi = 600
+axis_h_pad = 0.0
+legend_pos = "right"
+legend_prop = 0.1
+layout = "tight"
+
+[[tracks]]
+position = "relative"
+type = "strand"
+proportion = 0.05
+path = "examples/strand/ort.bed"
+options = { legend = false, hide_x = true, scale = 30, use_item_rgb = true }
+
+[[tracks]]
+position = "relative"
+type = "hor"
+proportion = 0.1
+path = "examples/hor/stv.bed"
+options = { legend = false, sort_order = "descending", hide_x = true, border = true }
+
+[[tracks]]
+position = "relative"
+type = "position"
+proportion = 0.01
+
+[[tracks]]
+position = "relative"
+type = "spacer"
+proportion = 0.01
+
+[[tracks]]
+position = "relative"
+type = "legend"
+proportion = 0.01
+options = { legend = true, legend_title = "Orientation", index = 0, legend_ncols = 10 }
+
+[[tracks]]
+position = "relative"
+type = "legend"
+proportion = 0.1
+options = { legend = true, legend_title = "# of monomers in α-satellite HOR", index = 1, legend_ncols = 10 }

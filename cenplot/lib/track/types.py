@@ -70,14 +70,23 @@ class TrackType(StrEnum):
     * Similar to plots from [`ModDotPlot`](https://github.com/marbl/ModDotPlot)
 
     Expected format:
-    * `BED*`
-        * Identity bedfile produced by `ModDotPlot` without a header.
+    * `BEDPE*`
+        * Paired identity bedfile produced by `ModDotPlot` without a header.
 
     |query|query_st|query_end|reference|reference_st|reference_end|percent_identity_by_events|
     |-|-|-|-|-|-|-|
     |x|1|5000|x|1|5000|100.0|
 
     """
+    Strand = auto()
+    """
+    Strand track.
+
+    Expected format:
+    * `BED9`
+        * `strand` as either `+` or `-`
+    """
+
     Position = auto()
     """
     Position track.

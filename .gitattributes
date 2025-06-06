@@ -17,3 +17,4 @@ examples/hor/stv.bed filter=lfs diff=lfs merge=lfs -text
 examples/self_ident/ident.bed filter=lfs diff=lfs merge=lfs -text
 examples/bar_label/avg_methyl.bed filter=lfs diff=lfs merge=lfs -text
 examples/bar_label/cdr.bed filter=lfs diff=lfs merge=lfs -text
+examples/strand/ort.bed filter=lfs diff=lfs merge=lfs -text

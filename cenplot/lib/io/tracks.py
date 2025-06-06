@@ -20,6 +20,7 @@ from ..track.settings import (
     SelfIdentTrackSettings,
     LabelTrackSettings,
     BarTrackSettings,
+    StrandTrackSettings,
     TrackSettings,
     SpacerTrackSettings,
 )
@@ -159,16 +160,35 @@ def read_one_track_info(
     if track_opt == TrackType.HOROrt:
         live_only = options.get("live_only", HOROrtTrackSettings.live_only)
         mer_filter = options.get("mer_filter", HOROrtTrackSettings.mer_filter)
-        _, df_track = hor_array_length(
-            read_bed_hor(
-                path,
-                chrom=chrom,
-                live_only=live_only,
-                mer_filter=mer_filter,
-            ),
-            output_strand=True,
-        )
+        try:
+            _, df_track = hor_array_length(
+                read_bed_hor(
+                    path,
+                    chrom=chrom,
+                    live_only=live_only,
+                    mer_filter=mer_filter,
+                ),
+                output_strand=True,
+            )
+        except ValueError:
+            logging.error(f"Failed to calculate HOR array length for {path}.")
+            df_track = pl.DataFrame(
+                schema=[
+                    "chrom",
+                    "chrom_st",
+                    "chrom_end",
+                    "name",
+                    "score",
+                    "prop",
+                    "strand",
+                ]
+            )
         track_options = HOROrtTrackSettings(**options)
+    elif track_opt == TrackType.Strand:
+        use_item_rgb = options.get("use_item_rgb", StrandTrackSettings.use_item_rgb)
+        df_track = read_bed9(path, chrom=chrom)
+        df_track = map_value_colors(df_track, use_item_rgb=use_item_rgb)
+        track_options = StrandTrackSettings(**options)
     elif track_opt == TrackType.SelfIdent:
         df_track = read_bed_identity(path, chrom=chrom)
         track_options = SelfIdentTrackSettings(**options)

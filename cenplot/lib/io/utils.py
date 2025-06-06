@@ -1,5 +1,5 @@
-import logging
 import sys
+import logging
 import numpy as np
 import polars as pl
 
@@ -100,6 +100,9 @@ def get_min_max_track(
                 logging.error(f"No data for track {i} ({trk.title=}).")
                 continue
             trk_max = trk.data[col].max()
+            if not trk_max:
+                logging.error(f"No max value for track {i} ({trk.title=}).")
+                continue
             if trk_max > pos:
                 track = trk
                 pos = trk_max
