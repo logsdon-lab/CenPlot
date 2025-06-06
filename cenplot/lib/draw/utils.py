@@ -181,7 +181,7 @@ def format_xaxis_ticklabels(ax: Axes, track: Track):
         txt.set_text(new_x_txt)
         new_xtick_labels.append(txt)
 
-    ax.set_xticks(xticks, new_xtick_labels)
+    ax.set_xticks(xticks, new_xtick_labels, fontsize=track.options.fontsize)
     ax.set_xlabel(
         f"Position ({units.capitalize()})", fontsize=track.options.title_fontsize
     )
@@ -231,6 +231,7 @@ def draw_uniq_entry_legend(
             handlelength=1.0,
             handleheight=1.0,
             frameon=False,
+            fontsize=track.options.legend_fontsize,
             **kwargs,
         )
 
