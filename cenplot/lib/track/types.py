@@ -64,6 +64,16 @@ class TrackType(StrEnum):
     * `BED9`
         * `name` as any numeric value.
     """
+
+    Line = auto()
+    """
+    A line plot track.
+
+    Expected format:
+    * `BED9`
+        * `name` as any numeric value.
+    """
+
     SelfIdent = auto()
     """
     A self, sequence identity heatmap track displayed as a triangle.
@@ -155,7 +165,7 @@ class Track(NamedTuple):
     """
     Track data.
     """
-    options: TrackSettings
+    options: TrackSettings  # type: ignore
     """
     Plot settings.
     """

@@ -21,6 +21,7 @@ from ..track.settings import (
     LocalSelfIdentTrackSettings,
     LabelTrackSettings,
     BarTrackSettings,
+    LineTrackSettings,
     StrandTrackSettings,
     TrackSettings,
     SpacerTrackSettings,
@@ -209,6 +210,9 @@ def read_one_track_info(
     elif track_opt == TrackType.Bar:
         df_track = read_bed9(path, chrom=chrom)
         track_options = BarTrackSettings(**options)
+    elif track_opt == TrackType.Line:
+        df_track = read_bed9(path, chrom=chrom)
+        track_options = LineTrackSettings(**options)
     else:
         use_item_rgb = options.get("use_item_rgb", LabelTrackSettings.use_item_rgb)
         df_track = read_bed_label(path, chrom=chrom)

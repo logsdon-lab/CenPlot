@@ -6,6 +6,7 @@ from .types import Track, TrackType, TrackPosition, TrackList, LegendPosition
 from .settings import (
     SelfIdentTrackSettings,
     BarTrackSettings,
+    LineTrackSettings,
     LabelTrackSettings,
     HORTrackSettings,
     HOROrtTrackSettings,
@@ -26,6 +27,7 @@ __all__ = [
     "SelfIdentTrackSettings",
     "LocalSelfIdentTrackSettings",
     "BarTrackSettings",
+    "LineTrackSettings",
     "LabelTrackSettings",
     "HORTrackSettings",
     "HOROrtTrackSettings",
