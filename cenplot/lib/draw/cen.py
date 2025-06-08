@@ -204,7 +204,11 @@ def plot_one_cen(
     if settings.title:
         title = settings.title.format(chrom=chrom)
         fig.suptitle(
-            title, x=0.02, y=0.98, horizontalalignment="left", fontsize="xx-large"
+            title,
+            x=settings.title_x,
+            y=settings.title_y,
+            horizontalalignment=settings.title_horizontalalignment,
+            fontsize=settings.title_fontsize,
         )
 
     os.makedirs(outdir, exist_ok=True)

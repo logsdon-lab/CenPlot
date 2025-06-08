@@ -13,8 +13,31 @@ class PlotSettings:
 
     title: str | None = None
     """
-    Figure title. ex. "{chrom}"
+    Figure title.
+
+    Can use "{chrom}" to replace with chrom name.
     """
+
+    title_x: float | None = 0.02
+    """
+    Figure title x position.
+    """
+
+    title_y: float | None = None
+    """
+    Figure title y position.
+    """
+
+    title_fontsize: float | str = "xx-large"
+    """
+    Figure title fontsize.
+    """
+
+    title_horizontalalignment: str = "left"
+    """
+    Figure title position.
+    """
+
     format: list[OutputFormat] | OutputFormat = "png"
     """
     Output format(s). Either `"pdf"`, `"png"`, or `"svg"`.
