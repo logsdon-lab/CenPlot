@@ -21,6 +21,7 @@ from ..track.settings import (
     LocalSelfIdentTrackSettings,
     LabelTrackSettings,
     BarTrackSettings,
+    LineTrackSettings,
     StrandTrackSettings,
     TrackSettings,
     SpacerTrackSettings,
@@ -209,6 +210,9 @@ def read_one_track_info(
     elif track_opt == TrackType.Bar:
         df_track = read_bed9(path, chrom=chrom)
         track_options = BarTrackSettings(**options)
+    elif track_opt == TrackType.Line:
+        df_track = read_bed9(path, chrom=chrom)
+        track_options = LineTrackSettings(**options)
     else:
         use_item_rgb = options.get("use_item_rgb", LabelTrackSettings.use_item_rgb)
         df_track = read_bed_label(path, chrom=chrom)
@@ -282,43 +286,24 @@ def read_one_cen_tracks(
             raise TypeError("Invalid file type for settings.")
 
     settings: dict[str, Any] = dict_settings.get("settings", {})
-    title = settings.get("title", PlotSettings.title)
-    format = settings.get("format", PlotSettings.format)
-    transparent = settings.get("transparent", PlotSettings.transparent)
-    dim = tuple(settings.get("dim", PlotSettings.dim))
-    dpi = settings.get("dpi", PlotSettings.dpi)
-    legend_pos = settings.get("legend_pos", PlotSettings.legend_pos)
-    legend_prop = settings.get("legend_prop", PlotSettings.legend_prop)
-    axis_h_pad = settings.get("axis_h_pad", PlotSettings.axis_h_pad)
-    layout = settings.get("layout", PlotSettings.layout)
+    if settings.get("dim"):
+        settings["dim"] = tuple(settings["dim"])
 
-    tracks = dict_settings.get("tracks", [])
-
-    for track_info in tracks:
+    for track_info in dict_settings.get("tracks", []):
         for track in read_one_track_info(track_info, chrom=chrom):
             all_tracks.append(track)
             # Tracks legend and position have no data.
             if not isinstance(track.data, pl.DataFrame):
                 continue
             chroms.update(track.data["chrom"])
+    tracklist = TrackList(all_tracks, chroms)
 
     _, min_st_pos = get_min_max_track(all_tracks, typ="min")
     _, max_end_pos = get_min_max_track(all_tracks, typ="max", default_col="chrom_end")
-    tracklist = TrackList(all_tracks, chroms)
-    plot_settings = PlotSettings(
-        title,
-        format,
-        transparent,
-        dim,
-        dpi,
-        layout,
-        legend_pos,
-        legend_prop,
-        axis_h_pad,
-        xlim=(
-            tuple(settings.get("xlim"))  # type: ignore[arg-type]
-            if settings.get("xlim")
-            else (min_st_pos, max_end_pos)
-        ),
-    )
+    if settings.get("xlim"):
+        settings["xlim"] = tuple(settings["xlim"])
+    else:
+        settings["xlim"] = (min_st_pos, max_end_pos)
+
+    plot_settings = PlotSettings(**settings)
     return tracklist, plot_settings

@@ -173,13 +173,17 @@ def format_xaxis_ticklabels(ax: Axes, track: Track):
     new_xtick_labels = []
     units = Unit(track.options.units_x)
     xmin, xmax = ax.get_xlim()
-    xticks, xticklabels = ax.get_xticks(), ax.get_xticklabels()
+    xticks, xticklabels = list(ax.get_xticks()), ax.get_xticklabels()
     for txt in xticklabels:
         x, _ = txt.get_position()
         # Convert units and round.
         new_x_txt = units.convert_value(x, 3)
         txt.set_text(new_x_txt)
         new_xtick_labels.append(txt)
+
+    # Add last position.
+    xticks.append(xmax)
+    new_xtick_labels.append(str(units.convert_value(xmax, 1)))
 
     ax.set_xticks(xticks, new_xtick_labels, fontsize=track.options.fontsize)
     ax.set_xlabel(

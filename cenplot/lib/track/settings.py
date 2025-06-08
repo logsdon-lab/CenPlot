@@ -176,6 +176,38 @@ class BarTrackSettings(DefaultTrackSettings):
 
 
 @dataclass
+class LineTrackSettings(BarTrackSettings):
+    """
+    Line plot options.
+    """
+
+    position: Literal["start", "midpoint"] = "start"
+    """
+    Draw position at start or midpoint of interval.
+    """
+    fill: bool = False
+    """
+    Fill under line.
+    """
+    linestyle: str = "solid"
+    """
+    Line style. See https://matplotlib.org/stable/gallery/lines_bars_and_markers/linestyles.html.
+    """
+    linewidth: int | None = None
+    """
+    Line width.
+    """
+    marker: str | None = None
+    """
+    Marker shape. See https://matplotlib.org/stable/api/markers_api.html#module-matplotlib.markers,
+    """
+    markersize: int | None = None
+    """
+    Marker size.
+    """
+
+
+@dataclass
 class StrandTrackSettings(DefaultTrackSettings):
     """
     Strand arrow plot options.
@@ -328,6 +360,7 @@ TrackSettings = (
     | PositionTrackSettings
     | SpacerTrackSettings
     | StrandTrackSettings
+    | LineTrackSettings
 )
 """
 Type annotation for all possible settings for the various plot types.
