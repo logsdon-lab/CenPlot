@@ -20,7 +20,7 @@ position = "relative"
 type = "label"
 proportion = 0.025
 path = "test/cdr/HG02953_rm.bed"
-options = { legend = true, legend_title = "Sequence composition", legend_title_fontsize="large", legend_ncols = 1, hide_x = true, border = true }
+options = { legend = true, legend_title = "Sequence composition", legend_title_fontsize="large", legend_ncols = 1, hide_x = true, bg_border = true }
 
 [[tracks]]
 title = "Mean CpG\nmethylation\n(%)"
