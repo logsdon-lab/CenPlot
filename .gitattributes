@@ -21,3 +21,4 @@ examples/local_self_ident/ident.bed filter=lfs diff=lfs merge=lfs -text
 examples/strand/ort.bed filter=lfs diff=lfs merge=lfs -text
 examples/line/first.bed.gz filter=lfs diff=lfs merge=lfs -text
 examples/line/second.bed.gz filter=lfs diff=lfs merge=lfs -text
+examples/self_ident_custom_scale/chr1_h1:86865001-102805000.bed.gz filter=lfs diff=lfs merge=lfs -text

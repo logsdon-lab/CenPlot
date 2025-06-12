@@ -6,7 +6,6 @@ from intervaltree import Interval, IntervalTree
 
 from .utils import format_ax
 from ..track.types import Track
-from ..defaults import IDENT_COLOR_RANGE
 
 
 def draw_self_ident_hist(ax: Axes, track: Track, *, zorder: float = 1.0):
@@ -16,9 +15,13 @@ def draw_self_ident_hist(ax: Axes, track: Track, *, zorder: float = 1.0):
     legend_bins = track.options.legend_bins
     legend_xmin = track.options.legend_xmin
     legend_asp_ratio = track.options.legend_asp_ratio
+    colorscale = track.options.colorscale
+    assert isinstance(colorscale, dict), (
+        f"Colorscale not a identity interval mapping for {track.title}"
+    )
 
     cmap = IntervalTree(
-        Interval(rng[0], rng[1], color) for rng, color in IDENT_COLOR_RANGE.items()
+        Interval(rng[0], rng[1], color) for rng, color in colorscale.items()
     )
     cnts, values, bars = ax.hist(
         track.data["percent_identity_by_events"], bins=legend_bins, zorder=zorder

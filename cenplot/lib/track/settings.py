@@ -1,5 +1,7 @@
-from dataclasses import dataclass
 from typing import Literal
+from dataclasses import dataclass
+
+from ..defaults import Colorscale
 
 
 @dataclass
@@ -82,6 +84,14 @@ class SelfIdentTrackSettings(DefaultTrackSettings):
     """
     Aspect ratio of legend. If `None`, takes up entire axis.
     """
+    colorscale: Colorscale | str | None = None
+    """
+    Colorscale for identity as TSV file.
+    * Format: `[start, end, color]`
+        * Color is a `str` representing a color name or hexcode.
+        * See https://matplotlib.org/stable/users/explain/colors/colors.html
+    * ex. `0\t90\tblue`
+    """
 
 
 @dataclass
@@ -128,6 +138,14 @@ class LocalSelfIdentTrackSettings(LabelTrackSettings):
     Local self-identity plot options.
     """
 
+    colorscale: Colorscale | str | None = None
+    """
+    Colorscale for identity as TSV file.
+    * Format: `[start, end, color]`
+        * Color is a `str` representing a color name or hexcode.
+        * See https://matplotlib.org/stable/users/explain/colors/colors.html
+    * ex. `0\t90\tblue`
+    """
     band_size: int = 5
     """
     Number of windows to calculate average sequence identity over.

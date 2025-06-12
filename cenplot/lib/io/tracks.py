@@ -192,20 +192,29 @@ def read_one_track_info(
         df_track = map_value_colors(df_track, use_item_rgb=use_item_rgb)
         track_options = StrandTrackSettings(**options)
     elif track_opt == TrackType.SelfIdent:
-        df_track = read_bed_identity(path, chrom=chrom)
+        df_track, colorscale = read_bed_identity(
+            path, chrom=chrom, colorscale=options.get("colorscale")
+        )
+        # Save colorscale
+        options["colorscale"] = colorscale
+
         track_options = SelfIdentTrackSettings(**options)
     elif track_opt == TrackType.LocalSelfIdent:
         band_size = options.get("band_size", LocalSelfIdentTrackSettings.band_size)
         ignore_band_size = options.get(
             "ignore_band_size", LocalSelfIdentTrackSettings.ignore_band_size
         )
-        df_track = read_bed_identity(
+        df_track, colorscale = read_bed_identity(
             path,
             chrom=chrom,
             mode="1D",
             band_size=band_size,
             ignore_band_size=ignore_band_size,
+            colorscale=options.get("colorscale"),
         )
+        # Save colorscale
+        options["colorscale"] = colorscale
+
         track_options = LocalSelfIdentTrackSettings(**options)
     elif track_opt == TrackType.Bar:
         df_track = read_bed9(path, chrom=chrom)

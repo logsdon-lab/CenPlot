@@ -5,8 +5,27 @@ import polars as pl
 from typing import TextIO
 
 from ..track.settings import LocalSelfIdentTrackSettings
-from ..defaults import BED9_COLS, BED_SELF_IDENT_COLS, IDENT_COLOR_RANGE
+from ..defaults import BED9_COLS, BED_SELF_IDENT_COLS, IDENT_COLORSCALE, Colorscale
 from censtats.self_ident.cli import convert_2D_to_1D_ident, Dim
+
+
+def read_ident_colorscale(
+    colorscale: Colorscale | str | None,
+) -> dict[tuple[float, float], str]:
+    if not colorscale:
+        return IDENT_COLORSCALE
+
+    if isinstance(colorscale, dict):
+        return colorscale
+
+    ident_colorscale = {}
+    with open(colorscale, "rt") as fh:
+        for line in fh:
+            st, end, color, *_ = line.strip().split("\t")
+            fst = float(st)
+            fend = float(end)
+            ident_colorscale[(fst, fend)] = color
+    return ident_colorscale
 
 
 def read_bed_identity(
@@ -14,9 +33,10 @@ def read_bed_identity(
     *,
     chrom: str | None = None,
     mode: str = "2D",
+    colorscale: Colorscale | str | None = None,
     band_size: int = LocalSelfIdentTrackSettings.band_size,
     ignore_band_size=LocalSelfIdentTrackSettings.ignore_band_size,
-) -> pl.DataFrame:
+) -> tuple[pl.DataFrame, Colorscale]:
     """
     Read a self, sequence identity BED file generate by `ModDotPlot`.
 
@@ -51,7 +71,8 @@ def read_bed_identity(
     # TODO: Allow custom range.
     color_expr = None
     rng_expr = None
-    for rng, color in IDENT_COLOR_RANGE.items():
+    ident_colorscale = read_ident_colorscale(colorscale)
+    for rng, color in ident_colorscale.items():
         if not isinstance(color_expr, pl.Expr):
             color_expr = pl.when(
                 pl.col("percent_identity_by_events").is_between(rng[0], rng[1])
@@ -159,4 +180,4 @@ def read_bed_identity(
             .rename({"query": "chrom", "new_x": "x", "new_y": "y"})
             .collect()
         )
-    return df_res
+    return df_res, ident_colorscale
