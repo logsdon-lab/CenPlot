@@ -95,4 +95,5 @@ IDENT_RANGE = [
     *zip((IDENT_CUTOFF, *IDENT_RANGE_ENDS[:-1]), IDENT_RANGE_ENDS),
 ]
 
-IDENT_COLOR_RANGE = dict(zip(IDENT_RANGE, IDENT_COLORS))
+Colorscale = dict[tuple[float, float], str]
+IDENT_COLORSCALE: Colorscale = dict(zip(IDENT_RANGE, IDENT_COLORS))

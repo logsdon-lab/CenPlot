@@ -11,5 +11,5 @@ dpi = 600
 position = "relative"
 type = "selfident"
 proportion = 0.5
-path = "self_ident/ident.bed"
+path = "examples/self_ident/ident.bed"
 options = { legend = true, hide_x = false, invert = true, legend_asp_ratio = 1.0 }
