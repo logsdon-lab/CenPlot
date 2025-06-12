@@ -32,7 +32,7 @@ def draw_hor(
     """
     hide_x = track.options.hide_x
     legend = track.options.legend
-    border = track.options.border
+    border = track.options.bg_border
     bg_color = track.options.bg_color
 
     if track.pos != TrackPosition.Overlap:

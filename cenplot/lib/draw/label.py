@@ -20,7 +20,8 @@ def draw_label(
     color = track.options.color
     alpha = track.options.alpha
     legend = track.options.legend
-    border = track.options.border
+    border = track.options.bg_border
+    edgecolor = track.options.edgecolor
 
     patch_options: dict[str, Any] = {"zorder": zorder}
     patch_options["alpha"] = alpha
@@ -46,6 +47,8 @@ def draw_label(
     ylim = ax.get_ylim()
     height = ylim[1] - ylim[0]
 
+    patch_options["edgecolor"] = edgecolor
+
     for row in track.data.iter_rows(named=True):
         start = row["chrom_st"]
         end = row["chrom_end"]
@@ -57,17 +60,15 @@ def draw_label(
 
         # Allow override.
         if color:
-            patch_options["color"] = color
+            patch_options["facecolor"] = color
         elif "color" in row:
-            patch_options["color"] = row["color"]
+            patch_options["facecolor"] = row["color"]
 
         if track.options.shape == "rect":
             rect = Rectangle(
                 (start, 0),
                 end + 1 - start,
                 height,
-                # No line width on each individual rect.
-                lw=0,
                 **labels,
                 **patch_options,
             )
@@ -83,7 +84,6 @@ def draw_label(
             ptch = Polygon(
                 vertices,
                 closed=True,
-                edgecolor=patch_options.get("color"),
                 **labels,
                 **patch_options,
             )
