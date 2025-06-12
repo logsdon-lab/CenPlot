@@ -126,7 +126,12 @@ class LabelTrackSettings(DefaultTrackSettings):
     * `"tri"` Always pointed down.
     """
 
-    border: bool = False
+    edgecolor: str | None = None
+    """
+    Edge color for each label.
+    """
+
+    bg_border: bool = False
     """
     Add black border containing all added labels.
     """
@@ -343,9 +348,13 @@ class HORTrackSettings(DefaultTrackSettings):
     """
     If split, show top n HORs for a given mode.
     """
-    border: bool = False
+    bg_border: bool = False
     """
     Add black border containing all added labels.
+    """
+    bg_color: str | None = None
+    """
+    Background color for track.
     """
 
 

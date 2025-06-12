@@ -253,13 +253,22 @@ def draw_uniq_entry_legend(
         legend.get_title().set_fontsize(track.options.legend_title_fontsize)
 
 
-def add_border(ax: Axes, height: float, zorder: float):
+def add_rect(
+    ax: Axes,
+    height: float,
+    zorder: float,
+    color: str | None = None,
+    fill: bool = False,
+    edgecolor: str | None = None,
+):
     xmin, xmax = ax.get_xlim()
     rect = Rectangle(
         (xmin, 0),
         xmax - xmin,
         height,
-        fill=None,
+        edgecolor=edgecolor,
+        fill=fill,
+        color=color,
         zorder=zorder,
     )
     ax.add_patch(rect)
