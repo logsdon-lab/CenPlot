@@ -3,7 +3,7 @@ from matplotlib.patches import Rectangle
 
 from cenplot.lib.draw.strand import draw_strand
 
-from .utils import add_border, draw_uniq_entry_legend, format_ax
+from .utils import add_rect, draw_uniq_entry_legend, format_ax
 from ..track.types import Track, TrackPosition
 
 
@@ -33,6 +33,7 @@ def draw_hor(
     hide_x = track.options.hide_x
     legend = track.options.legend
     border = track.options.border
+    bg_color = track.options.bg_color
 
     if track.pos != TrackPosition.Overlap:
         spines = (
@@ -76,7 +77,11 @@ def draw_hor(
 
     if border:
         # Ensure border is always on top.
-        add_border(ax, height, zorder + 1.0)
+        add_rect(ax, height, zorder + 1.0)
+
+    if bg_color:
+        # Ensure bg is below everything.
+        add_rect(ax, height, zorder - 1.0, fill=True, color=bg_color)
 
     if legend_ax and legend:
         draw_uniq_entry_legend(

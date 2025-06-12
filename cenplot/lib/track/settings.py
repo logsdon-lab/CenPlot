@@ -329,6 +329,10 @@ class HORTrackSettings(DefaultTrackSettings):
     """
     Add black border containing all added labels.
     """
+    bg_color: str | None = None
+    """
+    Background color for track.
+    """
 
 
 @dataclass

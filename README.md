@@ -40,9 +40,8 @@ pip install cenplot
 Generating a split HOR tracks using the `cenplot draw` command and an input layout.
 ```bash
 # examples/example_cli.sh
-cd examples
 cenplot draw \
--t tracks_hor.toml \
+-t examples/tracks_hor.toml \
 -c "chm13_chr10:38568472-42561808" \
 -p 4 \
 -d plots \
@@ -56,7 +55,7 @@ The same HOR track can be created with a few lines of code.
 from cenplot import plot_one_cen, read_one_cen_tracks
 
 chrom = "chm13_chr10:38568472-42561808"
-track_list, settings = read_one_cen_tracks("tracks_hor.toml", chrom=chrom)
+track_list, settings = read_one_cen_tracks("examples/tracks_hor.toml", chrom=chrom)
 fig, axes, outfile = plot_one_cen(track_list.tracks, "plots", chrom, settings)
 ```
 

@@ -2,7 +2,7 @@ from typing import Any
 from matplotlib.axes import Axes
 from matplotlib.patches import Polygon, Rectangle
 
-from .utils import add_border, draw_uniq_entry_legend, format_ax
+from .utils import add_rect, draw_uniq_entry_legend, format_ax
 from ..track.types import Track, TrackPosition
 
 
@@ -91,7 +91,7 @@ def draw_label(
 
     if border:
         # Ensure border on top with larger zorder.
-        add_border(ax, height, zorder=zorder + 1.0)
+        add_rect(ax, height, fill=False, zorder=zorder + 1.0)
 
     # Draw legend.
     if legend_ax and legend:
