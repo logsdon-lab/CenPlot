@@ -21,7 +21,7 @@ position = "relative"
 type = "hor"
 proportion = 0.1
 path = "examples/hor/stv.bed"
-options = { legend = false, sort_order = "descending", hide_x = true, border = true }
+options = { legend = false, sort_order = "descending", hide_x = true, bg_border = true }
 
 [[tracks]]
 position = "relative"
