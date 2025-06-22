@@ -22,8 +22,12 @@ if TYPE_CHECKING:
 else:
     SubArgumentParser = Any
 
-
-logging.getLogger().addHandler(logging.StreamHandler(sys.stderr))
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s.%(msecs)03d \033[32m%(levelname)s\033[0m [cenplot::%(name)s] %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+    handlers=[logging.StreamHandler(sys.stderr)],
+)
 
 
 def get_draw_args(
@@ -136,9 +140,12 @@ def draw(
             plots = []
             for chrom, future in futures:
                 if future.exception():
-                    print(f"Failed to plot {chrom} ({future.exception()})")
+                    logging.error(f"Failed to plot {chrom} ({future.exception()})")
                     continue
                 plots.append(future.result())
 
     if outfile:
+        logging.info(f"Merging {len(plots)} plots into {outfile}.")
         merge_plots(plots, outfile)
+
+    logging.info("Done!")

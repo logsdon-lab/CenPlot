@@ -1,3 +1,4 @@
+import os
 import logging
 import polars as pl
 
@@ -17,7 +18,7 @@ def read_bed_hor(
     mer_size: int = HORTrackSettings.mer_size,
     mer_filter: int = HORTrackSettings.mer_filter,
     hor_filter: int | None = None,
-    sort_col: str = "mer",
+    sort_by: str = "mer",
     sort_order: str = HORTrackSettings.sort_order,
     color_map_file: str | None = None,
     use_item_rgb: bool = HORTrackSettings.use_item_rgb,
@@ -43,8 +44,9 @@ def read_bed_hor(
         * Convenience color map file for `mer` or `hor`.
         * Two-column TSV file with no header.
         * If `None`, use default color map.
-    * `sort_col`
-        * Sort `pl.DataFrame` by `mer` or `hor_count`.
+    * `sort_by`
+        * Sort `pl.DataFrame` by `mer`, `hor`, or `hor_count`.
+        * Can be a path to a list of `mer` or `hor` names
     * `sort_order`
         * Sort in ascending or descending order.
     * `use_item_rgb`
@@ -93,10 +95,30 @@ def read_bed_hor(
     if hor_filter:
         df = df.filter(pl.col("hor_count") >= hor_filter)
 
-    if sort_col == "mer":
-        df = df.sort(sort_col, descending=sort_order == HORTrackSettings.sort_order)
+    if os.path.exists(sort_order):
+        with open(sort_order, "rt") as fh:
+            defined_sort_order = []
+            for line in fh:
+                line = line.strip()
+                defined_sort_order.append(int(line) if sort_by == "mer" else line)
     else:
-        df = df.sort("hor_count", descending=sort_order == HORTrackSettings.sort_order)
+        defined_sort_order = None
+
+    if sort_by == "mer":
+        sort_col = "mer"
+    elif sort_by == "name" and defined_sort_order:
+        sort_col = "name"
+    else:
+        sort_col = "hor_count"
+
+    if defined_sort_order:
+        # Get intersection between defined elements
+        remaining_elems = set(df[sort_col]).difference(defined_sort_order)
+        # Add remainder so all elements covered.
+        defined_sort_order.extend(remaining_elems)
+        df = df.cast({sort_col: pl.Enum(defined_sort_order)}).sort(by=sort_col)
+    else:
+        df = df.sort(sort_col, descending=sort_order == HORTrackSettings.sort_order)
 
     return df
 
@@ -121,7 +143,7 @@ def read_bed_hor_from_settings(
         path,
         chrom=chrom,
         mer_size=mer_size,
-        sort_col=split_colname,
+        sort_by=split_colname,
         sort_order=sort_order,
         live_only=live_only,
         mer_filter=mer_filter,

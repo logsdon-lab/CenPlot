@@ -65,6 +65,14 @@ def adj_by_ctg_coords(df: pl.DataFrame, colname: str) -> pl.DataFrame:
     ).with_columns(**final_adj_coords)
 
 
+def no_data_log_message(i: int, title: str | None, col: str):
+    logging.error(
+        f"No data for track {i} ({title=}). "
+        f"Check that data is in absolute coordinates and/or is in the correct column ({col}). "
+        "Skipping..."
+    )
+
+
 def get_min_max_track(
     tracks: list[Track], typ: str, default_col: str = "chrom_st"
 ) -> tuple[Track, int]:
@@ -85,11 +93,7 @@ def get_min_max_track(
         if typ == "min":
             trk_data = trk.data.filter(pl.col(col) >= 0)
             if trk_data.is_empty():
-                logging.error(
-                    f"No data for track {i} ({trk.title=}). "
-                    f"Check that data is in absolute coordinates and/or is in the correct column ({col}). "
-                    "Skipping..."
-                )
+                no_data_log_message(i, trk.title, col)
                 continue
             trk_min = trk_data[col].min()
             if trk_min < pos:
@@ -97,7 +101,7 @@ def get_min_max_track(
                 pos = trk_min
         else:
             if trk.data.is_empty():
-                logging.error(f"No data for track {i} ({trk.title=}).")
+                no_data_log_message(i, trk.title, col)
                 continue
             trk_max = trk.data[col].max()
             if not trk_max:
