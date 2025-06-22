@@ -1,0 +1,20 @@
+[settings]
+format = "png"
+transparent = true
+dim = [16.0, 2.0]
+dpi = 600
+
+[[tracks]]
+title = "Sequence Composition"
+position = "relative"
+proportion = 0.5
+type = "label"
+path = "test/chrY/sat_annot_empty.bed"
+options = { hide_x = false }
+
+[[tracks]]
+title = "Alpha-satellite HOR monomers"
+position = "overlap"
+type = "hor"
+path = "test/chrY/stv.bed"
+options = { hide_x = false }

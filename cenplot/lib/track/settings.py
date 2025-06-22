@@ -304,9 +304,14 @@ class HORTrackSettings(DefaultTrackSettings):
     Higher order repeat plot options.
     """
 
-    sort_order: Literal["ascending", "descending"] = "descending"
+    sort_order: str = "descending"
     """
     Plot HORs by `{mode}` in `{sort_order}` order.
+
+    Either:
+    * `ascending`
+    * `descending`
+    * Or a path to a single column file specifying the order of elements of `mode`.
 
     Mode:
     * If `{mer}`, sort by `mer` number
