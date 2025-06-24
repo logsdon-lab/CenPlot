@@ -5,7 +5,7 @@ from .utils import draw_uniq_entry_legend, format_ax
 from ..track.types import Track, TrackPosition
 
 
-def draw_bars(
+def draw_bar(
     ax: Axes,
     track: Track,
     *,

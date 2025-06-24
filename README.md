@@ -8,20 +8,24 @@ Library for producing centromere figures.
 <table>
   <tr>
     <td>
-        <figure float="left">
-            <img align="middle" src="docs/example_cdr.png" width="100%">
-            <figcaption>CDR plot.</figcaption>
-        </figure>
       <figure float="left">
-            <img align="middle" src="docs/example_split_hor.png" width="100%">
-            <figcaption>HOR plot.</figcaption>
-        </figure>
+          <img align="middle" src="docs/example_cdr.png" width="100%">
+          <figcaption>CDR plot.</figcaption>
+      </figure>
+      <figure float="left">
+          <img align="middle" src="docs/example_split_hor.png" width="100%">
+          <figcaption>HOR plot.</figcaption>
+      </figure>
     </td>
     <td>
-        <figure float="left">
-            <img align="middle" src="docs/example_multiple.png" width="100%">
-            <figcaption>Combined plot.</figcaption>
-        </figure>
+      <figure float="left">
+          <img align="middle" src="docs/example_multiple.png" width="100%">
+          <figcaption>Combined plot.</figcaption>
+      </figure>
+      <figure float="left">
+          <img align="middle" src="docs/example_ident.png" width="100%">
+          <figcaption>Identity plots.</figcaption>
+      </figure>
     </td>
   </tr>
 </table>
@@ -33,11 +37,11 @@ pip install cenplot
 ```
 
 ## CLI
-Generating a split HOR tracks using the `cenplot draw` command.
+Generating a split HOR tracks using the `cenplot draw` command and an input layout.
 ```bash
 # examples/example_cli.sh
 cenplot draw \
--t tracks_hor.toml \
+-t examples/tracks_hor.toml \
 -c "chm13_chr10:38568472-42561808" \
 -p 4 \
 -d plots \
@@ -51,7 +55,7 @@ The same HOR track can be created with a few lines of code.
 from cenplot import plot_one_cen, read_one_cen_tracks
 
 chrom = "chm13_chr10:38568472-42561808"
-track_list, settings = read_one_cen_tracks("tracks_hor.toml", chrom=chrom)
+track_list, settings = read_one_cen_tracks("examples/tracks_hor.toml", chrom=chrom)
 fig, axes, outfile = plot_one_cen(track_list.tracks, "plots", chrom, settings)
 ```
 

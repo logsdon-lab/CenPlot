@@ -15,8 +15,12 @@ import tempfile
         # Simple cases.
         ("test/tracks_simple.toml", "test/chrY/cdrs.bed"),
         ("test/tracks_simple_overlap.toml", "test/chrY/cdrs.bed"),
+        # Empty file.
+        ("test/tracks_simple_empty_bed.toml", "test/chrY/cdrs.bed"),
         # Split HOR
         ("test/tracks_split_hor.toml", "test/chr1/cdrs.bed"),
+        # Split HOR with specified order
+        ("test/tracks_split_hor_sort_by_order.toml", "test/chr1/cdrs.bed"),
         # YAML
         ("test/tracks_simple.yaml", "test/chrY/cdrs.bed"),
     ],

@@ -5,12 +5,16 @@ import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
+
 from .settings import PlotSettings
 from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
 from .self_ident import draw_self_ident
-from .bar import draw_bars
+from .strand import draw_strand
+from .line import draw_line
+from .bar import draw_bar
 from .legend import draw_legend
+from .local_self_ident import draw_local_self_ident
 from .utils import create_subplots, format_ax, set_both_labels
 from ..io.utils import get_min_max_track
 from ..track.types import Track, TrackType, TrackPosition, LegendPosition
@@ -117,7 +121,9 @@ def plot_one_cen(
             format_ax(
                 track_ax,
                 grid=True,
+                xticklabel_fontsize=track.options.legend_fontsize,
                 yticks=True,
+                yticklabel_fontsize=track.options.legend_fontsize,
                 spines=("right", "left", "top"),
             )
         elif track.opt == TrackType.Spacer:
@@ -140,9 +146,14 @@ def plot_one_cen(
                 draw_fn = draw_label
             elif track.opt == TrackType.SelfIdent:
                 draw_fn = draw_self_ident
+            elif track.opt == TrackType.LocalSelfIdent:
+                draw_fn = draw_local_self_ident
             elif track.opt == TrackType.Bar:
-                draw_fn = draw_bars
-
+                draw_fn = draw_bar
+            elif track.opt == TrackType.Line:
+                draw_fn = draw_line
+            elif track.opt == TrackType.Strand:
+                draw_fn = draw_strand
             else:
                 raise ValueError("Invalid TrackType. Unreachable.")
 
@@ -196,7 +207,11 @@ def plot_one_cen(
     if settings.title:
         title = settings.title.format(chrom=chrom)
         fig.suptitle(
-            title, x=0.02, y=0.98, horizontalalignment="left", fontsize="xx-large"
+            title,
+            x=settings.title_x,
+            y=settings.title_y,
+            horizontalalignment=settings.title_horizontalalignment,
+            fontsize=settings.title_fontsize,
         )
 
     os.makedirs(outdir, exist_ok=True)

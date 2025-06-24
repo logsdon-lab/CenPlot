@@ -64,20 +64,53 @@ class TrackType(StrEnum):
     * `BED9`
         * `name` as any numeric value.
     """
+
+    Line = auto()
+    """
+    A line plot track.
+
+    Expected format:
+    * `BED9`
+        * `name` as any numeric value.
+    """
+
     SelfIdent = auto()
     """
     A self, sequence identity heatmap track displayed as a triangle.
     * Similar to plots from [`ModDotPlot`](https://github.com/marbl/ModDotPlot)
 
     Expected format:
-    * `BED*`
-        * Identity bedfile produced by `ModDotPlot` without a header.
+    * `BEDPE*`
+        * Paired identity bedfile produced by `ModDotPlot` without a header.
 
     |query|query_st|query_end|reference|reference_st|reference_end|percent_identity_by_events|
     |-|-|-|-|-|-|-|
     |x|1|5000|x|1|5000|100.0|
 
     """
+    LocalSelfIdent = auto()
+    """
+    A self, sequence identity track showing local identity.
+    * Derived from [`ModDotPlot`](https://github.com/marbl/ModDotPlot)
+
+    Expected format:
+    * `BEDPE*`
+        * Paired identity bedfile produced by `ModDotPlot` without a header.
+
+    |query|query_st|query_end|reference|reference_st|reference_end|percent_identity_by_events|
+    |-|-|-|-|-|-|-|
+    |x|1|5000|x|1|5000|100.0|
+    """
+
+    Strand = auto()
+    """
+    Strand track.
+
+    Expected format:
+    * `BED9`
+        * `strand` as either `+` or `-`
+    """
+
     Position = auto()
     """
     Position track.
@@ -132,7 +165,7 @@ class Track(NamedTuple):
     """
     Track data.
     """
-    options: TrackSettings
+    options: TrackSettings  # type: ignore
     """
     Plot settings.
     """

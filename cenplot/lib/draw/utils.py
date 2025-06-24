@@ -173,7 +173,7 @@ def format_xaxis_ticklabels(ax: Axes, track: Track):
     new_xtick_labels = []
     units = Unit(track.options.units_x)
     xmin, xmax = ax.get_xlim()
-    xticks, xticklabels = ax.get_xticks(), ax.get_xticklabels()
+    xticks, xticklabels = list(ax.get_xticks()), ax.get_xticklabels()
     for txt in xticklabels:
         x, _ = txt.get_position()
         # Convert units and round.
@@ -181,7 +181,11 @@ def format_xaxis_ticklabels(ax: Axes, track: Track):
         txt.set_text(new_x_txt)
         new_xtick_labels.append(txt)
 
-    ax.set_xticks(xticks, new_xtick_labels)
+    # Add last position.
+    xticks.append(xmax)
+    new_xtick_labels.append(str(units.convert_value(xmax, 1)))
+
+    ax.set_xticks(xticks, new_xtick_labels, fontsize=track.options.fontsize)
     ax.set_xlabel(
         f"Position ({units.capitalize()})", fontsize=track.options.title_fontsize
     )
@@ -231,6 +235,7 @@ def draw_uniq_entry_legend(
             handlelength=1.0,
             handleheight=1.0,
             frameon=False,
+            fontsize=track.options.legend_fontsize,
             **kwargs,
         )
 
@@ -248,13 +253,22 @@ def draw_uniq_entry_legend(
         legend.get_title().set_fontsize(track.options.legend_title_fontsize)
 
 
-def add_border(ax: Axes, height: float, zorder: float):
+def add_rect(
+    ax: Axes,
+    height: float,
+    zorder: float,
+    color: str | None = None,
+    fill: bool = False,
+    edgecolor: str | None = None,
+):
     xmin, xmax = ax.get_xlim()
     rect = Rectangle(
         (xmin, 0),
         xmax - xmin,
         height,
-        fill=None,
+        edgecolor=edgecolor,
+        fill=fill,
+        color=color,
         zorder=zorder,
     )
     ax.add_patch(rect)

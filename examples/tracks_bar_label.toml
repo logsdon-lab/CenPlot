@@ -12,7 +12,7 @@ layout = "constrained"
 position = "relative"
 type = "label"
 proportion = 0.01
-path = "bar_label/cdr.bed"
+path = "examples/bar_label/cdr.bed"
 options = { legend = false, hide_x = true, color = "black" }
 
 [[tracks]]
@@ -20,5 +20,5 @@ title = "Mean CpG\nmethylation\n(%)"
 position = "relative"
 type = "bar"
 proportion = 0.1
-path = "bar_label/avg_methyl.bed"
+path = "examples/bar_label/avg_methyl.bed"
 options = { hide_x = false, color = "black", ymax = 100 }

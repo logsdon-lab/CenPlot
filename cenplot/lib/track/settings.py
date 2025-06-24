@@ -1,5 +1,7 @@
-from dataclasses import dataclass
 from typing import Literal
+from dataclasses import dataclass
+
+from ..defaults import Colorscale
 
 
 @dataclass
@@ -8,12 +10,12 @@ class DefaultTrackSettings:
     Default plot options settings.
     """
 
-    fontsize: float | str = "medium"
+    fontsize: float | str | None = "medium"
     """
     Font size for track text.
     """
 
-    title_fontsize: float | str = "large"
+    title_fontsize: float | str | None = "large"
     """
     Font size for track title.
     """
@@ -28,7 +30,7 @@ class DefaultTrackSettings:
     Number of columns for legend entries.
     """
 
-    legend_fontsize: str = "medium"
+    legend_fontsize: float | str | None = "medium"
     """
     Legend font size.
     """
@@ -82,6 +84,14 @@ class SelfIdentTrackSettings(DefaultTrackSettings):
     """
     Aspect ratio of legend. If `None`, takes up entire axis.
     """
+    colorscale: Colorscale | str | None = None
+    """
+    Colorscale for identity as TSV file.
+    * Format: `[start, end, color]`
+        * Color is a `str` representing a color name or hexcode.
+        * See https://matplotlib.org/stable/users/explain/colors/colors.html
+    * ex. `0\t90\tblue`
+    """
 
 
 @dataclass
@@ -116,9 +126,38 @@ class LabelTrackSettings(DefaultTrackSettings):
     * `"tri"` Always pointed down.
     """
 
-    border: bool = False
+    edgecolor: str | None = None
+    """
+    Edge color for each label.
+    """
+
+    bg_border: bool = False
     """
     Add black border containing all added labels.
+    """
+
+
+@dataclass
+class LocalSelfIdentTrackSettings(LabelTrackSettings):
+    """
+    Local self-identity plot options.
+    """
+
+    colorscale: Colorscale | str | None = None
+    """
+    Colorscale for identity as TSV file.
+    * Format: `[start, end, color]`
+        * Color is a `str` representing a color name or hexcode.
+        * See https://matplotlib.org/stable/users/explain/colors/colors.html
+    * ex. `0\t90\tblue`
+    """
+    band_size: int = 5
+    """
+    Number of windows to calculate average sequence identity over.
+    """
+    ignore_band_size: int = 2
+    """
+    Number of windows ignored along self-identity diagonal.
     """
 
 
@@ -160,9 +199,41 @@ class BarTrackSettings(DefaultTrackSettings):
 
 
 @dataclass
-class HOROrtTrackSettings(DefaultTrackSettings):
+class LineTrackSettings(BarTrackSettings):
     """
-    Higher order repeat orientation arrow plot options.
+    Line plot options.
+    """
+
+    position: Literal["start", "midpoint"] = "start"
+    """
+    Draw position at start or midpoint of interval.
+    """
+    fill: bool = False
+    """
+    Fill under line.
+    """
+    linestyle: str = "solid"
+    """
+    Line style. See https://matplotlib.org/stable/gallery/lines_bars_and_markers/linestyles.html.
+    """
+    linewidth: int | None = None
+    """
+    Line width.
+    """
+    marker: str | None = None
+    """
+    Marker shape. See https://matplotlib.org/stable/api/markers_api.html#module-matplotlib.markers,
+    """
+    markersize: int | None = None
+    """
+    Marker size.
+    """
+
+
+@dataclass
+class StrandTrackSettings(DefaultTrackSettings):
+    """
+    Strand arrow plot options.
     """
 
     DEF_COLOR = "black"
@@ -181,6 +252,18 @@ class HOROrtTrackSettings(DefaultTrackSettings):
     """
     Color of `-` arrows.
     """
+    use_item_rgb: bool = False
+    """
+    Use `item_rgb` column if provided. Otherwise, use `fwd_color` and `rev_color`.
+    """
+
+
+@dataclass
+class HOROrtTrackSettings(StrandTrackSettings):
+    """
+    Higher order repeat orientation arrow plot options.
+    """
+
     live_only: bool = True
     """
     Only plot live HORs.
@@ -188,6 +271,30 @@ class HOROrtTrackSettings(DefaultTrackSettings):
     mer_filter: int = 2
     """
     Filter HORs that have at least 2 monomers.
+    """
+    bp_merge_units: int | None = 256
+    """
+    Merge HOR units into HOR blocks within this number of base pairs.
+    """
+    bp_merge_blks: int | None = 8000
+    """
+    Merge HOR blocks into HOR arrays within this number of bases pairs.
+    """
+    min_blk_hor_units: int | None = 2
+    """
+    Grouped stv rows must have at least `n` HOR units unbroken.
+    """
+    min_arr_hor_units: int | None = 10
+    """
+    Require that an HOR array have at least `n` HOR units.
+    """
+    min_arr_len: int | None = 30_000
+    """
+    Require that an HOR array is this size in bp.
+    """
+    min_arr_prop: float | None = 0.9
+    """
+    Require that an HOR array has at least this proportion of HORs by length.
     """
 
 
@@ -197,9 +304,14 @@ class HORTrackSettings(DefaultTrackSettings):
     Higher order repeat plot options.
     """
 
-    sort_order: Literal["ascending", "descending"] = "descending"
+    sort_order: str = "descending"
     """
     Plot HORs by `{mode}` in `{sort_order}` order.
+
+    Either:
+    * `ascending`
+    * `descending`
+    * Or a path to a single column file specifying the order of elements of `mode`.
 
     Mode:
     * If `{mer}`, sort by `mer` number
@@ -241,9 +353,13 @@ class HORTrackSettings(DefaultTrackSettings):
     """
     If split, show top n HORs for a given mode.
     """
-    border: bool = False
+    bg_border: bool = False
     """
     Add black border containing all added labels.
+    """
+    bg_color: str | None = None
+    """
+    Background color for track.
     """
 
 
@@ -269,11 +385,14 @@ TrackSettings = (
     HORTrackSettings
     | HOROrtTrackSettings
     | SelfIdentTrackSettings
+    | LocalSelfIdentTrackSettings
     | BarTrackSettings
     | LabelTrackSettings
     | LegendTrackSettings
     | PositionTrackSettings
     | SpacerTrackSettings
+    | StrandTrackSettings
+    | LineTrackSettings
 )
 """
 Type annotation for all possible settings for the various plot types.

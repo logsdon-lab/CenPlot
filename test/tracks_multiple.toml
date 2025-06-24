@@ -33,7 +33,7 @@ options = { legend = true, legend_title = "Centromere structure", legend_ncols =
 position = "overlap"
 type = "hor"
 path = "test/chrY/stv.bed"
-options = { legend = true, legend_title = "Centromere structure", sort_order = "descending", hide_x = true, border = true, hor_filter = 1 }
+options = { legend = true, legend_title = "Centromere structure", sort_order = "descending", hide_x = true, bg_border = true, hor_filter = 1 }
 
 [[tracks]]
 # Alpha-satellite HOR monomer orientation
