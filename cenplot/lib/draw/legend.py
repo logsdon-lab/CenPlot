@@ -49,7 +49,7 @@ def draw_legend(
         legend_colname = (
             "name"
             if tracks[ref_track_row].options.mode == "hor"
-            else tracks[ref_track_row].options
+            else tracks[ref_track_row].options.mode
         )
     else:
         legend_colname = "name"
@@ -67,6 +67,7 @@ def draw_legend(
         ncols=track.options.legend_ncols
         if track.options.legend_ncols
         else srs_track.n_unique(),
+        label_order=track.options.legend_label_order,
         loc="center",
         alignment="center",
     )
