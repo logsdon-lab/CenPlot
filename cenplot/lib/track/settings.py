@@ -228,6 +228,10 @@ class LineTrackSettings(BarTrackSettings):
     """
     Marker size.
     """
+    log_scale: bool = False
+    """
+    Use log-scale for plot.
+    """
 
 
 @dataclass

@@ -67,6 +67,9 @@ def draw_line(
     else:
         df = track.data
 
+    if track.options.log_scale:
+        ax.set_yscale("log")
+
     # Add bar
     if track.options.fill:
         ax.fill_between(
