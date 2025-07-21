@@ -100,6 +100,7 @@ def draw_label(
             track,
             ref_ax=ax,
             ncols=track.options.legend_ncols,
+            label_order=track.options.legend_label_order,
             loc="center left",
             alignment="left",
         )

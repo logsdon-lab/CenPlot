@@ -68,7 +68,6 @@ def read_bed_identity(
     mode = Dim(mode)
 
     # Build expr to filter range of colors.
-    # TODO: Allow custom range.
     color_expr = None
     rng_expr = None
     ident_colorscale = read_ident_colorscale(colorscale)

@@ -51,6 +51,11 @@ class DefaultTrackSettings:
     Hide all legend elements except titile.
     """
 
+    legend_label_order: list[str] | None = None
+    """
+    Legend label order.
+    """
+
     hide_x: bool = True
     """
     Hide the x-axis ticks, ticklabels, and spines.
@@ -227,6 +232,10 @@ class LineTrackSettings(BarTrackSettings):
     markersize: int | None = None
     """
     Marker size.
+    """
+    log_scale: bool = False
+    """
+    Use log-scale for plot.
     """
 
 

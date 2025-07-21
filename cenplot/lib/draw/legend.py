@@ -45,11 +45,15 @@ def draw_legend(
         return None
 
     # TODO: Will not work with HOR split.
-    legend_colname = (
-        tracks[ref_track_row].options.mode
-        if hasattr(tracks[ref_track_row].options, "mode")
-        else "name"
-    )
+    if hasattr(tracks[ref_track_row].options, "mode"):
+        legend_colname = (
+            "name"
+            if tracks[ref_track_row].options.mode == "hor"
+            else tracks[ref_track_row].options
+        )
+    else:
+        legend_colname = "name"
+
     try:
         srs_track = tracks[ref_track_row].data[legend_colname]
     except Exception:
