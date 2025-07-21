@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from typing import Any
+from typing import Any, Iterable
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -197,6 +197,7 @@ def draw_uniq_entry_legend(
     track: Track,
     ref_ax: Axes | None = None,
     ncols: int | None = DefaultTrackSettings.legend_ncols,
+    label_order: Iterable[str] | None = None,
     **kwargs: Any,
 ) -> None:
     """
@@ -220,8 +221,13 @@ def draw_uniq_entry_legend(
     ref_ax = ref_ax if ref_ax else ax
 
     # Dedupe labels.
+    # Order by appearance or set order.
     handles, labels = ref_ax.get_legend_handles_labels()
     by_label: dict[str, Rectangle] = dict(zip(labels, handles))
+    if label_order:
+        by_label = {label: by_label[label] for label in label_order}
+    else:
+        by_label: dict[str, Rectangle] = dict(zip(labels, handles))
 
     if not ncols:
         ncols = 4
