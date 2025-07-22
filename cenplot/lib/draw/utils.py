@@ -225,7 +225,7 @@ def draw_uniq_entry_legend(
     handles, labels = ref_ax.get_legend_handles_labels()
     by_label: dict[str, Rectangle] = dict(zip(labels, handles))
     if label_order:
-        by_label = {label: by_label[label] for label in label_order}
+        by_label = {label: by_label[label] for label in label_order if by_label.get(label)}
     else:
         by_label: dict[str, Rectangle] = dict(zip(labels, handles))
 
