@@ -1,10 +1,10 @@
-import csv
-import logging
 import math
+import logging
 import polars as pl
 
 from typing import TextIO
 
+from .utils import skip_header_row
 from ..track.settings import LocalSelfIdentTrackSettings
 from ..defaults import BED9_COLS, BED_SELF_IDENT_COLS, IDENT_COLORSCALE, Colorscale
 from censtats.self_ident.cli import convert_2D_to_1D_ident, Dim
@@ -59,12 +59,7 @@ def read_bed_identity(
     # Returns
     * Coordinates of colored polygons in 2D space.
     """
-    sniffer = csv.Sniffer()
-    fname = infile if isinstance(infile, str) else infile.name
-    with open(fname, "rt") as fh:
-        header = next(fh)
-
-    skip_rows = 1 if sniffer.has_header(header) else 0
+    skip_rows = skip_header_row(infile)
 
     df = pl.read_csv(
         infile,
