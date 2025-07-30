@@ -1,3 +1,4 @@
+import csv
 import logging
 import math
 import polars as pl
@@ -58,8 +59,19 @@ def read_bed_identity(
     # Returns
     * Coordinates of colored polygons in 2D space.
     """
+    sniffer = csv.Sniffer()
+    fname = infile if isinstance(infile, str) else infile.name
+    with open(fname, "rt") as fh:
+        header = next(fh)
+
+    skip_rows = 1 if sniffer.has_header(header) else 0
+
     df = pl.read_csv(
-        infile, separator="\t", has_header=False, new_columns=BED_SELF_IDENT_COLS
+        infile,
+        separator="\t",
+        has_header=False,
+        new_columns=BED_SELF_IDENT_COLS,
+        skip_rows=skip_rows,
     )
     if chrom:
         df = df.filter(pl.col("query") == chrom)

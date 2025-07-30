@@ -1,0 +1,59 @@
+[settings]
+format = "png"
+transparent = false
+dim = [20.0, 12.0]
+dpi = 600
+axis_h_pad = 0.05
+legend_pos = "left"
+legend_prop = 0.075
+layout = "compressed"
+
+[[tracks]]
+position = "relative"
+type = "spacer"
+proportion = 0.05
+
+[[tracks]]
+position = "relative"
+type = "hor"
+proportion = 0.1
+path = "test/chr1/stv_row.bed"
+options = { legend = true, legend_title = "{chrom}", legend_title_only = true, sort_order = "descending", live_only = true, hide_x = true, bg_border = true }
+
+[[tracks]]
+position = "relative"
+type = "horort"
+proportion = 0.05
+path = "test/chr1/stv_row.bed"
+options = { legend = true, legend_title = "α-satellite HOR composition", legend_title_only = true, hide_x = true, live_only = true, scale = 12 }
+
+[[tracks]]
+position = "relative"
+type = "horsplit"
+proportion = 0.1
+path = "test/chr1/stv_row.bed"
+
+[tracks.options]
+legend = true
+mode = "hor"
+sort_order = "test/chr1/top_4.txt"
+live_only = true
+split_top_n = 10
+split_fill_missing = "#FFFF00"
+split_sort_order_only = true
+mer_filter = 2
+hor_filter = 5
+hide_x = true
+split_prop = false
+bg_border = true
+
+[[tracks]]
+position = "relative"
+type = "position"
+proportion = 0.01
+
+[[tracks]]
+position = "relative"
+type = "legend"
+proportion = 0.1
+options = { legend = true, legend_title = "# of monomers in α-satellite HOR", index = 1, legend_ncols = 10 }
