@@ -1,5 +1,4 @@
 import sys
-import csv
 import logging
 import numpy as np
 import polars as pl
@@ -113,7 +112,7 @@ def get_min_max_track(
                 pos = trk_max
     if not track:
         raise ValueError(
-            f"No {typ} track. Check if bedfile has correct columns or is empty."
+            f"No {typ} track. Check that bedfile is not empty, contains the correct chrom, and/or has correct columns."
         )
     return track, pos
 
@@ -122,7 +121,6 @@ def skip_header_row(infile: str | TextIO) -> int:
     """
     Skip [0|1] rows for header.
     """
-    sniffer = csv.Sniffer()
     fname = infile if isinstance(infile, str) else infile.name
     with open(fname, "rt") as fh:
         try:
@@ -130,4 +128,13 @@ def skip_header_row(infile: str | TextIO) -> int:
         except StopIteration:
             return 0
 
-    return 1 if sniffer.has_header(header) else 0
+    skip_rows = 1
+    for elem in header.split("\t"):
+        try:
+            # Has numeric column. Is not header.
+            _ = int(elem)
+            return 0
+        except ValueError:
+            pass
+
+    return skip_rows

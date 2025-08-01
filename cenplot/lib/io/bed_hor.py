@@ -6,7 +6,7 @@ from typing import Any, TextIO
 
 from .bed9 import read_bed9
 from .utils import map_value_colors
-from ..defaults import MONOMER_COLORS
+from ..defaults import MONOMER_COLORS, BED9_COLS
 from ..track.settings import HORTrackSettings
 
 
@@ -61,9 +61,13 @@ def read_bed_hor(
     # Returns
     * HOR `pl.DataFrame`
     """
+    df = read_bed9(infile, chrom=chrom)
+
+    if df.is_empty():
+        return pl.DataFrame(schema=[*BED9_COLS, "mer", "length", "color", "hor_count"])
+
     df = (
-        read_bed9(infile, chrom=chrom)
-        .lazy()
+        df.lazy()
         .with_columns(
             length=pl.col("chrom_end") - pl.col("chrom_st"),
         )

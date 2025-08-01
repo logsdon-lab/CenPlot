@@ -27,7 +27,7 @@ def read_bed9(infile: str | TextIO, *, chrom: str | None = None) -> pl.DataFrame
             {col: val for col, val in BED9_COL_MAP.items() if col in df.columns}
         )
         df_adj = adj_by_ctg_coords(df, "chrom").sort(by="chrom_st")
-    except Exception:
+    except pl.exceptions.NoDataError:
         df_adj = pl.DataFrame(schema=BED9_COL_MAP.values())
 
     if chrom:
