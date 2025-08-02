@@ -320,7 +320,7 @@ class HORTrackSettings(DefaultTrackSettings):
     Either:
     * `ascending`
     * `descending`
-    * Or a path to a single column file specifying the order of elements of `mode`.
+    * Or a path to a single column file specifying the order of elements of `mode`. Only for split.
 
     Mode:
     * If `{mer}`, sort by `mer` number
@@ -362,10 +362,23 @@ class HORTrackSettings(DefaultTrackSettings):
     """
     If split, show top n HORs for a given mode.
     """
+
+    split_fill_missing: str | None = None
+    """
+    If split and defined sort order provided, fill in missing with this color. Otherwise, display random HOR variant.
+    * Useful to maintain order across multiple plots.
+    """
+
+    split_sort_order_only: bool = False
+    """
+    If split and defined sort order provided, only show HORs within defined list.
+    """
+
     bg_border: bool = False
     """
     Add black border containing all added labels.
     """
+
     bg_color: str | None = None
     """
     Background color for track.

@@ -1,9 +1,10 @@
-import logging
 import math
+import logging
 import polars as pl
 
 from typing import TextIO
 
+from .utils import skip_header_row
 from ..track.settings import LocalSelfIdentTrackSettings
 from ..defaults import BED9_COLS, BED_SELF_IDENT_COLS, IDENT_COLORSCALE, Colorscale
 from censtats.self_ident.cli import convert_2D_to_1D_ident, Dim
@@ -58,8 +59,14 @@ def read_bed_identity(
     # Returns
     * Coordinates of colored polygons in 2D space.
     """
+    skip_rows = skip_header_row(infile)
+
     df = pl.read_csv(
-        infile, separator="\t", has_header=False, new_columns=BED_SELF_IDENT_COLS
+        infile,
+        separator="\t",
+        has_header=False,
+        new_columns=BED_SELF_IDENT_COLS,
+        skip_rows=skip_rows,
     )
     if chrom:
         df = df.filter(pl.col("query") == chrom)

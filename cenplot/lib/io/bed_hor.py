@@ -6,7 +6,7 @@ from typing import Any, TextIO
 
 from .bed9 import read_bed9
 from .utils import map_value_colors
-from ..defaults import MONOMER_COLORS
+from ..defaults import MONOMER_COLORS, BED9_COLS
 from ..track.settings import HORTrackSettings
 
 
@@ -20,6 +20,8 @@ def read_bed_hor(
     hor_filter: int | None = None,
     sort_by: str = "mer",
     sort_order: str = HORTrackSettings.sort_order,
+    sort_fill_missing: str | None = HORTrackSettings.split_fill_missing,
+    sort_order_only: bool = False,
     color_map_file: str | None = None,
     use_item_rgb: bool = HORTrackSettings.use_item_rgb,
 ) -> pl.DataFrame:
@@ -49,15 +51,23 @@ def read_bed_hor(
         * Can be a path to a list of `mer` or `hor` names
     * `sort_order`
         * Sort in ascending or descending order.
+    * `sort_fill_missing`
+        * Fill in missing elements in defined sort order with this color.
+    * `sort_order_only`
+        * Convenience switch to keep only elements in defined sort order.
     * `use_item_rgb`
         * Use `item_rgb` column or generate random colors.
 
     # Returns
     * HOR `pl.DataFrame`
     """
+    df = read_bed9(infile, chrom=chrom)
+
+    if df.is_empty():
+        return pl.DataFrame(schema=[*BED9_COLS, "mer", "length", "color", "hor_count"])
+
     df = (
-        read_bed9(infile, chrom=chrom)
-        .lazy()
+        df.lazy()
         .with_columns(
             length=pl.col("chrom_end") - pl.col("chrom_st"),
         )
@@ -112,11 +122,46 @@ def read_bed_hor(
         sort_col = "hor_count"
 
     if defined_sort_order:
-        # Get intersection between defined elements
-        remaining_elems = set(df[sort_col]).difference(defined_sort_order)
-        # Add remainder so all elements covered.
-        defined_sort_order.extend(remaining_elems)
-        df = df.cast({sort_col: pl.Enum(defined_sort_order)}).sort(by=sort_col)
+        # Add missing elems in df not in sort order so all elements covered.
+        all_elems = [
+            *defined_sort_order,
+            *set(df[sort_col]).difference(defined_sort_order),
+        ]
+        # Missing elements in sort order not in df
+        missing_elems = set(defined_sort_order).difference(df[sort_col])
+
+        # Fill in missing.
+        if sort_fill_missing and missing_elems:
+            row_template = df.row(0, named=True)
+            min_st, max_end = df["chrom_st"].min(), df["chrom_end"].max()
+            df_missing_element_rows = pl.DataFrame(
+                [
+                    {
+                        **row_template,
+                        "chrom_st": min_st,
+                        "chrom_end": max_end,
+                        "strand": ".",
+                        "thick_st": min_st,
+                        "thick_end": max_end,
+                        "name": elem,
+                        "mer": 0,
+                        "length": 0,
+                        "hor_count": 0,
+                        "item_rgb": sort_fill_missing,
+                        "color": sort_fill_missing,
+                    }
+                    for elem in missing_elems
+                ],
+                schema=df.schema,
+            )
+
+            df = pl.concat([df, df_missing_element_rows])
+        # Only take elements in sort order.
+        if sort_order_only:
+            df = df.filter(pl.col(sort_col).is_in(defined_sort_order))
+            all_elems = defined_sort_order
+
+        df = df.cast({sort_col: pl.Enum(all_elems)}).sort(by=sort_col)
     else:
         df = df.sort(sort_col, descending=sort_order == HORTrackSettings.sort_order)
 
@@ -133,6 +178,12 @@ def read_bed_hor_from_settings(
     sort_order = options.get("sort_order", HORTrackSettings.sort_order)
     color_map_file = options.get("color_map_file", HORTrackSettings.color_map_file)
     mer_size = options.get("mer_size", HORTrackSettings.mer_size)
+    split_fill_missing = options.get(
+        "split_fill_missing", HORTrackSettings.split_fill_missing
+    )
+    split_sort_order_only = options.get(
+        "split_sort_order_only", HORTrackSettings.split_sort_order_only
+    )
 
     if options.get("mode", HORTrackSettings.mode) == "hor":
         split_colname = "name"
@@ -145,6 +196,8 @@ def read_bed_hor_from_settings(
         mer_size=mer_size,
         sort_by=split_colname,
         sort_order=sort_order,
+        sort_fill_missing=split_fill_missing,
+        sort_order_only=split_sort_order_only,
         live_only=live_only,
         mer_filter=mer_filter,
         hor_filter=hor_filter,
