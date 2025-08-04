@@ -1,4 +1,5 @@
 import sys
+import gzip
 import logging
 import numpy as np
 import polars as pl
@@ -122,7 +123,8 @@ def skip_header_row(infile: str | TextIO) -> int:
     Skip [0|1] rows for header.
     """
     fname = infile if isinstance(infile, str) else infile.name
-    with open(fname, "rt") as fh:
+
+    with gzip.open(fname, "rt") if fname.endswith(".gz") else open(fname, "rt") as fh:
         try:
             header = next(fh)
         except StopIteration:

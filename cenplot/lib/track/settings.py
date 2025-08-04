@@ -187,14 +187,14 @@ class BarTrackSettings(DefaultTrackSettings):
     Alpha of bars.
     """
 
-    ymin: int = 0
+    ymin: int | Literal["min"] = 0
     """
-    Minimum y-value.
+    Minimum y-value. Either value or 'min' for minimum value in data.
     """
 
-    ymax: int | None = None
+    ymax: int | Literal["max"] | None = None
     """
-    Maximum y-value.
+    Maximum y-value.  Either value or 'max' for maximum value in data.
     """
 
     label: str | None = None

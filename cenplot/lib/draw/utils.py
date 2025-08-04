@@ -280,3 +280,23 @@ def add_rect(
         zorder=zorder,
     )
     ax.add_patch(rect)
+
+
+def set_ylim(ax: Axes, track: Track) -> None:
+    ylim_args = {}
+    if hasattr(track.options, "ymin"):
+        ymin = track.options.ymin
+        if ymin == "min":
+            ylim_args["ymin"] = track.data["name"].min()
+        elif ymin:
+            ylim_args["ymin"] = ymin
+
+    if hasattr(track.options, "ymax"):
+        ymax = track.options.ymax
+        if ymax == "max":
+            ylim_args["ymax"] = track.data["name"].max()
+        elif ymax:
+            ylim_args["ymax"] = ymax
+
+    if ylim_args:
+        ax.set_ylim(**ylim_args)
