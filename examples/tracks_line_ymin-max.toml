@@ -11,11 +11,11 @@ position = "relative"
 type = "line"
 proportion = 0.1
 path = "examples/line/first.bed.gz"
-options = { legend = true, label = "First", marker="o", markersize=2, linestyle="none", hide_x = false, color = "black", ymin= "min", ymax="max" }
+options = { legend = true, label = "First", marker="o", markersize=2, linestyle="none", hide_x = false, color = "black", ymin="min", ymin_add=-0.05, ymax="max" }
 
 [[tracks]]
 position = "relative"
 proportion = 0.1
 type = "line"
 path = "examples/line/second.bed.gz"
-options = { legend = true, label = "Second", marker="o", markersize=2, linestyle="none", hide_x = false, ymin="min", ymax="max", color = "red" }
+options = { legend = true, label = "Second", marker="o", markersize=2, linestyle="none", hide_x = false, ymin="min", ymax="max", ymax_add=0.05, color="red" }
