@@ -314,10 +314,10 @@ def set_ylim(ax: Axes, track: Track) -> None:
         # Add first and last position.
         if ymax not in yticks:
             yticks.append(ymax)
-            yticklabels.append(str(round(ymax)))
+            yticklabels.append(str(round(ymax, 1)))
         if ymin not in yticks:
             yticks.append(ymin)
-            yticklabels.append(str(round(ymin)))
+            yticklabels.append(str(round(ymin, 1)))
 
         ax.set_yticks(yticks, yticklabels, fontsize=track.options.fontsize)
         ax.set_ylim(ymin, ymax)
