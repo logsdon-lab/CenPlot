@@ -55,7 +55,12 @@ def get_draw_args(
             df = trk.data
 
             if isinstance(df, pl.DataFrame):
-                if chrom_no_coords in df["chrom"]:
+                try:
+                    has_no_coords = chrom_no_coords in df["chrom"]
+                except Exception:
+                    has_no_coords = False
+
+                if has_no_coords:
                     df = df.filter(pl.col("chrom") == chrom_no_coords)
                 else:
                     df = df.filter(pl.col("chrom") == chrom)
