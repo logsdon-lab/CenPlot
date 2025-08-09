@@ -38,6 +38,15 @@ def local_self_ident():
     return fig, axes, outfile
 
 
+def local_self_ident_subset():
+    chrom = "HG00096_chr1_haplotype1-0000018:1000000-3000000"
+    tracks = os.path.abspath("tracks_local_selfident.toml")
+    with open(tracks, "rb") as fh:
+        track_list, settings = read_one_cen_tracks(fh, chrom=chrom)
+    fig, axes, outfile = plot_one_cen(track_list.tracks, "plots", chrom, settings)
+    return fig, axes, outfile
+
+
 def strand():
     chrom = "chm13_chr1:121119216-127324115"
     tracks = os.path.abspath("tracks_strand.toml")

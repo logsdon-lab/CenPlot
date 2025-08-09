@@ -35,7 +35,7 @@ def plot_one_cen(
     * `outdir`
         * Output directory.
     * `chrom`
-        * Chromosome name to filter for in `Track.data`
+        * Region to filter for in `Track.data`
     * `settings`
         * Settings for output plots.
 

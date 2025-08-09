@@ -1,4 +1,5 @@
 import sys
+import gzip
 import logging
 import numpy as np
 import polars as pl
@@ -53,16 +54,16 @@ def map_value_colors(
 
 
 def adj_by_ctg_coords(df: pl.DataFrame, colname: str) -> pl.DataFrame:
-    final_adj_coords = {
-        f"{colname}_st": pl.col(f"{colname}_st") - pl.col("ctg_st"),
-        f"{colname}_end": pl.col(f"{colname}_end") - pl.col("ctg_st"),
-    }
     return df.with_columns(
         chrom_name=pl.col(colname).str.extract(r"(chr[\dXY]+)").fill_null(""),
         # Use simplified coordinates if possible, otherwise, take everything.
         ctg_st=pl.col(colname).str.extract(r":(\d+)-").cast(pl.Int64).fill_null(0),
-        ctg_end=pl.col(colname).str.extract(r"-(\d+)$").cast(pl.Int64).fill_null(0),
-    ).with_columns(**final_adj_coords)
+    ).with_columns(
+        **{
+            f"{colname}_st": pl.col(f"{colname}_st") - pl.col("ctg_st"),
+            f"{colname}_end": pl.col(f"{colname}_end") - pl.col("ctg_st"),
+        }
+    )
 
 
 def no_data_log_message(i: int, title: str | None, col: str):
@@ -117,24 +118,29 @@ def get_min_max_track(
     return track, pos
 
 
-def skip_header_row(infile: str | TextIO) -> int:
+def header_info(infile: str | TextIO) -> tuple[int, int]:
     """
-    Skip [0|1] rows for header.
+    Get header info.
+
+    # Returns
+    1. Skip [0|1] rows for header.
+    2. Number of elems.
     """
     fname = infile if isinstance(infile, str) else infile.name
-    with open(fname, "rt") as fh:
+    with gzip.open(fname, "rt") if fname.endswith(".gz") else open(fname, "rt") as fh:
         try:
             header = next(fh)
         except StopIteration:
-            return 0
+            return 0, 0
 
     skip_rows = 1
-    for elem in header.split("\t"):
+    header_elems = header.split("\t")
+    for elem in header_elems:
         try:
             # Has numeric column. Is not header.
             _ = int(elem)
-            return 0
+            return 0, len(header_elems)
         except ValueError:
             pass
 
-    return skip_rows
+    return skip_rows, len(header_elems)
