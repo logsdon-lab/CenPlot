@@ -192,7 +192,6 @@ class BarTrackSettings(DefaultTrackSettings):
     Minimum y-value.
     * Static value
     * 'min' for minimum value in data.
-    * 'min-5%' for minimum value - 5% of min in data.
     """
 
     ymin_add: float = 0.0
@@ -206,7 +205,6 @@ class BarTrackSettings(DefaultTrackSettings):
     Maximum y-value.
     * Static value
     * 'max' for maximum value in data.
-    * 'max+5%' for maximum value + 5% of max in data.
     """
 
     ymax_add: float = 0.0
