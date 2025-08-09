@@ -22,6 +22,12 @@ cenplot draw \
 
 cenplot draw \
 -t tracks_local_selfident.toml \
+-c "HG00096_chr1_haplotype1-0000018:1000000-3000000" \
+-p 4 \
+-d plots
+
+cenplot draw \
+-t tracks_local_selfident.toml \
 -c "HG00096_chr1_haplotype1-0000018" \
 -p 4 \
 -d plots

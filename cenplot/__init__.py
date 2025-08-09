@@ -175,6 +175,26 @@ options = { hide_x = false, mode = "hor", legend_ncols = 2 }
     <img align="middle" src="https://raw.githubusercontent.com/logsdon-lab/cenplot/refs/heads/main/docs/simple_hor_track_options.png" width="100%">
 </figure>
 
+## Subset
+To subset to a given region, provide the chromosome name with start and end coordinates.
+```bash
+cenplot draw -t track.toml -c "chrom:st-end" -d .
+```
+<table>
+  <tr>
+    <td>
+      <figure float="left">
+          <img align="middle" src="https://raw.githubusercontent.com/logsdon-lab/cenplot/refs/heads/main/docs/examples_subset.png" width="100%">
+      </figure>
+      <figure float="left">
+          <img align="middle" src="https://raw.githubusercontent.com/logsdon-lab/cenplot/refs/heads/main/docs/examples_no_subset.png" width="100%">
+      </figure>
+    </td>
+  </tr>
+</table>
+
+> [!NOTE] Coordinates already existing in the chrom name will be ignored
+
 ## Examples
 Examples of both the CLI and Python API can be found in the root of `cenplot`'s project directory under `examples/` or `test/`
 

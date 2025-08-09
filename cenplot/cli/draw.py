@@ -48,22 +48,37 @@ def get_draw_args(
     for chrom, tracks_summary, plot_settings in tracks_settings:
         if share_xlim:
             plot_settings.xlim = (xmin_all, xmax_all)
+        chrom_no_coords = chrom.rsplit(":", 1)[0]
+
+        tracks = []
+        for trk in tracks_summary.tracks:
+            df = trk.data
+
+            if isinstance(df, pl.DataFrame):
+                try:
+                    has_no_coords = chrom_no_coords in df["chrom"]
+                except Exception:
+                    has_no_coords = False
+
+                if has_no_coords:
+                    df = df.filter(pl.col("chrom") == chrom_no_coords)
+                else:
+                    df = df.filter(pl.col("chrom") == chrom)
+
+            tracks.append(
+                Track(
+                    trk.title,
+                    trk.pos,
+                    trk.opt,
+                    trk.prop,
+                    df if isinstance(df, pl.DataFrame) else None,
+                    trk.options,
+                )
+            )
 
         inputs.append(
             (
-                [
-                    Track(
-                        trk.title,
-                        trk.pos,
-                        trk.opt,
-                        trk.prop,
-                        trk.data.filter(pl.col("chrom") == chrom)
-                        if isinstance(trk.data, pl.DataFrame)
-                        else None,
-                        trk.options,
-                    )
-                    for trk in tracks_summary.tracks
-                ],
+                tracks,
                 outdir,
                 chrom,
                 plot_settings,
@@ -91,7 +106,7 @@ def add_draw_cli(parser: SubArgumentParser) -> None:
         "-c",
         "--chroms",
         nargs="+",
-        help="Names to plot in this order. Corresponds to 1st col in BED files.",
+        help="Regions to plot in this order. Corresponds to 1st col in BED files. If contains ':' and coords, subsets to those coordinates.",
         required=True,
     )
     ap.add_argument(

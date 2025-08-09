@@ -50,3 +50,37 @@ def test_cli_draw(track_file, ctg_file):
             ],
             check=True,
         )
+
+
+@pytest.mark.parametrize(
+    ["track_file", "ctg_file"],
+    [
+        ("test/tracks_multiple.toml", "test/chrY/cdrs.bed"),
+        ("test/tracks_chr1.toml", "test/chr1/cdrs.bed"),
+    ],
+)
+def test_cli_draw_subset(track_file, ctg_file):
+    prefix = str(hash(track_file + ctg_file))
+    with (
+        tempfile.TemporaryDirectory(prefix=prefix) as tmp_dir,
+        open(ctg_file, "rt") as fh,
+    ):
+        # Only read the first line.
+        chrom, st, end = fh.readlines()[0].split("\t")
+        _ = subprocess.run(
+            [
+                "python",
+                "-m",
+                "cenplot.main",
+                "draw",
+                "-t",
+                track_file,
+                "-c",
+                f"{chrom}:{st}-{end}",
+                "-d",
+                tmp_dir,
+                "-p",
+                "1",
+            ],
+            check=True,
+        )
