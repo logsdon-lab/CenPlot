@@ -4,7 +4,7 @@ import polars as pl
 
 from typing import TextIO
 
-from .utils import skip_header_row
+from .utils import header_info
 from ..track.settings import LocalSelfIdentTrackSettings
 from ..defaults import BED9_COLS, BED_SELF_IDENT_COLS, IDENT_COLORSCALE, Colorscale
 from censtats.self_ident.cli import convert_2D_to_1D_ident, Dim
@@ -27,6 +27,64 @@ def read_ident_colorscale(
             fend = float(end)
             ident_colorscale[(fst, fend)] = color
     return ident_colorscale
+
+
+def read_bedpe(
+    infile: str | TextIO,
+    *,
+    chrom: str | None = None,
+) -> pl.DataFrame:
+    skip_rows, _ = header_info(infile)
+
+    # Expected to be in relative coordinates.
+    # Convert to absolute to filter.
+    df = (
+        pl.scan_csv(
+            infile,
+            separator="\t",
+            has_header=False,
+            new_columns=BED_SELF_IDENT_COLS,
+            skip_rows=skip_rows,
+        )
+        .with_columns(
+            ctg_st=pl.col("query").str.extract(r":(\d+)-").cast(pl.Int64).fill_null(0)
+        )
+        .with_columns(
+            pl.col("query_st") + pl.col("ctg_st"),
+            pl.col("query_end") + pl.col("ctg_st"),
+            pl.col("ref_st") + pl.col("ctg_st"),
+            pl.col("ref_end") + pl.col("ctg_st"),
+        )
+    )
+
+    try:
+        chrom_no_coords, coords = chrom.rsplit(":", 1)
+        chrom_st, chrom_end = [int(elem) for elem in coords.split("-")]
+    except Exception:
+        chrom_st, chrom_end = None, None
+    if chrom:
+        df = df.filter(
+            pl.when(pl.col("query").is_in([chrom_no_coords]))
+            .then(
+                (pl.col("query") == chrom_no_coords)
+                & (pl.col("query_st").is_between(chrom_st, chrom_end))
+                & (pl.col("query_end").is_between(chrom_st, chrom_end))
+                & (pl.col("ref_st").is_between(chrom_st, chrom_end))
+                & (pl.col("ref_end").is_between(chrom_st, chrom_end))
+            )
+            .when(pl.col("query").is_in([chrom]))
+            .then(pl.col("query") == chrom)
+            .otherwise(True)
+        ).collect()
+    # Then convert back to relative.
+    df = df.with_columns(
+        pl.col("query_st") - pl.col("ctg_st"),
+        pl.col("query_end") - pl.col("ctg_st"),
+        pl.col("ref_st") - pl.col("ctg_st"),
+        pl.col("ref_end") - pl.col("ctg_st"),
+    ).drop(pl.col("ctg_st"))
+
+    return df
 
 
 def read_bed_identity(
@@ -59,17 +117,7 @@ def read_bed_identity(
     # Returns
     * Coordinates of colored polygons in 2D space.
     """
-    skip_rows = skip_header_row(infile)
-
-    df = pl.read_csv(
-        infile,
-        separator="\t",
-        has_header=False,
-        new_columns=BED_SELF_IDENT_COLS,
-        skip_rows=skip_rows,
-    )
-    if chrom:
-        df = df.filter(pl.col("query") == chrom)
+    df = read_bedpe(infile=infile, chrom=chrom)
 
     # Check mode. Set by dev not user.
     mode = Dim(mode)

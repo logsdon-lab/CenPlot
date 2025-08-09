@@ -40,7 +40,7 @@ MONOMER_COLORS = {
     "8": "#893F89",
     "9": "#6565AA",
 }
-BED9_COLS = [
+BED9_COLS = (
     "chrom",
     "chrom_st",
     "chrom_end",
@@ -50,14 +50,8 @@ BED9_COLS = [
     "thick_st",
     "thick_end",
     "item_rgb",
-]
-BED9_COL_MAP = dict(
-    zip(
-        [f"column_{i}" for i in range(1, len(BED9_COLS) + 1)],
-        BED9_COLS,
-    )
 )
-BED_SELF_IDENT_COLS = [
+BED_SELF_IDENT_COLS = (
     "query",
     "query_st",
     "query_end",
@@ -65,7 +59,7 @@ BED_SELF_IDENT_COLS = [
     "ref_st",
     "ref_end",
     "percent_identity_by_events",
-]
+)
 
 IDENT_CUTOFF = 97.5
 IDENT_INCREMENT = 0.25
