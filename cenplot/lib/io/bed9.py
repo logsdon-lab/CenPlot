@@ -33,6 +33,7 @@ def read_bed9(infile: str | TextIO, *, chrom: str | None = None) -> pl.DataFrame
             chrom_no_coords, coords = chrom.rsplit(":", 1)
             chrom_st, chrom_end = [int(elem) for elem in coords.split("-")]
         except Exception:
+            chrom_no_coords = None
             chrom_st, chrom_end = None, None
 
         if chrom:

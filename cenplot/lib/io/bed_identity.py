@@ -61,7 +61,9 @@ def read_bedpe(
         chrom_no_coords, coords = chrom.rsplit(":", 1)
         chrom_st, chrom_end = [int(elem) for elem in coords.split("-")]
     except Exception:
+        chrom_no_coords = None
         chrom_st, chrom_end = None, None
+
     if chrom:
         df = df.filter(
             pl.when(pl.col("query").is_in([chrom_no_coords]))
