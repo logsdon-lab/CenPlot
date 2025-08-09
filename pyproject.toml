@@ -14,7 +14,7 @@ exclude = ["docs*", "test*"]
 
 [project]
 name = "cenplot"
-version = "0.0.17"
+version = "0.0.18"
 authors = [
     {name = "Keith Oshima", email = "oshimak@pennmedicine.upenn.edu"},
 ]

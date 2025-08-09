@@ -1,7 +1,7 @@
 from matplotlib.axes import Axes
 
 
-from .utils import draw_uniq_entry_legend, format_ax
+from .utils import draw_uniq_entry_legend, format_ax, set_ylim
 from ..track.types import Track, TrackPosition
 
 
@@ -19,8 +19,6 @@ def draw_bar(
     color = track.options.color
     alpha = track.options.alpha
     legend = track.options.legend
-    ymin = track.options.ymin
-    ymax = track.options.ymax
     label = track.options.label
 
     if track.pos != TrackPosition.Overlap:
@@ -54,7 +52,8 @@ def draw_bar(
     )
     # Trim plot to margins
     ax.margins(x=0, y=0)
-    ax.set_ylim(ymin=ymin, ymax=ymax)
+
+    set_ylim(ax, track)
 
     if legend_ax and legend:
         draw_uniq_entry_legend(

@@ -187,19 +187,40 @@ class BarTrackSettings(DefaultTrackSettings):
     Alpha of bars.
     """
 
-    ymin: int = 0
+    ymin: int | Literal["min"] = 0
     """
     Minimum y-value.
+    * Static value
+    * 'min' for minimum value in data.
     """
 
-    ymax: int | None = None
+    ymin_add: float = 0.0
+    """
+    Add some percent of y-axis minimum to y-axis limit.
+    * ex. -0.05 subtracts 5% of min value so points aren't cutoff in plot.
+    """
+
+    ymax: int | Literal["max"] | None = None
     """
     Maximum y-value.
+    * Static value
+    * 'max' for maximum value in data.
+    """
+
+    ymax_add: float = 0.0
+    """
+    Add some percent of y-axis maximum to y-axis limit.
+    * ex. 0.05 adds 5% of max value so points aren't cutoff in plot.
     """
 
     label: str | None = None
     """
     Label to add to legend.
+    """
+
+    add_end_yticks: bool = True
+    """
+    Add y-ticks showing beginning and end of data range.
     """
 
 

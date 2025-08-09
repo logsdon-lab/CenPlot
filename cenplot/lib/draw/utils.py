@@ -280,3 +280,44 @@ def add_rect(
         zorder=zorder,
     )
     ax.add_patch(rect)
+
+
+def set_ylim(ax: Axes, track: Track) -> None:
+    ylim_args = {}
+    if hasattr(track.options, "ymin"):
+        ymin = track.options.ymin
+        ymin_add = track.options.ymin_add
+        if ymin == "min":
+            ylim_args["ymin"] = track.data["name"].min() + (
+                track.data["name"].min() * ymin_add
+            )
+        elif isinstance(ymin, (int, float)):
+            ylim_args["ymin"] = ymin + (track.data["name"].min() * ymin_add)
+
+    if hasattr(track.options, "ymax"):
+        ymax = track.options.ymax
+        ymax_add = track.options.ymax_add
+        if ymax == "max":
+            ylim_args["ymax"] = track.data["name"].max() + (
+                track.data["name"].max() * ymax_add
+            )
+        elif isinstance(ymax, (int, float)):
+            ylim_args["ymax"] = ymax + (track.data["name"].max() * ymax_add)
+
+    if ylim_args:
+        ax.set_ylim(**ylim_args)
+
+    if track.options.add_end_yticks:
+        ymin, ymax = ax.get_ylim()
+        yticks, yticklabels = list(ax.get_yticks()), ax.get_yticklabels()
+
+        # Add first and last position.
+        if ymax not in yticks:
+            yticks.append(ymax)
+            yticklabels.append(str(round(ymax, 1)))
+        if ymin not in yticks:
+            yticks.append(ymin)
+            yticklabels.append(str(round(ymin, 1)))
+
+        ax.set_yticks(yticks, yticklabels, fontsize=track.options.fontsize)
+        ax.set_ylim(ymin, ymax)
