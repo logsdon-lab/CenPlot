@@ -302,29 +302,29 @@ class HOROrtTrackSettings(StrandTrackSettings):
     """
     Filter HORs that have at least 2 monomers.
     """
-    bp_merge_units: int | None = 256
+    arr_opt_bp_merge_units: int | None = 256
     """
     Merge HOR units into HOR blocks within this number of base pairs.
     """
-    bp_merge_blks: int | None = 8000
+    arr_opt_bp_merge_blks: int | None = 8000
     """
     Merge HOR blocks into HOR arrays within this number of bases pairs.
     """
-    min_blk_hor_units: int | None = 2
+    arr_opt_min_blk_hor_units: int | None = 2
     """
     Grouped stv rows must have at least `n` HOR units unbroken.
     """
-    min_arr_hor_units: int | None = 10
+    arr_opt_min_arr_hor_units: int | None = 10
     """
-    Require that an HOR array have at least `n` HOR units.
+    hor_len_Require that a HOR array have at least `n` HOR units.
     """
-    min_arr_len: int | None = 30_000
+    arr_opt_min_arr_len: int | None = 30_000
     """
-    Require that an HOR array is this size in bp.
+    Require that a HOR array is this size in bp.
     """
-    min_arr_prop: float | None = 0.9
+    arr_opt_min_arr_prop: float | None = 0.9
     """
-    Require that an HOR array has at least this proportion of HORs by length.
+    Require that a HOR array has at least this proportion of HORs by length.
     """
 
 

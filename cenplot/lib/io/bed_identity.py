@@ -47,13 +47,21 @@ def read_bedpe(
             skip_rows=skip_rows,
         )
         .with_columns(
-            ctg_st=pl.col("query").str.extract(r":(\d+)-").cast(pl.Int64).fill_null(0)
+            ctg_st=pl.col("query").str.extract(r":(\d+)-").cast(pl.Int64).fill_null(0),
         )
         .with_columns(
-            pl.col("query_st") + pl.col("ctg_st"),
-            pl.col("query_end") + pl.col("ctg_st"),
-            pl.col("ref_st") + pl.col("ctg_st"),
-            pl.col("ref_end") + pl.col("ctg_st"),
+            query_st=pl.when(pl.col("query_st").ge(pl.col("ctg_st")))
+            .then(pl.col("query_st"))
+            .otherwise(pl.col("query_st") + pl.col("ctg_st")),
+            query_end=pl.when(pl.col("query_end").ge(pl.col("ctg_st")))
+            .then(pl.col("query_end"))
+            .otherwise(pl.col("query_end") + pl.col("ctg_st")),
+            ref_st=pl.when(pl.col("ref_st").ge(pl.col("ctg_st")))
+            .then(pl.col("ref_st"))
+            .otherwise(pl.col("ref_st") + pl.col("ctg_st")),
+            ref_end=pl.when(pl.col("ref_end").ge(pl.col("ctg_st")))
+            .then(pl.col("ref_end"))
+            .otherwise(pl.col("ref_end") + pl.col("ctg_st")),
         )
     )
 
@@ -64,7 +72,7 @@ def read_bedpe(
         chrom_no_coords = None
         chrom_st, chrom_end = None, None
 
-    if chrom:
+    if chrom and chrom_no_coords:
         df = df.filter(
             pl.when(pl.col("query").is_in([chrom_no_coords]))
             .then(
@@ -78,14 +86,26 @@ def read_bedpe(
             .then(pl.col("query") == chrom)
             .otherwise(True)
         ).collect()
+    elif chrom:
+        df = df.filter(pl.col("query") == chrom).collect()
+    else:
+        df = df.collect()
+
     # Then convert back to relative.
     df = df.with_columns(
-        pl.col("query_st") - pl.col("ctg_st"),
-        pl.col("query_end") - pl.col("ctg_st"),
-        pl.col("ref_st") - pl.col("ctg_st"),
-        pl.col("ref_end") - pl.col("ctg_st"),
-    ).drop(pl.col("ctg_st"))
-
+        query_st=pl.when(pl.col("query_st").ge(pl.col("ctg_st")))
+        .then(pl.col("query_st") - pl.col("ctg_st"))
+        .otherwise(pl.col("query_st")),
+        query_end=pl.when(pl.col("query_end").ge(pl.col("ctg_st")))
+        .then(pl.col("query_end") - pl.col("ctg_st"))
+        .otherwise(pl.col("query_end")),
+        ref_st=pl.when(pl.col("ref_st").ge(pl.col("ctg_st")))
+        .then(pl.col("ref_st") - pl.col("ctg_st"))
+        .otherwise(pl.col("ref_st")),
+        ref_end=pl.when(pl.col("ref_end").ge(pl.col("ctg_st")))
+        .then(pl.col("ref_end") - pl.col("ctg_st"))
+        .otherwise(pl.col("ref_end")),
+    ).drop("ctg_st")
     return df
 
 

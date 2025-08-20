@@ -1,3 +1,4 @@
+import gzip
 import pytest
 import subprocess
 import tempfile
@@ -23,13 +24,17 @@ import tempfile
         ("test/tracks_split_hor_sort_by_order.toml", "test/chr1/cdrs.bed"),
         # YAML
         ("test/tracks_simple.yaml", "test/chrY/cdrs.bed"),
+        # Non-live
+        ("test/tracks_mon.yaml", "test/mon/stv.bed.gz"),
     ],
 )
-def test_cli_draw(track_file, ctg_file):
+def test_cli_draw(track_file: str, ctg_file: str):
     prefix = str(hash(track_file + ctg_file))
     with (
         tempfile.TemporaryDirectory(prefix=prefix) as tmp_dir,
-        open(ctg_file, "rt") as fh,
+        gzip.open(ctg_file, "rt")
+        if ctg_file.endswith(".gz")
+        else open(ctg_file, "rt") as fh,
     ):
         # Only read the first line.
         ctg = fh.readlines()[0].split("\t")[0]
