@@ -1,0 +1,62 @@
+settings:
+  axis_h_pad: 0.05
+  dim:
+  - 16.0
+  - 8.0
+  dpi: 600
+  format:
+  - png
+  layout: constrained
+  title: '{chrom}'
+  transparent: false
+tracks:
+- options:
+    bg_border: true
+    hide_x: true
+    legend: false
+  proportion: 0.05
+  path: test/mon/rm.bed.gz
+  position: relative
+  type: label
+- options:
+    bg_border: true
+    hide_x: true
+    mer_filter: 0
+    hor_filter: 0
+    legend: false
+    live_only: false
+    sort_order: descending
+  path: test/mon/stv.bed.gz
+  position: overlap
+  type: hor
+- options:
+    hide_x: true
+    legend: false
+    scale: 15
+    mer_filter: 1
+    arr_opt_min_arr_hor_units: 1
+    arr_opt_min_blk_hor_units: 1
+    arr_opt_bp_merge_units: 100000
+    arr_opt_bp_merge_blks: 100000
+    arr_opt_min_arr_len: 30000
+    arr_opt_min_arr_prop: 0.9
+    live_only: false
+  path: test/mon/stv.bed.gz
+  position: relative
+  proportion: 0.005
+  type: horort
+- options:
+    hide_x: false
+    invert: true
+    legend: true
+    legend_asp_ratio: 1.0
+  path: test/mon/ident.bed.gz
+  position: relative
+  proportion: 0.7
+  type: selfident
+- options:
+    index: 0
+    legend_ncols: 10
+  position: relative
+  proportion: 0.1
+  type: legend

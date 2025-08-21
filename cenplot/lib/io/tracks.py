@@ -162,16 +162,24 @@ def read_one_track_info(
     if track_opt == TrackType.HOROrt:
         live_only = options.get("live_only", HOROrtTrackSettings.live_only)
         mer_filter = options.get("mer_filter", HOROrtTrackSettings.mer_filter)
+        hor_length_kwargs = {
+            "output_strand": True,
+            "allow_nonlive": not live_only,
+        }
+        # HOR array length args are prefixed with `arr_opt_`
+        for opt, value in options.items():
+            if opt.startswith("arr_opt_"):
+                k = opt.replace("arr_opt_", "")
+                hor_length_kwargs[k] = value
+
+        df_hor = read_bed_hor(
+            path,
+            chrom=chrom,
+            live_only=live_only,
+            mer_filter=mer_filter,
+        )
         try:
-            _, df_track = hor_array_length(
-                read_bed_hor(
-                    path,
-                    chrom=chrom,
-                    live_only=live_only,
-                    mer_filter=mer_filter,
-                ),
-                output_strand=True,
-            )
+            _, df_track = hor_array_length(df_hor, **hor_length_kwargs)
         except ValueError:
             logging.error(f"Failed to calculate HOR array length for {path}.")
             df_track = pl.DataFrame(
