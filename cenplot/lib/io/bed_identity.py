@@ -48,18 +48,27 @@ def read_bedpe(
         )
         .with_columns(
             ctg_st=pl.col("query").str.extract(r":(\d+)-").cast(pl.Int64).fill_null(0),
+            ctg_end=pl.col("query").str.extract(r"(\d+)$").cast(pl.Int64).fill_null(0),
         )
         .with_columns(
-            query_st=pl.when(pl.col("query_st").ge(pl.col("ctg_st")))
+            is_abs=(
+                pl.col("query_st").is_between(pl.col("ctg_st"), pl.col("ctg_end"))
+                & pl.col("query_end").is_between(pl.col("ctg_st"), pl.col("ctg_end"))
+            )
+            .all()
+            .over("query")
+        )
+        .with_columns(
+            query_st=pl.when(pl.col("is_abs"))
             .then(pl.col("query_st"))
             .otherwise(pl.col("query_st") + pl.col("ctg_st")),
-            query_end=pl.when(pl.col("query_end").ge(pl.col("ctg_st")))
+            query_end=pl.when(pl.col("is_abs"))
             .then(pl.col("query_end"))
             .otherwise(pl.col("query_end") + pl.col("ctg_st")),
-            ref_st=pl.when(pl.col("ref_st").ge(pl.col("ctg_st")))
+            ref_st=pl.when(pl.col("is_abs"))
             .then(pl.col("ref_st"))
             .otherwise(pl.col("ref_st") + pl.col("ctg_st")),
-            ref_end=pl.when(pl.col("ref_end").ge(pl.col("ctg_st")))
+            ref_end=pl.when(pl.col("is_abs"))
             .then(pl.col("ref_end"))
             .otherwise(pl.col("ref_end") + pl.col("ctg_st")),
         )
@@ -93,20 +102,30 @@ def read_bedpe(
 
     # Then convert back to relative.
     df = df.with_columns(
-        query_st=pl.when(pl.col("query_st").ge(pl.col("ctg_st")))
+        is_abs=(
+            pl.col("query_st").is_between(pl.col("ctg_st"), pl.col("ctg_end"))
+            & pl.col("query_end").is_between(pl.col("ctg_st"), pl.col("ctg_end"))
+        )
+    ).with_columns(
+        query_st=pl.when(pl.col("is_abs"))
         .then(pl.col("query_st") - pl.col("ctg_st"))
         .otherwise(pl.col("query_st")),
-        query_end=pl.when(pl.col("query_end").ge(pl.col("ctg_st")))
+        query_end=pl.when(pl.col("is_abs"))
         .then(pl.col("query_end") - pl.col("ctg_st"))
         .otherwise(pl.col("query_end")),
-        ref_st=pl.when(pl.col("ref_st").ge(pl.col("ctg_st")))
+        ref_st=pl.when(pl.col("is_abs"))
         .then(pl.col("ref_st") - pl.col("ctg_st"))
         .otherwise(pl.col("ref_st")),
-        ref_end=pl.when(pl.col("ref_end").ge(pl.col("ctg_st")))
+        ref_end=pl.when(pl.col("is_abs"))
         .then(pl.col("ref_end") - pl.col("ctg_st"))
         .otherwise(pl.col("ref_end")),
-    ).drop("ctg_st")
-    return df
+    )
+
+    # Remove any regions outside of chrom coords, if provided.
+    if chrom_st:
+        df = df.filter(pl.col("is_abs"))
+
+    return df.drop("ctg_st", "ctg_end", "is_abs")
 
 
 def read_bed_identity(
