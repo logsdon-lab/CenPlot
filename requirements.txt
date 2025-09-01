@@ -1,6 +1,6 @@
-matplotlib==3.10.0
-polars==1.19.0
-numpy==2.2.1
-intervaltree==3.1.0
-censtats==0.0.12
-PyYAML==6.0.2
+matplotlib>=3.10.0
+polars>=1.19.0
+numpy>=2.2.1
+intervaltree>=3.1.0
+censtats>=0.0.13
+PyYAML>=6.0.2
