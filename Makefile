@@ -4,6 +4,7 @@ BIN=venv/bin/
 PROJECT_NAME=cenplot
 
 test:
+	$(BIN)python3 -m pip install pytest
 	$(BIN)python3 -m pytest -vv
 
 build:
