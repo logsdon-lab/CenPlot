@@ -170,11 +170,13 @@ def format_xaxis_ticklabels(ax: Axes, track: Track):
     Format x-axis ticklabels with `Track.options.units_x`.
     """
     # Remove scientific notation.
-    ax.xaxis.set_major_formatter("plain")
     new_xtick_labels = []
     units = Unit(track.options.units_x)
     xmin, xmax = ax.get_xlim()
     xticks, xticklabels = list(ax.get_xticks()), ax.get_xticklabels()
+    xticklabels_txt = set([lbl.get_text() for lbl in xticklabels])
+    ax.xaxis.set_major_formatter("plain")
+
     for txt in xticklabels:
         x, _ = txt.get_position()
         # Convert units and round.
@@ -183,10 +185,16 @@ def format_xaxis_ticklabels(ax: Axes, track: Track):
         new_xtick_labels.append(txt)
 
     # Add first and last position.
-    xticks.append(xmin)
-    xticks.append(xmax)
-    new_xtick_labels.append(str(units.convert_value(xmin, 1)))  # type: ignore[arg-type]
-    new_xtick_labels.append(str(units.convert_value(xmax, 1)))  # type: ignore[arg-type]
+    # Check if txt exists before adding.
+    xmin_txt = str(units.convert_value(xmin, 1))
+    xmax_txt = str(units.convert_value(xmax, 1))
+
+    if xmin_txt not in xticklabels_txt:
+        xticks.append(xmin)
+        new_xtick_labels.append(xmin_txt)  # type: ignore[arg-type]
+    if xmax_txt not in xticklabels_txt:
+        new_xtick_labels.append(xmax_txt)  # type: ignore[arg-type]
+        xticks.append(xmax)
 
     ax.set_xticks(xticks, new_xtick_labels, fontsize=track.options.fontsize)  # type: ignore[arg-type]
     ax.set_xlabel(
