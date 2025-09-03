@@ -2,7 +2,7 @@
 Module for drawing functions.
 """
 
-from .cen import plot_one_cen
+from .core import plot_tracks
 from .hor import draw_hor, draw_hor_ort
 from .label import draw_label
 from .strand import draw_strand
@@ -15,7 +15,7 @@ from .legend import draw_legend
 from .settings import PlotSettings
 
 __all__ = [
-    "plot_one_cen",
+    "plot_tracks",
     "draw_hor",
     "draw_hor_ort",
     "draw_label",

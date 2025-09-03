@@ -49,7 +49,7 @@ def draw_bar(
         track.data["chrom_end"] - track.data["chrom_st"],
         label=label,
         **plot_options,
-    )
+    )  # type: ignore[arg-type]
     # Trim plot to margins
     ax.margins(x=0, y=0)
 

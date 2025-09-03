@@ -37,7 +37,7 @@ def read_bed9(infile: str | TextIO, *, chrom: str | None = None) -> pl.DataFrame
             chrom_st, chrom_end = None, None
 
         if chrom:
-            df = df.filter(
+            df_filtered = df.filter(
                 pl.when(pl.col("chrom").is_in([chrom_no_coords]))
                 .then(
                     (pl.col("chrom") == chrom_no_coords)
@@ -48,8 +48,10 @@ def read_bed9(infile: str | TextIO, *, chrom: str | None = None) -> pl.DataFrame
                 .then(pl.col("chrom") == chrom)
                 .otherwise(True)
             ).collect()
+        else:
+            df_filtered = df.collect()
 
-        df_adj = adj_by_ctg_coords(df, "chrom").sort(by="chrom_st")
+        df_adj = adj_by_ctg_coords(df_filtered, "chrom").sort(by="chrom_st")
     except pl.exceptions.NoDataError:
         df_adj = pl.DataFrame(schema=BED9_COLS)
 

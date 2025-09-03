@@ -22,7 +22,8 @@ def map_value_colors(
             if elem.startswith("#"):
                 color_hex.append(elem)
             else:
-                rgb = [int(e) / 255 for e in elem.split(",")]
+                rgb = tuple(int(e) / 255 for e in elem.split(","))
+                assert len(rgb) == 3, f"Invalid item_rgb format for {rgb}"
                 color_hex.append(rgb2hex(rgb))
         return pl.Series(name="color", values=color_hex)
 
@@ -79,7 +80,7 @@ def get_min_max_track(
 ) -> tuple[Track, int]:
     track = None
     if typ == "min":
-        pos = sys.maxsize
+        pos: int | float = sys.maxsize
     else:
         pos = 0
 
@@ -97,6 +98,8 @@ def get_min_max_track(
                 no_data_log_message(i, trk.title, col)
                 continue
             trk_min = trk_data[col].min()
+            assert isinstance(trk_min, (float, int))
+            assert not isinstance(trk_min, bool)
             if trk_min < pos:
                 track = trk
                 pos = trk_min
@@ -105,6 +108,8 @@ def get_min_max_track(
                 no_data_log_message(i, trk.title, col)
                 continue
             trk_max = trk.data[col].max()
+            assert isinstance(trk_max, (float, int))
+            assert not isinstance(trk_max, bool)
             if not trk_max:
                 logging.error(f"No max value for track {i} ({trk.title=}).")
                 continue
@@ -115,7 +120,7 @@ def get_min_max_track(
         raise ValueError(
             f"No {typ} track. Check that bedfile is not empty, contains the correct chrom, and/or has correct columns."
         )
-    return track, pos
+    return track, int(pos)
 
 
 def header_info(infile: str | TextIO) -> tuple[int, int]:

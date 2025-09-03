@@ -2,7 +2,7 @@ import polars as pl
 
 from matplotlib.axes import Axes
 from matplotlib.collections import PolyCollection
-from intervaltree import Interval, IntervalTree
+from intervaltree import Interval, IntervalTree  # type: ignore[import-untyped]
 
 from .utils import format_ax
 from ..track.types import Track
@@ -40,7 +40,7 @@ def draw_self_ident_hist(ax: Axes, track: Track, *, zorder: float = 1.0):
     # Otherwise, take up entire axis dim.
     ax.set_box_aspect(legend_asp_ratio)
 
-    for _, value, bar in zip(cnts, values, bars):
+    for _, value, bar in zip(cnts, values, bars):  # type: ignore[arg-type]
         # Make value a non-null interval
         # ex. (1,1) -> (1, 1.000001)
         color = cmap.overlap(value, value + 0.00001)
@@ -92,7 +92,14 @@ def draw_self_ident(
     polys.set(array=None, facecolors=colors)
     ax.add_collection(polys)
 
-    ax.set_ylim(df_track["y"].min(), df_track["y"].max())
+    ymin, ymax = (
+        df_track["y"].min(),
+        df_track["y"].max(),
+    )
+    if not isinstance(ymin, (int, float)) or not isinstance(ymax, (int, float)):
+        raise ValueError("Invalid ymin and ymax type for self ident")
+
+    ax.set_ylim(ymin, ymax)
 
     if legend_ax and legend:
         draw_self_ident_hist(legend_ax, track, zorder=zorder)

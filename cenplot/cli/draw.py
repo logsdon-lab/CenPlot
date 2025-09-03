@@ -10,9 +10,9 @@ from typing import Any, BinaryIO, TYPE_CHECKING
 from concurrent.futures import ProcessPoolExecutor
 
 from cenplot import (
-    plot_one_cen,
+    plot_tracks,
     merge_plots,
-    read_one_cen_tracks,
+    read_tracks,
     Track,
     PlotSettings,
 )
@@ -32,10 +32,10 @@ logging.basicConfig(
 
 def get_draw_args(
     input_tracks: BinaryIO, chroms: list[str], share_xlim: bool, outdir: str
-) -> list[tuple[list[Track], str, str, PlotSettings]]:
+) -> list[tuple[list[Track], PlotSettings, str, str]]:
     inputs = []
     tracks_settings = [
-        (chrom, *read_one_cen_tracks(input_tracks, chrom=chrom)) for chrom in chroms
+        (chrom, *read_tracks(input_tracks, chrom=chrom)) for chrom in chroms
     ]
     xmin_all, xmax_all = sys.maxsize, 0
     if share_xlim:
@@ -52,36 +52,25 @@ def get_draw_args(
 
         tracks = []
         for trk in tracks_summary.tracks:
-            df = trk.data
-
-            if isinstance(df, pl.DataFrame):
+            if not trk.data.is_empty():
                 try:
-                    has_no_coords = chrom_no_coords in df["chrom"]
+                    has_no_coords = chrom_no_coords in trk.data["chrom"]
                 except Exception:
                     has_no_coords = False
 
                 if has_no_coords:
-                    df = df.filter(pl.col("chrom") == chrom_no_coords)
+                    trk.data = trk.data.filter(pl.col("chrom") == chrom_no_coords)
                 else:
-                    df = df.filter(pl.col("chrom") == chrom)
+                    trk.data = trk.data.filter(pl.col("chrom") == chrom)
 
-            tracks.append(
-                Track(
-                    trk.title,
-                    trk.pos,
-                    trk.opt,
-                    trk.prop,
-                    df if isinstance(df, pl.DataFrame) else None,
-                    trk.options,
-                )
-            )
+            tracks.append(trk)
 
         inputs.append(
             (
                 tracks,
+                plot_settings,
                 outdir,
                 chrom,
-                plot_settings,
             )
         )
     return inputs
@@ -143,13 +132,13 @@ def draw(
 
     os.makedirs(outdir, exist_ok=True)
     if processes == 1:
-        plots = [plot_one_cen(*draw_arg) for draw_arg in draw_args]
+        plots = [plot_tracks(*draw_arg) for draw_arg in draw_args]
     else:
         with ProcessPoolExecutor(
             max_workers=processes, mp_context=multiprocessing.get_context("spawn")
         ) as pool:
             futures = [
-                (draw_arg[2], pool.submit(plot_one_cen, *draw_arg))
+                (draw_arg[2], pool.submit(plot_tracks, *draw_arg))
                 for draw_arg in draw_args
             ]  # type: ignore[assignment]
             plots = []

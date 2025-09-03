@@ -214,7 +214,7 @@ from .lib.draw import (
     draw_legend,
     draw_self_ident_hist,
     draw_local_self_ident,
-    plot_one_cen,
+    plot_tracks,
     merge_plots,
     PlotSettings,
 )
@@ -223,7 +223,8 @@ from .lib.io import (
     read_bed_hor,
     read_bed_identity,
     read_bed_label,
-    read_one_cen_tracks,
+    read_track,
+    read_tracks,
 )
 from .lib.track import (
     Track,
@@ -248,7 +249,7 @@ from .lib.track import (
 __author__ = "Keith Oshima (oshimak@pennmedicine.upenn.edu)"
 __license__ = "MIT"
 __all__ = [
-    "plot_one_cen",
+    "plot_tracks",
     "merge_plots",
     "draw_hor",
     "draw_hor_ort",
@@ -264,7 +265,8 @@ __all__ = [
     "read_bed_hor",
     "read_bed_identity",
     "read_bed_label",
-    "read_one_cen_tracks",
+    "read_track",
+    "read_tracks",
     "Track",
     "TrackType",
     "TrackPosition",

@@ -5,7 +5,7 @@ import logging
 import polars as pl
 
 from typing import Any, Generator, BinaryIO
-from censtats.length import hor_array_length
+from censtats.length import hor_array_length  # type: ignore[import-untyped]
 
 from .utils import get_min_max_track, map_value_colors
 from .bed9 import read_bed9
@@ -57,17 +57,17 @@ def split_hor_track(
     for split, df_split_track in df_track.group_by(
         [split_colname], maintain_order=True
     ):
-        split = split[0]
+        name = split[0]
         # Add mer to name if formatted.
         try:
-            mer_title = str(title).format(**{split_colname: split}) if title else ""
+            mer_title = str(title).format(**{split_colname: name}) if title else ""
         except KeyError:
             mer_title = str(title) if title else ""
 
         # Update legend title.
         if plot_options.legend_title and chrom:
             plot_options.legend_title = plot_options.legend_title.format(
-                **{split_colname: split, "chrom": chrom}
+                **{split_colname: name, "chrom": chrom}
             )
 
         # Disallow overlap.
@@ -82,7 +82,7 @@ def split_hor_track(
         )
 
 
-def read_one_track_info(
+def read_track(
     track: dict[str, Any], *, chrom: str | None = None
 ) -> Generator[Track, None, None]:
     prop = track.get("proportion", 0.0)
@@ -107,15 +107,15 @@ def read_one_track_info(
     if track_opt == TrackType.Position:
         track_options = PositionTrackSettings(**options)
         track_options.hide_x = False
-        yield Track(title, track_pos, track_opt, prop, None, track_options)
+        yield Track(title, track_pos, track_opt, prop, pl.DataFrame(), track_options)
         return None
     elif track_opt == TrackType.Legend:
         track_options = LegendTrackSettings(**options)
-        yield Track(title, track_pos, track_opt, prop, None, track_options)
+        yield Track(title, track_pos, track_opt, prop, pl.DataFrame(), track_options)
         return None
     elif track_opt == TrackType.Spacer:
         track_options = SpacerTrackSettings(**options)
-        yield Track(title, track_pos, track_opt, prop, None, track_options)
+        yield Track(title, track_pos, track_opt, prop, pl.DataFrame(), track_options)
         return None
 
     if not path:
@@ -248,7 +248,7 @@ def read_one_track_info(
     yield Track(title, track_pos, track_opt, prop, df_track, track_options)
 
 
-def read_one_cen_tracks(
+def read_tracks(
     input_track: BinaryIO, *, chrom: str | None = None
 ) -> tuple[TrackList, PlotSettings]:
     """
@@ -288,7 +288,7 @@ def read_one_cen_tracks(
     * List of tracks w/contained chroms and plot settings.
     """
     all_tracks = []
-    chroms = set()
+    chroms: set[str] = set()
     # Reset file position.
     input_track.seek(0)
     # Try TOML
@@ -307,10 +307,10 @@ def read_one_cen_tracks(
         settings["dim"] = tuple(settings["dim"])
 
     for track_info in dict_settings.get("tracks", []):
-        for track in read_one_track_info(track_info, chrom=chrom):
+        for track in read_track(track_info, chrom=chrom):
             all_tracks.append(track)
             # Tracks legend and position have no data.
-            if not isinstance(track.data, pl.DataFrame):
+            if track.data.is_empty():
                 continue
             chroms.update(track.data["chrom"])
     tracklist = TrackList(all_tracks, chroms)

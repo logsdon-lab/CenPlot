@@ -76,14 +76,14 @@ def draw_line(
             0,
             label=label,
             **plot_options,
-        )
+        )  # type: ignore[arg-type]
     else:
         ax.plot(
             df["chrom_st"],
             df["name"],
             label=label,
             **plot_options,
-        )
+        )  # type: ignore[arg-type]
 
     # Trim plot to margins
     ax.margins(x=0, y=0)

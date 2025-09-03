@@ -1,3 +1,4 @@
+from matplotlib.artist import Artist
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -78,7 +79,7 @@ def create_subplots(
         height_ratios=track_props,
         width_ratios=width_ratios,
         # Always return 2D ndarray
-        squeeze=0,
+        squeeze=False,
         layout=settings.layout,
         **kwargs,
     )
@@ -181,11 +182,13 @@ def format_xaxis_ticklabels(ax: Axes, track: Track):
         txt.set_text(new_x_txt)
         new_xtick_labels.append(txt)
 
-    # Add last position.
+    # Add first and last position.
+    xticks.append(xmin)
     xticks.append(xmax)
-    new_xtick_labels.append(str(units.convert_value(xmax, 1)))
+    new_xtick_labels.append(str(units.convert_value(xmin, 1)))  # type: ignore[arg-type]
+    new_xtick_labels.append(str(units.convert_value(xmax, 1)))  # type: ignore[arg-type]
 
-    ax.set_xticks(xticks, new_xtick_labels, fontsize=track.options.fontsize)
+    ax.set_xticks(xticks, new_xtick_labels, fontsize=track.options.fontsize)  # type: ignore[arg-type]
     ax.set_xlabel(
         f"Position ({units.capitalize()})", fontsize=track.options.title_fontsize
     )
@@ -223,7 +226,7 @@ def draw_uniq_entry_legend(
     # Dedupe labels.
     # Order by appearance or set order.
     handles, labels = ref_ax.get_legend_handles_labels()
-    by_label: dict[str, Rectangle] = dict(zip(labels, handles))
+    by_label: dict[Any, Artist] = dict(zip(labels, handles))
     if label_order:
         by_label = {
             label: by_label[label] for label in label_order if by_label.get(label)
@@ -287,25 +290,25 @@ def set_ylim(ax: Axes, track: Track) -> None:
     if hasattr(track.options, "ymin"):
         ymin = track.options.ymin
         ymin_add = track.options.ymin_add
-        if ymin == "min":
-            ylim_args["ymin"] = track.data["name"].min() + (
-                track.data["name"].min() * ymin_add
-            )
-        elif isinstance(ymin, (int, float)):
-            ylim_args["ymin"] = ymin + (track.data["name"].min() * ymin_add)
+        ymin_val = track.data["name"].min()
+        if isinstance(ymin_val, (int, float)) and isinstance(ymin_add, float):
+            if ymin == "min":
+                ylim_args["ymin"] = ymin_val + (ymin_val * ymin_add)
+            elif isinstance(ymin, (int, float)):
+                ylim_args["ymin"] = ymin + (ymin_val * ymin_add)
 
     if hasattr(track.options, "ymax"):
         ymax = track.options.ymax
         ymax_add = track.options.ymax_add
-        if ymax == "max":
-            ylim_args["ymax"] = track.data["name"].max() + (
-                track.data["name"].max() * ymax_add
-            )
-        elif isinstance(ymax, (int, float)):
-            ylim_args["ymax"] = ymax + (track.data["name"].max() * ymax_add)
+        ymax_val = track.data["name"].max()
+        if isinstance(ymax_val, (int, float)) and isinstance(ymax_add, float):
+            if ymax == "max":
+                ylim_args["ymax"] = ymax_val + (ymax_val * ymax_add)
+            elif isinstance(ymax, (int, float)):
+                ylim_args["ymax"] = ymax + (ymax_val * ymax_add)
 
     if ylim_args:
-        ax.set_ylim(**ylim_args)
+        ax.set_ylim(**ylim_args)  # type: ignore[arg-type]
 
     if track.options.add_end_yticks:
         ymin, ymax = ax.get_ylim()
@@ -314,10 +317,10 @@ def set_ylim(ax: Axes, track: Track) -> None:
         # Add first and last position.
         if ymax not in yticks:
             yticks.append(ymax)
-            yticklabels.append(str(round(ymax, 1)))
+            yticklabels.append(str(round(ymax, 1)))  # type: ignore[arg-type]
         if ymin not in yticks:
             yticks.append(ymin)
-            yticklabels.append(str(round(ymin, 1)))
+            yticklabels.append(str(round(ymin, 1)))  # type: ignore[arg-type]
 
-        ax.set_yticks(yticks, yticklabels, fontsize=track.options.fontsize)
+        ax.set_yticks(yticks, yticklabels, fontsize=track.options.fontsize)  # type: ignore[arg-type]
         ax.set_ylim(ymin, ymax)
