@@ -52,11 +52,11 @@ cenplot draw \
 The same HOR track can be created with a few lines of code.
 ```python
 # examples/example_api.py
-from cenplot import plot_one_cen, read_one_cen_tracks
+from cenplot import plot_tracks, read_tracks
 
 chrom = "chm13_chr10:38568472-42561808"
-track_list, settings = read_one_cen_tracks("examples/tracks_hor.toml", chrom=chrom)
-fig, axes, outfile = plot_one_cen(track_list.tracks, "plots", chrom, settings)
+track_list, settings = read_tracks("examples/tracks_hor.toml", chrom=chrom)
+fig, axes, _ = plot_tracks(track_list.tracks, settings)
 ```
 
 ## Development

@@ -20,11 +20,11 @@ from ..io.utils import get_min_max_track
 from ..track.types import Track, TrackType, TrackPosition, LegendPosition
 
 
-def plot_one_cen(
+def plot_tracks(
     tracks: list[Track],
-    outdir: str,
-    chrom: str,
     settings: PlotSettings,
+    outdir: str | None = None,
+    chrom: str | None = None,
 ) -> tuple[Figure, np.ndarray, list[str]]:
     """
     Plot a single centromere figure from a list of `Track`s.
@@ -32,12 +32,14 @@ def plot_one_cen(
     # Args
     * `tracks`
         * List of tracks to plot. The order in the list determines placement on the figure.
-    * `outdir`
-        * Output directory.
-    * `chrom`
-        * Region to filter for in `Track.data`
     * `settings`
         * Settings for output plots.
+    * `outdir`
+        * Output directory.
+        * If not provided, does not output files.
+    * `chrom`
+        * Chromosome label. Replaces {chrom} format string in title if provided and sets output filenames.
+        * If not provided, defaults to "out".
 
     # Returns
     * Figure, its axes, and the output filename(s).
@@ -47,12 +49,12 @@ def plot_one_cen(
     import cenplot
 
     chrom = "chm13_chr10:38568472-42561808"
-    track_list, settings = cenplot.read_one_cen_tracks("tracks_example_api.toml", chrom=chrom)
-    fig, axes, outfiles = cenplot.plot_one_cen(track_list.tracks, "plots", chrom, settings)
+    track_list, settings = cenplot.read_tracks("tracks_example_api.toml", chrom=chrom)
+    fig, axes, _ = cenplot.plot_tracks(track_list.tracks, settings)
     ```
     """
     # Show chrom trimmed of spaces for logs and filenames.
-    logging.info(f"Plotting {chrom}...")
+    logging.info(f"Plotting {len(tracks)} tracks.")
 
     if not settings.xlim:
         # Get min and max position of all tracks for this cen.
@@ -77,8 +79,10 @@ def plot_one_cen(
 
     track_labels: list[str] = []
 
-    def get_track_label(chrom: str, track: Track, all_track_labels: list[str]) -> str:
-        if not track.title:
+    def get_track_label(
+        chrom: str | None, track: Track, all_track_labels: list[str]
+    ) -> str:
+        if not track.title or not chrom:
             return ""
         try:
             fmt_track_label = track.title.format(chrom=chrom)
@@ -107,7 +111,7 @@ def plot_one_cen(
             print(f"Cannot get track ({track_row, track_col}) for {track}.")
             continue
         try:
-            legend_ax: Axes = axes[track_row, legend_col]
+            legend_ax: Axes | None = axes[track_row, legend_col]
         except IndexError:
             legend_ax = None
 
@@ -205,7 +209,10 @@ def plot_one_cen(
 
     # Add title
     if settings.title:
-        title = settings.title.format(chrom=chrom)
+        if chrom:
+            title = settings.title.format(chrom=chrom)
+        else:
+            title = settings.title
         fig.suptitle(
             title,
             x=settings.title_x,
@@ -213,34 +220,37 @@ def plot_one_cen(
             horizontalalignment=settings.title_horizontalalignment,
             fontsize=settings.title_fontsize,
         )
-
-    os.makedirs(outdir, exist_ok=True)
-    if isinstance(settings.format, str):
-        output_format = [settings.format]
-    else:
-        output_format = settings.format
     # Pad between axes.
-    fig.get_layout_engine().set(h_pad=settings.axis_h_pad)
-
-    # PNG must always be plotted last.
-    # Matplotlib modifies figure settings causing formatting errors in vectorized image formats (svg, pdf)
-    png_output = "png" in output_format
-    if png_output:
-        output_format.remove("png")
+    fig.tight_layout(h_pad=settings.axis_h_pad)
 
     outfiles = []
-    for fmt in output_format:
-        outfile = os.path.join(outdir, f"{chrom}.{fmt}")
-        fig.savefig(outfile, dpi=settings.dpi, transparent=settings.transparent)
-        outfiles.append(outfile)
 
-    if png_output:
-        outfile = os.path.join(outdir, f"{chrom}.png")
-        fig.savefig(
-            outfile,
-            dpi=settings.dpi,
-            transparent=settings.transparent,
-        )
-        outfiles.append(outfile)
+    if outdir:
+        os.makedirs(outdir, exist_ok=True)
+        if isinstance(settings.format, str):
+            output_format = [settings.format]
+        else:
+            output_format = settings.format
+
+        # PNG must always be plotted last.
+        # Matplotlib modifies figure settings causing formatting errors in vectorized image formats (svg, pdf)
+        png_output = "png" in output_format
+        if png_output:
+            output_format.remove("png")
+
+        fname = chrom if chrom else "out"
+        for fmt in output_format:
+            outfile = os.path.join(outdir, f"{fname}.{fmt}")
+            fig.savefig(outfile, dpi=settings.dpi, transparent=settings.transparent)
+            outfiles.append(outfile)
+
+        if png_output:
+            outfile = os.path.join(outdir, f"{fname}.png")
+            fig.savefig(
+                outfile,
+                dpi=settings.dpi,
+                transparent=settings.transparent,
+            )
+            outfiles.append(outfile)
 
     return fig, axes, outfiles

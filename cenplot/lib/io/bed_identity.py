@@ -7,7 +7,7 @@ from typing import TextIO
 from .utils import header_info
 from ..track.settings import LocalSelfIdentTrackSettings
 from ..defaults import BED9_COLS, BED_SELF_IDENT_COLS, IDENT_COLORSCALE, Colorscale
-from censtats.self_ident.cli import convert_2D_to_1D_ident, Dim
+from censtats.self_ident.cli import convert_2D_to_1D_ident, Dim  # type: ignore[import-untyped]
 
 
 def read_ident_colorscale(
@@ -38,7 +38,7 @@ def read_bedpe(
 
     # Expected to be in relative coordinates.
     # Convert to absolute to filter.
-    df = (
+    lf = (
         pl.scan_csv(
             infile,
             separator="\t",
@@ -82,7 +82,7 @@ def read_bedpe(
         chrom_st, chrom_end = None, None
 
     if chrom and chrom_no_coords:
-        df = df.filter(
+        df = lf.filter(
             pl.when(pl.col("query").is_in([chrom_no_coords]))
             .then(
                 (pl.col("query") == chrom_no_coords)
@@ -96,9 +96,9 @@ def read_bedpe(
             .otherwise(True)
         ).collect()
     elif chrom:
-        df = df.filter(pl.col("query") == chrom).collect()
+        df = lf.filter(pl.col("query") == chrom).collect()
     else:
-        df = df.collect()
+        df = lf.collect()
 
     # Then convert back to relative.
     df = df.with_columns(
@@ -171,26 +171,26 @@ def read_bed_identity(
         if not isinstance(color_expr, pl.Expr):
             color_expr = pl.when(
                 pl.col("percent_identity_by_events").is_between(rng[0], rng[1])
-            ).then(pl.lit(color))
+            ).then(pl.lit(color))  # type: ignore[assignment]
             rng_expr = pl.when(
                 pl.col("percent_identity_by_events").is_between(rng[0], rng[1])
-            ).then(pl.lit(f"{rng[0]}-{rng[1]}"))
+            ).then(pl.lit(f"{rng[0]}-{rng[1]}"))  # type: ignore[assignment]
         else:
             color_expr = color_expr.when(
                 pl.col("percent_identity_by_events").is_between(rng[0], rng[1])
-            ).then(pl.lit(color))
+            ).then(pl.lit(color))  # type: ignore[assignment]
             rng_expr = rng_expr.when(
                 pl.col("percent_identity_by_events").is_between(rng[0], rng[1])
-            ).then(pl.lit(f"{rng[0]}-{rng[1]}"))
+            ).then(pl.lit(f"{rng[0]}-{rng[1]}"))  # type: ignore[assignment]
 
     if isinstance(color_expr, pl.Expr):
-        color_expr = color_expr.otherwise(None)
+        color_expr = color_expr.otherwise(None)  # type: ignore[assignment]
     else:
-        color_expr = pl.lit(None)
+        color_expr = pl.lit(None)  # type: ignore[assignment]
     if isinstance(rng_expr, pl.Expr):
-        rng_expr = rng_expr.otherwise(None)
+        rng_expr = rng_expr.otherwise(None)  # type: ignore[assignment]
     else:
-        rng_expr = pl.lit(None)
+        rng_expr = pl.lit(None)  # type: ignore[assignment]
 
     if mode == Dim.ONE:
         df_window = (

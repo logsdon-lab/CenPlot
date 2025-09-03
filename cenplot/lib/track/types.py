@@ -2,8 +2,21 @@ import polars as pl
 
 from enum import StrEnum, auto
 from typing import NamedTuple
-
-from ..track.settings import TrackSettings
+from dataclasses import dataclass
+from ..track.settings import (
+    TrackSettings,
+    BarTrackSettings,
+    HORTrackSettings,
+    HOROrtTrackSettings,
+    LabelTrackSettings,
+    LegendTrackSettings,
+    LineTrackSettings,
+    LocalSelfIdentTrackSettings,
+    SelfIdentTrackSettings,
+    PositionTrackSettings,
+    SpacerTrackSettings,
+    StrandTrackSettings,
+)
 
 
 class TrackPosition(StrEnum):
@@ -137,8 +150,40 @@ class TrackType(StrEnum):
     * None
     """
 
+    def settings(self) -> TrackSettings:
+        """
+        Get settings for track type.
+        """
+        if self == TrackType.Bar:
+            return BarTrackSettings()
+        elif self == TrackType.HOR:
+            return HORTrackSettings()
+        elif self == TrackType.HOROrt:
+            return HOROrtTrackSettings()
+        elif self == TrackType.HORSplit:
+            return HORTrackSettings()
+        elif self == TrackType.Label:
+            return LabelTrackSettings()
+        elif self == TrackType.Legend:
+            return LegendTrackSettings()
+        elif self == TrackType.Line:
+            return LineTrackSettings()
+        elif self == TrackType.LocalSelfIdent:
+            return LocalSelfIdentTrackSettings()
+        elif self == TrackType.SelfIdent:
+            return SelfIdentTrackSettings()
+        elif self == TrackType.Position:
+            return PositionTrackSettings()
+        elif self == TrackType.Spacer:
+            return SpacerTrackSettings()
+        elif self == TrackType.Strand:
+            return StrandTrackSettings()
+        else:
+            raise ValueError(f"No settings provided for track type. {self}")
 
-class Track(NamedTuple):
+
+@dataclass
+class Track:
     """
     A centromere track.
     """
