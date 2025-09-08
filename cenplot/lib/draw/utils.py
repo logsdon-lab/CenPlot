@@ -1,10 +1,10 @@
-from matplotlib.artist import Artist
 import numpy as np
 import matplotlib.pyplot as plt
 
-from typing import Any, Iterable
+from typing import Any, Iterable, NamedTuple
 
 from matplotlib.axes import Axes
+from matplotlib.artist import Artist
 from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
 from matplotlib.backends.backend_pdf import PdfPages
@@ -13,6 +13,23 @@ from .settings import PlotSettings
 from ..utils import Unit
 from ..track.types import LegendPosition, Track, TrackType, TrackPosition
 from ..track.settings import DefaultTrackSettings
+
+
+class ComparePlotAxCoords(NamedTuple):
+    ref_coords: dict[int, tuple[int, int]]
+    ref_legend_coords: dict[int, tuple[int, int]]
+    qry_coords: dict[int, tuple[int, int]]
+    qry_legend_coords: dict[int, tuple[int, int]]
+    ident_coords: tuple[int, int]
+    ident_hist_coords: tuple[int, int]
+
+
+class Delta(NamedTuple):
+    coord: tuple[int, int]
+    dt: tuple[int, int]
+
+    def adjust_by(self, adj: int) -> tuple[int, int]:
+        return (self.coord[0] + self.dt[0] * adj, self.coord[1] + self.dt[1] * adj)
 
 
 def create_subplots(
@@ -85,6 +102,183 @@ def create_subplots(
     )
 
     return fig, axes, track_indices
+
+
+def create_cmp_subplots(
+    tracks_ref: list[Track],
+    tracks_qry: list[Track],
+    settings_ref: PlotSettings,
+    settings_qry: PlotSettings,
+    pos_ref: str,
+    pos_qry: str,
+    prop_ident: float,
+    **kwargs: Any,
+) -> tuple[Figure, np.ndarray, ComparePlotAxCoords]:
+    """
+    Generate a subplot figure from ref and query `Track`s.
+
+    # Args
+    * `tracks_ref`
+    * `tracks_qry`
+    * `settings_ref`
+        * Plot settings.
+        * Legend pos is ignored.
+    * `settings_qry`
+        * Plot settings.
+        * Legend pos is ignored.
+    * `pos_qry`
+    * `tracks_qry`
+    * `prop_ident`
+    * `kwargs`
+        * Additional arguments passed to `plt.subplots`
+
+    # Returns
+    * Figure, its axes, and a mapping of the idx of `tracks` to the row idx of axes.
+    """
+
+    def get_track_ordering(
+        tracks: list[Track],
+    ) -> tuple[list[float], dict[int, int]]:
+        track_idx = 0
+        track_props = []
+        track_indices = {}
+        for i, track in enumerate(tracks):
+            # Store index.
+            # Only increment index if takes up a subplot axis.
+            if track.pos == TrackPosition.Relative:
+                track_indices[i] = track_idx
+                track_idx += 1
+                track_props.append(track.prop)
+            # For each unique HOR monomer number, create a new track.
+            # Divide the proportion of the image allocated between each mer track.
+            elif track.opt == TrackType.HORSplit:
+                if track.options.mode == "hor":
+                    n_subplots = track.data["name"].unique()
+                else:
+                    n_subplots = track.data["mer"].unique()
+                for j, _ in enumerate(n_subplots):
+                    track_indices[i + j] = track_idx
+                    track_props.append(track.prop)
+                    track_idx += 1
+            else:
+                track_indices[i] = track_idx - 1
+
+        return track_props, track_indices
+
+    ref_track_props, ref_track_indices = get_track_ordering(tracks_ref)
+    qry_track_props, qry_track_indices = get_track_ordering(tracks_qry)
+
+    # Determine correct proportions for entire figure.
+    ref_legend_prop = settings_ref.legend_prop
+    qry_legend_prop = settings_qry.legend_prop
+
+    # 1. Ref top.     2. Ref bottom.
+    #    Query left.     Query left. (DEFAULT)
+    #      +----+-+      +-+
+    #    +-+----+-+      +-+----+
+    #    | | \  |        | | \  |
+    #    | |  \ |h       | |  \ |h
+    #    +-+----+        +-+----+-+
+    #    +-+               +----+-+
+    #
+    # 3. Ref top.     4. Ref bottom.
+    #    Query right.    Query right.
+    #     +-+----+              +-+
+    #     +-+----+-+       +----+-+
+    #       | \  | |       | \  | |
+    #      h|  \ | |      h|  \ | |
+    #       +----+-+     +-+----+-+
+    #            +-+     +-+----+
+    if pos_ref == "top" and pos_qry == "left":
+        ident_coord = (len(ref_track_props), len(qry_track_props))
+        ident_hist_coord = (ident_coord[0], ident_coord[1] + 1)
+        # Delta for annot row and legend from origin scaled by number of tracks.
+        ref_delta = (Delta(ident_coord, (-1, 0)), Delta(ident_hist_coord, (-1, 0)))
+        qry_delta = (
+            Delta(ident_coord, (0, -1)),
+            Delta((ident_coord[0] + 1, ident_coord[1]), (1, 0)),
+        )
+        height_ratios = [*ref_track_props, prop_ident, qry_legend_prop]
+        width_ratios = [*qry_track_props, prop_ident, ref_legend_prop]
+    elif pos_ref == "bottom" and pos_qry == "left":
+        ident_coord = (1, len(qry_track_props))
+        ident_hist_coord = (1, ident_coord[1] + 1)
+        ref_delta = (Delta(ident_coord, (1, 0)), Delta(ident_hist_coord, (1, 0)))
+        qry_delta = (
+            Delta(ident_coord, (0, -1)),
+            Delta((ident_coord[0] - 1, ident_coord[1]), (0, -1)),
+        )
+        height_ratios = [qry_legend_prop, prop_ident, *ref_track_props]
+        width_ratios = [
+            *qry_track_props,
+            prop_ident,
+            ref_legend_prop,
+        ]
+    elif pos_ref == "top" and pos_qry == "right":
+        ident_coord = (len(ref_track_props), 1)
+        ident_hist_coord = (ident_coord[0], 0)
+        ref_delta = (Delta(ident_coord, (-1, 0)), Delta(ident_hist_coord, (-1, 0)))
+        qry_delta = (
+            Delta(ident_coord, (0, 1)),
+            Delta((ident_coord[0] + 1, ident_coord[1]), (0, 1)),
+        )
+        height_ratios = [*ref_track_props, prop_ident, qry_legend_prop]
+        width_ratios = [ref_legend_prop, prop_ident, *qry_track_props]
+    elif pos_ref == "bottom" and pos_qry == "right":
+        ident_coord = (1, 1)
+        ident_hist_coord = (ident_coord[0], 0)
+        ref_delta = (Delta(ident_coord, (1, 0)), Delta(ident_hist_coord, (1, 0)))
+        qry_delta = (
+            Delta(ident_coord, (0, 1)),
+            Delta((ident_coord[0] - 1, ident_coord[1]), (0, 1)),
+        )
+        height_ratios = [qry_legend_prop, prop_ident, *ref_track_props]
+        width_ratios = [ref_legend_prop, prop_ident, *qry_track_props]
+    else:
+        raise NotImplementedError()
+
+    def get_new_coords(
+        track_indices: dict[int, int], deltas: tuple[Delta, Delta]
+    ) -> tuple[dict[int, tuple[int, int]], dict[int, tuple[int, int]]]:
+        track_coords = {}
+        track_legend_coords = {}
+        for track_idx, track_pos in track_indices.items():
+            dt_track, dt_track_legend = deltas
+            # Ident track is first position so offset.
+            coords_track = dt_track.adjust_by(track_pos + 1)
+            coords_track_legend = dt_track_legend.adjust_by(track_pos + 1)
+            track_coords[track_idx] = coords_track
+            track_legend_coords[track_idx] = coords_track_legend
+        return track_coords, track_legend_coords
+
+    ref_track_coords, ref_track_legend_coords = get_new_coords(
+        ref_track_indices, ref_delta
+    )
+    qry_track_coords, qry_track_legend_coords = get_new_coords(
+        qry_track_indices, qry_delta
+    )
+
+    coords_ax = ComparePlotAxCoords(
+        ref_coords=ref_track_coords,
+        ref_legend_coords=ref_track_legend_coords,
+        qry_coords=qry_track_coords,
+        qry_legend_coords=qry_track_legend_coords,
+        ident_coords=ident_coord,
+        ident_hist_coords=ident_hist_coord,
+    )
+
+    fig, axes = plt.subplots(
+        # Count number of tracks
+        nrows=len(height_ratios),
+        ncols=len(width_ratios),
+        figsize=settings_ref.dim,
+        height_ratios=height_ratios,
+        width_ratios=width_ratios,
+        layout=settings_ref.layout,
+        **kwargs,
+    )
+
+    return fig, axes, coords_ax
 
 
 def merge_plots(

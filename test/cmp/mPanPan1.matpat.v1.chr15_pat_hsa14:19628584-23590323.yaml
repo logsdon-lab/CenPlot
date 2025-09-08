@@ -1,0 +1,81 @@
+settings:
+  axis_h_pad: 0.1
+  dim:
+  - 17.0
+  - 17.0
+  dpi: 600
+  format: png
+  layout: constrained
+  transparent: true
+tracks:
+- options:
+    hide_x: true
+    legend: false
+  path: /project/logsdon_shared/projects/PrimateT2T/CenPlot/data/censat/mPanPan1.matpat.v1.chr15_pat_hsa14:19628584-23590323.cenSatv1.0.bed
+  position: relative
+  proportion: 0.1
+  title: Centromere structure
+  type: label
+- options:
+    hide_x: true
+    legend: false
+  path: /project/logsdon_shared/projects/PrimateT2T/CenPlot/data/asat_sf/mPanPan1.matpat.v1.chr15_pat_hsa14:19628584-23590323.sf.bed
+  position: relative
+  proportion: 0.1
+  title: Alpha-satellite SF
+  type: label
+- options:
+    hide_x: true
+    legend: false
+  path: /project/logsdon_shared/projects/PrimateT2T/CenPlot/data/asat_strand/mPanPan1.matpat.v1.chr15_pat_hsa14:19628584-23590323.strand.bed
+  position: relative
+  proportion: 0.1
+  title: 'Alpha-satellite SF
+
+    strand orientation'
+  type: label
+- options:
+    hide_x: true
+    legend: false
+  path: /project/logsdon_shared/projects/PrimateT2T/CenPlot/data/asat_hor_CENdetectHOR/PanPan_HORannotation_v1.chr15_pat_hsa14:19628584-23590323.bed
+  position: relative
+  proportion: 0.1
+  title: CENdetectHOR annotation
+  type: label
+- options:
+    hide_x: true
+    legend: false
+  path: /project/logsdon_shared/projects/PrimateT2T/CenPlot/data/cdr/mPanPan1_CDR_v1.2.chr15_pat_hsa14:19628584-23590323.bed
+  position: relative
+  proportion: 0.01
+  title: CDR
+  type: label
+- options:
+    hide_x: true
+    legend: false
+  path: /project/logsdon_shared/projects/PrimateT2T/CenPlot/data/cenpa_dimelo/mPanPan1.chr15_pat_hsa14:19628584-23590323.bg
+  position: relative
+  proportion: 0.15
+  title: 'Normalized CENP-A DiMeLo-seq signal
+
+    (relative to IgG)'
+  type: bar
+- options:
+    hide_x: true
+    legend: false
+  path: /project/logsdon_shared/projects/PrimateT2T/CenPlot/data/cenpa_cr_5kb/mPanPan1.chr15_pat_hsa14:19628584-23590323.bg
+  position: relative
+  proportion: 0.15
+  title: 'Fold-enrichment of CENP-A CUT&RUN data
+
+    (relative to IgG)'
+  type: bar
+- options:
+    hide_x: false
+    invert: true
+    legend: true
+    legend_asp_ratio: 1.0
+  path: /project/logsdon_shared/projects/PrimateT2T/CenPlot/data/moddotplot/mPanPan1.matpat.v1/chr15_pat_hsa14:19628584-23590323/chr15_pat_hsa14:19628584-23590323_abs.bed
+  position: relative
+  proportion: 1.6
+  type: selfident

@@ -1,6 +1,7 @@
 import os
 import logging
 import numpy as np
+import polars as pl
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -15,9 +16,31 @@ from .line import draw_line
 from .bar import draw_bar
 from .legend import draw_legend
 from .local_self_ident import draw_local_self_ident
-from .utils import create_subplots, format_ax, set_both_labels
+from .utils import create_cmp_subplots, create_subplots, format_ax, set_both_labels
 from ..io.utils import get_min_max_track
 from ..track.types import Track, TrackType, TrackPosition, LegendPosition
+
+
+def get_track_label(
+    chrom: str | None, track: Track, all_track_labels: list[str]
+) -> str:
+    if not track.title or not chrom:
+        return ""
+    try:
+        fmt_track_label = track.title.format(chrom=chrom)
+    except KeyError:
+        fmt_track_label = track.title
+
+    track_label = fmt_track_label.encode("ascii", "ignore").decode("unicode_escape")
+
+    # Update track label for each overlap.
+    if track.pos == TrackPosition.Overlap:
+        try:
+            track_label = f"{all_track_labels[-1]}\n{track_label}"
+        except IndexError:
+            pass
+
+    return track_label
 
 
 def plot_tracks(
@@ -78,27 +101,6 @@ def plot_tracks(
         track_col, legend_col = 0, 1
 
     track_labels: list[str] = []
-
-    def get_track_label(
-        chrom: str | None, track: Track, all_track_labels: list[str]
-    ) -> str:
-        if not track.title or not chrom:
-            return ""
-        try:
-            fmt_track_label = track.title.format(chrom=chrom)
-        except KeyError:
-            fmt_track_label = track.title
-
-        track_label = fmt_track_label.encode("ascii", "ignore").decode("unicode_escape")
-
-        # Update track label for each overlap.
-        if track.pos == TrackPosition.Overlap:
-            try:
-                track_label = f"{all_track_labels[-1]}\n{track_label}"
-            except IndexError:
-                pass
-
-        return track_label
 
     num_hor_split = 0
     for idx, track in enumerate(tracks):
@@ -221,7 +223,7 @@ def plot_tracks(
             fontsize=settings.title_fontsize,
         )
     # Pad between axes.
-    fig.tight_layout(h_pad=settings.axis_h_pad)
+    fig.set_layout_engine(layout=settings.layout, h_pad=settings.axis_h_pad)
 
     outfiles = []
 
@@ -254,3 +256,143 @@ def plot_tracks(
             outfiles.append(outfile)
 
     return fig, axes, outfiles
+
+
+def plot_comparison_tracks(
+    tracks_ref: list[Track],
+    tracks_qry: list[Track],
+    settings_ref: PlotSettings,
+    settings_qry: PlotSettings,
+    pos_ref: str,
+    pos_qry: str,
+    df_ident: pl.DataFrame,
+    prop_ident: float,
+    window: int,
+):
+    fig, axes, coords_axes = create_cmp_subplots(
+        tracks_ref=tracks_ref,
+        tracks_qry=tracks_qry,
+        settings_ref=settings_ref,
+        settings_qry=settings_qry,
+        pos_ref=pos_ref,
+        pos_qry=pos_qry,
+        prop_ident=prop_ident,
+    )
+    ax_ident: Axes = axes[*coords_axes.ident_coords]
+
+    max_dim = max(df_ident["x"].max(), df_ident["y"].max())
+    # Init image with (1,1,1) white color.
+    mtx = np.full((max_dim + 1, max_dim + 1, 3), (1.0, 1.0, 1.0))
+
+    coords = df_ident.select("x", "y").to_numpy()
+    # Convert arr of arr to 2d arr
+    color = np.stack(df_ident["color"].to_numpy())
+    mtx[*(coords.T), :] = color
+    ax_ident.imshow(mtx)
+    ax_ident.set_xlim(df_ident["x"].min(), df_ident["x"].max())
+    ax_ident.set_ylim(df_ident["y"].min(), df_ident["y"].max())
+
+    for tracks, coords, legend_coords in (
+        (tracks_ref, coords_axes.ref_coords, coords_axes.ref_legend_coords),
+        (tracks_qry, coords_axes.qry_coords, coords_axes.qry_legend_coords),
+    ):
+        num_hor_split = 0
+        track_labels: list[str] = []
+        for idx, track in enumerate(tracks):
+            track_row, track_col = coords[idx]
+            track_legend_row, track_legend_col = legend_coords[idx]
+            track_ax: Axes = axes[track_row, track_col]
+            legend_ax: Axes = axes[track_legend_row, track_legend_col]
+
+            track_label = get_track_label(None, track, track_labels)
+            if track.opt == TrackType.Legend:
+                draw_legend(track_ax, axes, track, tracks, track_row, track_col)
+            elif track.opt == TrackType.Position:
+                # Hide everything but x-axis
+                format_ax(
+                    track_ax,
+                    grid=True,
+                    xticklabel_fontsize=track.options.legend_fontsize,
+                    yticks=True,
+                    yticklabel_fontsize=track.options.legend_fontsize,
+                    spines=("right", "left", "top"),
+                )
+            elif track.opt == TrackType.Spacer:
+                # Hide everything.
+                format_ax(
+                    track_ax,
+                    grid=True,
+                    xticks=True,
+                    yticks=True,
+                    spines=("right", "left", "top", "bottom"),
+                )
+            else:
+                # Switch track option. {bar, label, ident, hor}
+                # Add legend.
+                if track.opt == TrackType.HOR or track.opt == TrackType.HORSplit:
+                    draw_fn = draw_hor
+                elif track.opt == TrackType.HOROrt:
+                    draw_fn = draw_hor_ort
+                elif track.opt == TrackType.Label:
+                    draw_fn = draw_label
+                elif track.opt == TrackType.SelfIdent:
+                    draw_fn = draw_self_ident
+                elif track.opt == TrackType.LocalSelfIdent:
+                    draw_fn = draw_local_self_ident
+                elif track.opt == TrackType.Bar:
+                    draw_fn = draw_bar
+                elif track.opt == TrackType.Line:
+                    draw_fn = draw_line
+                elif track.opt == TrackType.Strand:
+                    draw_fn = draw_strand
+                else:
+                    raise ValueError("Invalid TrackType. Unreachable.")
+
+                draw_fn(
+                    ax=track_ax,
+                    legend_ax=legend_ax,
+                    track=track,
+                    zorder=idx,
+                )
+
+            # Store label if more overlaps.
+            track_labels.append(track_label)
+
+            # Set labels for both x and y axis.
+            set_both_labels(track_label, track_ax, track)
+
+            if not legend_ax:
+                continue
+
+            # Make legend title invisible for HORs split after 1.
+            if track.opt == TrackType.HORSplit:
+                legend_ax_legend = legend_ax.get_legend()
+                if legend_ax_legend and num_hor_split != 0:
+                    legend_title = legend_ax_legend.get_title()
+                    legend_title.set_alpha(0.0)
+                num_hor_split += 1
+
+            # Minimalize all legend cols except self-ident
+            if track.opt != TrackType.SelfIdent or (
+                track.opt == TrackType.SelfIdent and not track.options.legend
+            ):
+                format_ax(
+                    legend_ax,
+                    grid=True,
+                    xticks=True,
+                    xticklabel_fontsize=track.options.legend_fontsize,
+                    yticks=True,
+                    yticklabel_fontsize=track.options.legend_fontsize,
+                    spines=("right", "left", "top", "bottom"),
+                )
+            else:
+                format_ax(
+                    legend_ax,
+                    grid=True,
+                    xticklabel_fontsize=track.options.legend_fontsize,
+                    yticklabel_fontsize=track.options.legend_fontsize,
+                    spines=("right", "top"),
+                )
+
+    fig.savefig("out.png")
+    breakpoint()

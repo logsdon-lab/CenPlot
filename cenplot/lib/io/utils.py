@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import polars as pl
 
-from typing import Any, TextIO
+from typing import Any, BinaryIO, TextIO
 from matplotlib.colors import ListedColormap, rgb2hex
 
 from ..track.types import NO_DATA_TRACK_OPTS, Track, TrackType
@@ -123,7 +123,7 @@ def get_min_max_track(
     return track, int(pos)
 
 
-def header_info(infile: str | TextIO) -> tuple[int, int]:
+def header_info(infile: str | TextIO | BinaryIO) -> tuple[int, int]:
     """
     Get header info.
 

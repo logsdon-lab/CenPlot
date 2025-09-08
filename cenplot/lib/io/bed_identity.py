@@ -2,7 +2,7 @@ import math
 import logging
 import polars as pl
 
-from typing import TextIO
+from typing import TextIO, BinaryIO
 
 from .utils import header_info
 from ..track.settings import LocalSelfIdentTrackSettings
@@ -29,10 +29,48 @@ def read_ident_colorscale(
     return ident_colorscale
 
 
+def expr_ident_to_color_n_range(
+    ident_colorscale: dict[tuple[float, float], str],
+    col_ident: str = "percent_identity_by_events",
+) -> tuple[pl.Expr, pl.Expr]:
+    """
+    create two polars expression for color and range of a given identity colorscale.
+    """
+    color_expr = None
+    rng_expr = None
+    for rng, color in ident_colorscale.items():
+        if not isinstance(color_expr, pl.Expr):
+            color_expr = pl.when(pl.col(col_ident).is_between(rng[0], rng[1])).then(
+                pl.lit(color)
+            )  # type: ignore[assignment]
+            rng_expr = pl.when(pl.col(col_ident).is_between(rng[0], rng[1])).then(
+                pl.lit(f"{rng[0]}-{rng[1]}")
+            )  # type: ignore[assignment]
+        else:
+            color_expr = color_expr.when(
+                pl.col(col_ident).is_between(rng[0], rng[1])
+            ).then(pl.lit(color))  # type: ignore[assignment]
+            rng_expr = rng_expr.when(pl.col(col_ident).is_between(rng[0], rng[1])).then(
+                pl.lit(f"{rng[0]}-{rng[1]}")
+            )  # type: ignore[assignment]
+
+    if isinstance(color_expr, pl.Expr):
+        color_expr = color_expr.otherwise(None)  # type: ignore[assignment]
+    else:
+        color_expr = pl.lit(None)  # type: ignore[assignment]
+    if isinstance(rng_expr, pl.Expr):
+        rng_expr = rng_expr.otherwise(None)  # type: ignore[assignment]
+    else:
+        rng_expr = pl.lit(None)  # type: ignore[assignment]
+
+    return color_expr, rng_expr
+
+
 def read_bedpe(
-    infile: str | TextIO,
+    infile: str | TextIO | BinaryIO,
     *,
     chrom: str | None = None,
+    to_abs_coords: bool = False,
 ) -> pl.DataFrame:
     skip_rows, _ = header_info(infile)
 
@@ -106,20 +144,22 @@ def read_bedpe(
             pl.col("query_st").is_between(pl.col("ctg_st"), pl.col("ctg_end"))
             & pl.col("query_end").is_between(pl.col("ctg_st"), pl.col("ctg_end"))
         )
-    ).with_columns(
-        query_st=pl.when(pl.col("is_abs"))
-        .then(pl.col("query_st") - pl.col("ctg_st"))
-        .otherwise(pl.col("query_st")),
-        query_end=pl.when(pl.col("is_abs"))
-        .then(pl.col("query_end") - pl.col("ctg_st"))
-        .otherwise(pl.col("query_end")),
-        ref_st=pl.when(pl.col("is_abs"))
-        .then(pl.col("ref_st") - pl.col("ctg_st"))
-        .otherwise(pl.col("ref_st")),
-        ref_end=pl.when(pl.col("is_abs"))
-        .then(pl.col("ref_end") - pl.col("ctg_st"))
-        .otherwise(pl.col("ref_end")),
     )
+    if not to_abs_coords:
+        df = df.with_columns(
+            query_st=pl.when(pl.col("is_abs"))
+            .then(pl.col("query_st") - pl.col("ctg_st"))
+            .otherwise(pl.col("query_st")),
+            query_end=pl.when(pl.col("is_abs"))
+            .then(pl.col("query_end") - pl.col("ctg_st"))
+            .otherwise(pl.col("query_end")),
+            ref_st=pl.when(pl.col("is_abs"))
+            .then(pl.col("ref_st") - pl.col("ctg_st"))
+            .otherwise(pl.col("ref_st")),
+            ref_end=pl.when(pl.col("is_abs"))
+            .then(pl.col("ref_end") - pl.col("ctg_st"))
+            .otherwise(pl.col("ref_end")),
+        )
 
     # Remove any regions outside of chrom coords, if provided.
     if chrom_st:
@@ -164,33 +204,8 @@ def read_bed_identity(
     mode = Dim(mode)
 
     # Build expr to filter range of colors.
-    color_expr = None
-    rng_expr = None
     ident_colorscale = read_ident_colorscale(colorscale)
-    for rng, color in ident_colorscale.items():
-        if not isinstance(color_expr, pl.Expr):
-            color_expr = pl.when(
-                pl.col("percent_identity_by_events").is_between(rng[0], rng[1])
-            ).then(pl.lit(color))  # type: ignore[assignment]
-            rng_expr = pl.when(
-                pl.col("percent_identity_by_events").is_between(rng[0], rng[1])
-            ).then(pl.lit(f"{rng[0]}-{rng[1]}"))  # type: ignore[assignment]
-        else:
-            color_expr = color_expr.when(
-                pl.col("percent_identity_by_events").is_between(rng[0], rng[1])
-            ).then(pl.lit(color))  # type: ignore[assignment]
-            rng_expr = rng_expr.when(
-                pl.col("percent_identity_by_events").is_between(rng[0], rng[1])
-            ).then(pl.lit(f"{rng[0]}-{rng[1]}"))  # type: ignore[assignment]
-
-    if isinstance(color_expr, pl.Expr):
-        color_expr = color_expr.otherwise(None)  # type: ignore[assignment]
-    else:
-        color_expr = pl.lit(None)  # type: ignore[assignment]
-    if isinstance(rng_expr, pl.Expr):
-        rng_expr = rng_expr.otherwise(None)  # type: ignore[assignment]
-    else:
-        rng_expr = pl.lit(None)  # type: ignore[assignment]
+    color_expr, rng_expr = expr_ident_to_color_n_range(ident_colorscale)
 
     if mode == Dim.ONE:
         df_window = (
