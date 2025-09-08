@@ -221,7 +221,7 @@ def plot_tracks(
             fontsize=settings.title_fontsize,
         )
     # Pad between axes.
-    fig.tight_layout(h_pad=settings.axis_h_pad)
+    fig.set_layout_engine(layout=settings.layout, h_pad=settings.axis_h_pad)
 
     outfiles = []
 
