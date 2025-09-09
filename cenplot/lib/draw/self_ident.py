@@ -96,8 +96,6 @@ def draw_self_ident(
         df_track["y"].min(),
         df_track["y"].max(),
     )
-    if not isinstance(ymin, (int, float)) or not isinstance(ymax, (int, float)):
-        raise ValueError("Invalid ymin and ymax type for self ident")
 
     ax.set_ylim(ymin, ymax)
 
