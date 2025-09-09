@@ -13,6 +13,8 @@ import tempfile
         # Multiple tracks. ModDotPlot
         ("test/tracks_multiple.toml", "test/chrY/cdrs.bed"),
         ("test/tracks_chr1.toml", "test/chr1/cdrs.bed"),
+        # Draw legend on top of plot.
+        ("test/tracks_multiple_legend_top.toml", "test/chr1/cdrs.bed"),
         # Simple cases.
         ("test/tracks_simple.toml", "test/chrY/cdrs.bed"),
         ("test/tracks_simple_overlap.toml", "test/chrY/cdrs.bed"),

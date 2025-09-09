@@ -101,9 +101,12 @@ def plot_tracks(
         return track_label
 
     num_hor_split = 0
+    legend_tracks: list[tuple[Axes, Track]] = []
     for idx, track in enumerate(tracks):
         track_row = track_indices[idx]
         track_label = get_track_label(chrom, track, track_labels)
+        # Store label if more overlaps.
+        track_labels.append(track_label)
 
         try:
             track_ax: Axes = axes[track_row, track_col]
@@ -118,8 +121,43 @@ def plot_tracks(
         # Set xaxis limits
         track_ax.set_xlim(min_st_pos, max_end_pos)
 
+        # Set labels for both x and y axis.
+        set_both_labels(track_label, track_ax, track)
+
+        if legend_ax:
+            # Make legend title invisible for HORs split after 1.
+            if track.opt == TrackType.HORSplit:
+                legend_ax_legend = legend_ax.get_legend()
+                if legend_ax_legend and num_hor_split != 0:
+                    legend_title = legend_ax_legend.get_title()
+                    legend_title.set_alpha(0.0)
+                num_hor_split += 1
+
+            # Minimalize all legend cols except self-ident
+            if track.opt != TrackType.SelfIdent or (
+                track.opt == TrackType.SelfIdent and not track.options.legend
+            ):
+                format_ax(
+                    legend_ax,
+                    grid=True,
+                    xticks=True,
+                    xticklabel_fontsize=track.options.legend_fontsize,
+                    yticks=True,
+                    yticklabel_fontsize=track.options.legend_fontsize,
+                    spines=("right", "left", "top", "bottom"),
+                )
+            else:
+                format_ax(
+                    legend_ax,
+                    grid=True,
+                    xticklabel_fontsize=track.options.legend_fontsize,
+                    yticklabel_fontsize=track.options.legend_fontsize,
+                    spines=("right", "top"),
+                )
+
         if track.opt == TrackType.Legend:
-            draw_legend(track_ax, axes, track, tracks, track_row, track_col)
+            # Draw after everything else.
+            legend_tracks.append((track_ax, track))
         elif track.opt == TrackType.Position:
             # Hide everything but x-axis
             format_ax(
@@ -168,44 +206,9 @@ def plot_tracks(
                 zorder=idx,
             )
 
-        # Store label if more overlaps.
-        track_labels.append(track_label)
-
-        # Set labels for both x and y axis.
-        set_both_labels(track_label, track_ax, track)
-
-        if not legend_ax:
-            continue
-
-        # Make legend title invisible for HORs split after 1.
-        if track.opt == TrackType.HORSplit:
-            legend_ax_legend = legend_ax.get_legend()
-            if legend_ax_legend and num_hor_split != 0:
-                legend_title = legend_ax_legend.get_title()
-                legend_title.set_alpha(0.0)
-            num_hor_split += 1
-
-        # Minimalize all legend cols except self-ident
-        if track.opt != TrackType.SelfIdent or (
-            track.opt == TrackType.SelfIdent and not track.options.legend
-        ):
-            format_ax(
-                legend_ax,
-                grid=True,
-                xticks=True,
-                xticklabel_fontsize=track.options.legend_fontsize,
-                yticks=True,
-                yticklabel_fontsize=track.options.legend_fontsize,
-                spines=("right", "left", "top", "bottom"),
-            )
-        else:
-            format_ax(
-                legend_ax,
-                grid=True,
-                xticklabel_fontsize=track.options.legend_fontsize,
-                yticklabel_fontsize=track.options.legend_fontsize,
-                spines=("right", "top"),
-            )
+    # Draw after all elements added.
+    for ax, track_legend in legend_tracks:
+        draw_legend(ax, axes, track_legend, track_col)
 
     # Add title
     if settings.title:
@@ -221,7 +224,7 @@ def plot_tracks(
             fontsize=settings.title_fontsize,
         )
     # Pad between axes.
-    fig.tight_layout(h_pad=settings.axis_h_pad)
+    fig.set_layout_engine(layout=settings.layout, h_pad=settings.axis_h_pad)
 
     outfiles = []
 

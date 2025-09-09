@@ -100,11 +100,18 @@ def read_bedpe(
     else:
         df = lf.collect()
 
+    df_window = (df["query_end"] - df["query_st"]).median()
+    df_window = df_window if df_window else 0
+
     # Then convert back to relative.
     df = df.with_columns(
         is_abs=(
-            pl.col("query_st").is_between(pl.col("ctg_st"), pl.col("ctg_end"))
-            & pl.col("query_end").is_between(pl.col("ctg_st"), pl.col("ctg_end"))
+            pl.col("query_st").is_between(
+                pl.col("ctg_st"), pl.col("ctg_end") + df_window
+            )
+            & pl.col("query_end").is_between(
+                pl.col("ctg_st"), pl.col("ctg_end") + df_window
+            )
         )
     ).with_columns(
         query_st=pl.when(pl.col("is_abs"))
