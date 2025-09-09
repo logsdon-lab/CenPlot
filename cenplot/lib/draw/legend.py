@@ -1,19 +1,18 @@
 import sys
 import numpy as np
-
+from typing import Any
 from matplotlib.axes import Axes
+from matplotlib.artist import Artist
 
 from ..track.types import Track
-from ..draw.utils import draw_uniq_entry_legend, format_ax
+from ..draw.utils import format_ax
 
 
 def draw_legend(
     ax: Axes,
     axes: np.ndarray,
     track: Track,
-    tracks: list[Track],
-    track_row: int,
-    track_col: int,
+    ref_track_col: int,
 ) -> None:
     """
     Draw legend plot on axis for the given `Track`.
@@ -25,52 +24,59 @@ def draw_legend(
         * 2D `np.ndarray` of all axes to get reference axis.
     * `track`
         * Current `Track`.
-    * `tracks`
-        * All tracks to get reference `Track`.
-    * `track_row`
-        * Reference track row.
     * `track_col`
-        * Reference track col.
+        * Reference `Track` column.
 
     # Returns
     * None
     """
-    ref_track_row = (
-        track.options.index if isinstance(track.options.index, int) else track_row - 1
-    )
-    try:
-        ref_track_ax: Axes = axes[ref_track_row, track_col]
-    except IndexError:
-        print(f"Reference axis index ({ref_track_row}) doesn't exist.", sys.stderr)
-        return None
-
-    # TODO: Will not work with HOR split.
-    if hasattr(tracks[ref_track_row].options, "mode"):
-        legend_colname = (
-            "name"
-            if tracks[ref_track_row].options.mode == "hor"
-            else tracks[ref_track_row].options.mode
-        )
+    if isinstance(track.options.index, int):
+        ref_track_rows = [track.options.index]
+    elif isinstance(track.options.index, list):
+        ref_track_rows = track.options.index
     else:
-        legend_colname = "name"
+        raise ValueError("Invalid type for reference legend indices.")
 
-    try:
-        srs_track = tracks[ref_track_row].data[legend_colname]
-    except Exception:
-        print(f"Legend column ({legend_colname}) doesn't exist in {track}.", sys.stderr)
-        return None
+    all_label_handles: dict[Any, Artist] = {}
+    for row in ref_track_rows:
+        try:
+            ref_track_ax: Axes = axes[row, ref_track_col]
+        except IndexError:
+            print(f"Reference axis index ({row}) doesn't exist.", sys.stderr)
+            continue
 
-    draw_uniq_entry_legend(
-        ax,
-        track,
-        ref_track_ax,
-        ncols=track.options.legend_ncols
-        if track.options.legend_ncols
-        else srs_track.n_unique(),
-        label_order=track.options.legend_label_order,
-        loc="center",
-        alignment="center",
-    )
+        handles, labels = ref_track_ax.get_legend_handles_labels()
+        labels_handles: dict[Any, Artist] = dict(zip(labels, handles))
+        all_label_handles = all_label_handles | labels_handles
+
+    # Some code dup.
+    if not track.options.legend_title_only:
+        legend = ax.legend(
+            all_label_handles.values(),
+            all_label_handles.keys(),
+            ncols=track.options.legend_ncols if track.options.legend_ncols else 10,
+            # Set aspect ratio of handles so square.
+            handlelength=1.0,
+            handleheight=1.0,
+            frameon=False,
+            fontsize=track.options.legend_fontsize,
+            loc="center",
+            alignment="center",
+        )
+
+        # Set patches edge color manually.
+        # Turns out get_legend_handles_labels will get all rect patches and setting linewidth will cause all patches to be black.
+        for ptch in legend.get_patches():
+            ptch.set_linewidth(1.0)
+            ptch.set_edgecolor("black")
+    else:
+        legend = ax.legend([], [], frameon=False, loc="center left", alignment="left")
+
+    # Set legend title.
+    if track.options.legend_title:
+        legend.set_title(track.options.legend_title)
+        legend.get_title().set_fontsize(track.options.legend_title_fontsize)
+
     format_ax(
         ax,
         grid=True,

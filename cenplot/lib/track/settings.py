@@ -408,7 +408,7 @@ class HORTrackSettings(DefaultTrackSettings):
 
 @dataclass
 class LegendTrackSettings(DefaultTrackSettings):
-    index: int | None = None
+    index: int | list[int] | None = None
     """
     Index of plot to get legend of.
     """

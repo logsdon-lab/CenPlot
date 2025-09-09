@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import logging
 import argparse
@@ -94,9 +95,8 @@ def add_draw_cli(parser: SubArgumentParser) -> None:
     ap.add_argument(
         "-c",
         "--chroms",
-        nargs="+",
-        help="Regions to plot in this order. Corresponds to 1st col in BED files. If contains ':' and coords, subsets to those coordinates.",
-        required=True,
+        nargs="*",
+        help="Regions to plot in this order. Corresponds to 1st col in BED files. If contains ':' and coords, subsets to those coordinates. If not provided, outputs image with 'out' basename.",
     )
     ap.add_argument(
         "-d",
@@ -120,36 +120,49 @@ def add_draw_cli(parser: SubArgumentParser) -> None:
 
 def draw(
     input_tracks: BinaryIO,
-    chroms: list[str],
+    chroms: list[str] | None,
     outdir: str,
     outfile: str,
     share_xlim: bool,
     processes: int,
 ):
-    draw_args = get_draw_args(
-        input_tracks=input_tracks, chroms=chroms, share_xlim=share_xlim, outdir=outdir
-    )
+    if chroms:
+        draw_args = get_draw_args(
+            input_tracks=input_tracks,
+            chroms=chroms,
+            share_xlim=share_xlim,
+            outdir=outdir,
+        )
+        os.makedirs(outdir, exist_ok=True)
+        if processes == 1:
+            plots = [plot_tracks(*draw_arg) for draw_arg in draw_args]
+        else:
+            with ProcessPoolExecutor(
+                max_workers=processes, mp_context=multiprocessing.get_context("spawn")
+            ) as pool:
+                futures = [
+                    (draw_arg[2], pool.submit(plot_tracks, *draw_arg))
+                    for draw_arg in draw_args
+                ]  # type: ignore[assignment]
+                plots = []
+                for chrom, future in futures:
+                    if future.exception():
+                        logging.error(f"Failed to plot {chrom} ({future.exception()})")
+                        continue
+                    plots.append(future.result())
 
-    os.makedirs(outdir, exist_ok=True)
-    if processes == 1:
-        plots = [plot_tracks(*draw_arg) for draw_arg in draw_args]
+        if outfile:
+            logging.info(f"Merging {len(plots)} plots into {outfile}.")
+            merge_plots(plots, outfile)
     else:
-        with ProcessPoolExecutor(
-            max_workers=processes, mp_context=multiprocessing.get_context("spawn")
-        ) as pool:
-            futures = [
-                (draw_arg[2], pool.submit(plot_tracks, *draw_arg))
-                for draw_arg in draw_args
-            ]  # type: ignore[assignment]
-            plots = []
-            for chrom, future in futures:
-                if future.exception():
-                    logging.error(f"Failed to plot {chrom} ({future.exception()})")
-                    continue
-                plots.append(future.result())
-
-    if outfile:
-        logging.info(f"Merging {len(plots)} plots into {outfile}.")
-        merge_plots(plots, outfile)
+        tracklist, settings = read_tracks(input_tracks)
+        os.makedirs(outdir, exist_ok=True)
+        _, _, files = plot_tracks(
+            tracks=tracklist.tracks,
+            settings=settings,
+            outdir=outdir,
+        )
+        if outfile:
+            shutil.copy(files[0], outfile)
 
     logging.info("Done!")

@@ -161,7 +161,7 @@ def set_both_labels(y_lbl: str, ax: Axes, track: Track):
             fontsize=track.options.title_fontsize,
         )
     # Set x-label.
-    if not track.options.hide_x:
+    if track.opt == TrackType.Position or not track.options.hide_x:
         format_xaxis_ticklabels(ax, track)
 
 
@@ -239,8 +239,6 @@ def draw_uniq_entry_legend(
         by_label = {
             label: by_label[label] for label in label_order if by_label.get(label)
         }
-    else:
-        by_label = dict(zip(labels, handles))
 
     if not ncols:
         ncols = 4
