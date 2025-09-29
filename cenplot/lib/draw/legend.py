@@ -49,6 +49,22 @@ def draw_legend(
         labels_handles: dict[Any, Artist] = dict(zip(labels, handles))
         all_label_handles = all_label_handles | labels_handles
 
+    # Provide custom order.
+    # Keeps all elements as opposed to draw_uniq_entry_legend
+    if track.options.legend_label_order:
+        legend_labels = set(all_label_handles.keys())
+        new_all_label_handles = {}
+        for label in track.options.legend_label_order:
+            if not all_label_handles.get(label):
+                continue
+            new_all_label_handles[label] = all_label_handles[label]
+
+        remaining_labels = legend_labels.difference(new_all_label_handles.keys())
+        for label in remaining_labels:
+            new_all_label_handles[label] = all_label_handles[label]
+
+        all_label_handles = new_all_label_handles
+
     # Some code dup.
     if not track.options.legend_title_only:
         legend = ax.legend(
