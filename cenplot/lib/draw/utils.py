@@ -1,10 +1,11 @@
-from matplotlib.artist import Artist
+import logging
 import numpy as np
 import matplotlib.pyplot as plt
 
 from typing import Any, Iterable
 
 from matplotlib.axes import Axes
+from matplotlib.artist import Artist
 from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
 from matplotlib.backends.backend_pdf import PdfPages
@@ -40,12 +41,34 @@ def create_subplots(
     legend_prop = settings.legend_prop
 
     track_idx = 0
+    total_track_prop = 0.0
+
+    for track in tracks:
+        if track.prop:
+            total_track_prop += track.prop
+        if not requires_second_col and track.options.legend:
+            requires_second_col = True
+
+    width, height = settings.dim
     for i, track in enumerate(tracks):
         # Store index.
         # Only increment index if takes up a subplot axis.
         if track.pos == TrackPosition.Relative:
             track_indices[i] = track_idx
             track_idx += 1
+            # Ensure always a right isoceles triangle where the width is half the height.
+            # https://byjus.com/maths/isosceles-right-triangle/
+            # tan(45) = h / (w * 0.5)
+            # 0.5 * w = h
+            if track.opt == TrackType.SelfIdent and track.options.rescale_tri:
+                req_height_track = width / 2
+                # Rescale prop to total track prop
+                new_prop = (req_height_track / height) * total_track_prop
+                logging.info(
+                    f"Adjusted prop of self-ident triangle ({i}) from {track.prop} to {new_prop}."
+                )
+                track.prop = new_prop
+
             track_props.append(track.prop)
         # For each unique HOR monomer number, create a new track.
         # Divide the proportion of the image allocated between each mer track.
@@ -60,9 +83,6 @@ def create_subplots(
                 track_idx += 1
         else:
             track_indices[i] = track_idx - 1
-
-        if not requires_second_col and track.options.legend:
-            requires_second_col = True
 
     # Adjust columns and width ratio.
     num_cols = 2 if requires_second_col else 1

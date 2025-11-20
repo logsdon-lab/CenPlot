@@ -97,6 +97,11 @@ class SelfIdentTrackSettings(DefaultTrackSettings):
         * See https://matplotlib.org/stable/users/explain/colors/colors.html
     * ex. `0\t90\tblue`
     """
+    rescale_tri: bool = True
+    """
+    Rescales track proportions so always a right isosceles triangle.
+    * https://byjus.com/maths/isosceles-right-triangle/
+    """
 
 
 @dataclass

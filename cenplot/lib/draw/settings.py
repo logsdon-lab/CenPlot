@@ -48,7 +48,7 @@ class PlotSettings:
     """
     dim: tuple[float, float] = (20.0, 12.0)
     """
-    The dimensions of each plot.
+    The dimensions of each plot. Format: `(width, height)`
     """
     dpi: int = 600
     """
