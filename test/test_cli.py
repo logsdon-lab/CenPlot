@@ -28,6 +28,8 @@ import tempfile
         ("test/tracks_simple.yaml", "test/chrY/cdrs.bed"),
         # Non-live
         ("test/tracks_mon.yaml", "test/mon/stv.bed.gz"),
+        # Test rescale tri.
+        ("test/tracks_multiple_adj_ht.toml", "test/chrY/cdrs.bed"),
     ],
 )
 def test_cli_draw(track_file: str, ctg_file: str):
