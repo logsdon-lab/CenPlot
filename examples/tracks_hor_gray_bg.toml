@@ -17,21 +17,21 @@ proportion = 0.05
 position = "relative"
 type = "hor"
 proportion = 0.1
-path = "examples/hor/stv.bed"
+path = "examples/data/hor/stv.bed.gz"
 options = { legend = true, legend_title = "{chrom}", legend_title_only = true, sort_order = "descending", live_only = true, hide_x = true, bg_border = true }
 
 [[tracks]]
 position = "relative"
 type = "horort"
 proportion = 0.05
-path = "examples/hor/stv.bed"
+path = "examples/data/hor/stv.bed.gz"
 options = { legend = true, legend_title = "α-satellite HOR composition", legend_title_only = true, hide_x = true, live_only = true, scale = 12 }
 
 [[tracks]]
 position = "relative"
 type = "horsplit"
 proportion = 0.1
-path = "examples/hor/stv.bed"
+path = "examples/data/hor/stv.bed.gz"
 options = { legend = true, mode = "hor", sort_order = "descending", live_only = true, mer_filter = 2, hor_filter = 5, hide_x = true, split_prop = false, bg_color = "#E6E6E6" }
 
 [[tracks]]

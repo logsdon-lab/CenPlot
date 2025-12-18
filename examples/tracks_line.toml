@@ -10,11 +10,11 @@ title = "Coverage"
 position = "relative"
 type = "line"
 proportion = 0.1
-path = "examples/line/first.bed.gz"
+path = "examples/data/line/first.bed.gz"
 options = { legend = true, label = "First", marker="o", markersize=2, linestyle="none", hide_x = false, color = "black", ymax=60 }
 
 [[tracks]]
 position = "overlap"
 type = "line"
-path = "examples/line/second.bed.gz"
+path = "examples/data/line/second.bed.gz"
 options = { legend = true, label = "Second", marker="o", markersize=2, linestyle="none", hide_x = false, color = "red", ymax=60 }

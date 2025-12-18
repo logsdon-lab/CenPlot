@@ -3,7 +3,7 @@ r"""
 [![CI](https://github.com/logsdon-lab/cenplot/actions/workflows/main.yaml/badge.svg)](https://github.com/logsdon-lab/cenplot/actions/workflows/main.yaml)
 [![docs](https://github.com/logsdon-lab/cenplot/actions/workflows/docs.yaml/badge.svg)](https://github.com/logsdon-lab/cenplot/actions/workflows/docs.yaml)
 
-A library for building centromere figures.
+A Python library for building centromere figures.
 
 <figure float="left">
     <img align="middle" src="https://raw.githubusercontent.com/logsdon-lab/cenplot/refs/heads/main/docs/example_multiple.png" width="100%">

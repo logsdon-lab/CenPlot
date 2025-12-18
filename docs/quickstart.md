@@ -1,4 +1,4 @@
-### Getting Started
+## Getting Started
 Install the package from `pypi`.
 ```bash
 pip install cenplot
@@ -27,11 +27,25 @@ track_list, settings = read_one_cen_tracks("tracks_hor.toml", chrom=chrom)
 fig, axes, outfile = plot_one_cen(track_list.tracks, "plots", chrom, settings)
 ```
 
-### Development
-Requires `Git LFS` to pull test files.
+## Development
+Requires `Python >= 3.12` and `Git LFS` to pull test files.
+
 Create a `venv`, build `cenplot`, and install it. Also, generate the docs.
 ```bash
+which python3.12
 git lfs install && git lfs pull
 make dev && make build && make install
 pdoc ./cenplot -o docs/
+```
+
+The generated `venv` will have the `cenplot` script.
+```bash
+# source venv/bin/activate
+venv/bin/cenplot -h
+```
+
+To run tests.
+```bash
+# Takes ~10 minutes
+make test
 ```
