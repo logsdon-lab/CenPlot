@@ -3,7 +3,7 @@
 [![CI](https://github.com/logsdon-lab/cenplot/actions/workflows/main.yaml/badge.svg)](https://github.com/logsdon-lab/cenplot/actions/workflows/main.yaml)
 [![docs](https://github.com/logsdon-lab/cenplot/actions/workflows/docs.yaml/badge.svg)](https://github.com/logsdon-lab/cenplot/actions/workflows/docs.yaml)
 
-Library for producing centromere figures.
+A Python library for producing centromere figures.
 
 <table>
   <tr>
@@ -60,13 +60,29 @@ fig, axes, _ = plot_tracks(track_list.tracks, settings)
 ```
 
 ## Development
-Requires `Git LFS` to pull test files.
+Requires `Python >= 3.12` and `Git LFS` to pull test files.
+
 Create a `venv`, build `cenplot`, and install it. Also, generate the docs.
 ```bash
+which python3.12 pip
 git lfs install && git lfs pull
 make dev && make build && make install
 pdoc ./cenplot -o docs/
 ```
 
-## Documentation
+The generated `venv` will have the `cenplot` script.
+```bash
+# source venv/bin/activate
+venv/bin/cenplot -h
+```
+
+To run tests.
+```bash
+make test
+```
+
+## [Documentation](https://logsdon-lab.github.io/CenPlot/cenplot.html)
 Read the documentation [here](https://logsdon-lab.github.io/CenPlot/cenplot.html).
+
+## Cite
+**Gao S, Oshima KK**, Chuang SC, Loftus M, Montanari A, Gordon DS, Human Genome Structural Variation Consortium, Human Pangenome Reference Consortium, Hsieh P, Konkel MK, Ventura M, Logsdon GA. A global view of human centromere variation and evolution. bioRxiv. 2025. p. 2025.12.09.693231. [doi:10.64898/2025.12.09.693231](https://doi.org/10.64898/2025.12.09.693231)

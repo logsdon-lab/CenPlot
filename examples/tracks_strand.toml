@@ -13,14 +13,14 @@ layout = "tight"
 position = "relative"
 type = "strand"
 proportion = 0.05
-path = "examples/strand/ort.bed"
+path = "examples/data/strand/ort.bed.gz"
 options = { legend = false, hide_x = true, scale = 30, use_item_rgb = true }
 
 [[tracks]]
 position = "relative"
 type = "hor"
 proportion = 0.1
-path = "examples/hor/stv.bed"
+path = "examples/data/hor/stv.bed.gz"
 options = { legend = false, sort_order = "descending", hide_x = true, bg_border = true }
 
 [[tracks]]

@@ -10,5 +10,5 @@ dpi = 600
 position = "relative"
 type = "selfident"
 proportion = 0.5
-path = "examples/self_ident_custom_scale/chr1_h1:86865001-102805000.bed.gz"
+path = "examples/data/self_ident_custom_scale/chr1_h1:86865001-102805000.bed.gz"
 options = { legend = true, hide_x = false, invert = true, legend_asp_ratio = 1.0, colorscale = "examples/self_ident_custom_scale/custom_colorscale.tsv" }
