@@ -81,20 +81,29 @@ def read_bedpe(
         chrom_no_coords = None
         chrom_st, chrom_end = None, None
 
-    if chrom and chrom_no_coords:
-        df = lf.filter(
-            pl.when(pl.col("query").is_in([chrom_no_coords]))
-            .then(
-                (pl.col("query") == chrom_no_coords)
-                & (pl.col("query_st").is_between(chrom_st, chrom_end))
-                & (pl.col("query_end").is_between(chrom_st, chrom_end))
-                & (pl.col("ref_st").is_between(chrom_st, chrom_end))
-                & (pl.col("ref_end").is_between(chrom_st, chrom_end))
+    if chrom_no_coords and chrom_st and chrom_end:
+        df = (
+            lf.filter(pl.col("query") == chrom_no_coords)
+            .with_columns(
+                pl.col("query_st").clip(chrom_st, chrom_end),
+                pl.col("query_end").clip(chrom_st, chrom_end),
+                pl.col("ref_st").clip(chrom_st, chrom_end),
+                pl.col("ref_end").clip(chrom_st, chrom_end),
             )
-            .when(pl.col("query").is_in([chrom]))
-            .then(pl.col("query") == chrom)
-            .otherwise(True)
-        ).collect()
+            # Remove null intervals created by clipping to boundaries
+            .filter(
+                ~(
+                    (pl.col("query_st").eq(chrom_st) & pl.col("query_st").eq(chrom_end))
+                    | (
+                        pl.col("query_end").eq(chrom_st)
+                        & pl.col("query_end").eq(chrom_end)
+                    )
+                    | (pl.col("ref_st").eq(chrom_st) & pl.col("ref_st").eq(chrom_end))
+                    | (pl.col("ref_end").eq(chrom_st) & pl.col("ref_end").eq(chrom_end))
+                )
+            )
+            .collect()
+        )
     elif chrom:
         df = lf.filter(pl.col("query") == chrom).collect()
     else:

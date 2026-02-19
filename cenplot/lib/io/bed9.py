@@ -36,18 +36,30 @@ def read_bed9(infile: str | TextIO, *, chrom: str | None = None) -> pl.DataFrame
             chrom_no_coords = None
             chrom_st, chrom_end = None, None
 
-        if chrom:
-            df_filtered = df.filter(
-                pl.when(pl.col("chrom").is_in([chrom_no_coords]))
-                .then(
-                    (pl.col("chrom") == chrom_no_coords)
-                    & (pl.col("chrom_st").is_between(chrom_st, chrom_end))
-                    & (pl.col("chrom_end").is_between(chrom_st, chrom_end))
+        if chrom_no_coords and chrom_st and chrom_end:
+            df_filtered = (
+                df.filter(pl.col("chrom") == chrom_no_coords)
+                .with_columns(
+                    pl.col("chrom_st").clip(chrom_st, chrom_end),
+                    pl.col("chrom_end").clip(chrom_st, chrom_end),
                 )
-                .when(pl.col("chrom").is_in([chrom]))
-                .then(pl.col("chrom") == chrom)
-                .otherwise(True)
-            ).collect()
+                # Remove null intervals created by clipping to boundaries
+                .filter(
+                    ~(
+                        (
+                            pl.col("chrom_st").eq(chrom_st)
+                            & pl.col("chrom_st").eq(chrom_end)
+                        )
+                        | (
+                            pl.col("chrom_end").eq(chrom_st)
+                            & pl.col("chrom_end").eq(chrom_end)
+                        )
+                    )
+                )
+                .collect()
+            )
+        elif chrom:
+            df_filtered = df.filter(pl.col("chrom") == chrom).collect()
         else:
             df_filtered = df.collect()
 
