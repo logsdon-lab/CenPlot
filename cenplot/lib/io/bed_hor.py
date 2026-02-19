@@ -72,7 +72,7 @@ def read_bed_hor(
             length=pl.col("chrom_end") - pl.col("chrom_st"),
         )
         .with_columns(
-            mer=(pl.col("length") / mer_size).round().cast(pl.Int8).clip(1, 100)
+            mer=(pl.col("length") / mer_size).round().cast(pl.UInt32).clip(1, 100)
         )
         .filter(
             pl.when(live_only).then(pl.col("name").str.contains("L")).otherwise(True)
