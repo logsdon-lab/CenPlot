@@ -8,3 +8,7 @@ exp/
 docs/*.html
 docs/*.js
 *.egg-info
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+build

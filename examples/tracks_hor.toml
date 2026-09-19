@@ -32,7 +32,7 @@ position = "relative"
 type = "horsplit"
 proportion = 0.1
 path = "examples/data/hor/stv.bed.gz"
-options = { legend = true, mode = "hor", sort_order = "descending", live_only = true, mer_filter = 2, hor_filter = 5, hide_x = true, split_prop = false, border = true }
+options = { legend = true, mode = "hor", sort_order = "descending", live_only = true, mer_filter = 2, hor_filter = 5, hide_x = true, split_prop = false, bg_border = true }
 
 [[tracks]]
 position = "relative"
