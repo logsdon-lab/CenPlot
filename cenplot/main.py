@@ -1,9 +1,13 @@
 import argparse
+import matplotlib.pyplot as plt
+
 from matplotlib import rcParams
 from .cli.draw import add_draw_cli, draw
 
 rcParams["pdf.use14corefonts"] = True
 rcParams["text.usetex"] = False
+
+plt.switch_backend("agg")
 
 
 def main() -> int:
@@ -14,7 +18,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.cmd == "draw":
-        return draw(
+        draw(
             args.input_tracks,
             args.chroms,
             args.outdir,
@@ -22,6 +26,7 @@ def main() -> int:
             args.share_xlim,
             args.processes,
         )
+        return 0
     else:
         raise ValueError(f"Not a valid command ({args.cmd})")
 

@@ -40,9 +40,9 @@ def read_bed9(infile: str | TextIO, *, chrom: str | None = None) -> pl.DataFrame
             expr_no_coords: pl.Expr, expr_coords: pl.Expr, expr_otherwise: pl.Expr
         ) -> pl.Expr:
             return (
-                pl.when(pl.col("chrom").eq(chrom_no_coords))
+                pl.when(pl.col("coord_type").eq(pl.lit("no_coords")))
                 .then(expr_no_coords)
-                .when(pl.col("chrom").eq(chrom))
+                .when(pl.col("coord_type").eq(pl.lit("coords")))
                 .then(expr_coords)
                 .otherwise(expr_otherwise)
             )
@@ -55,11 +55,18 @@ def read_bed9(infile: str | TextIO, *, chrom: str | None = None) -> pl.DataFrame
         # Coordinate are right split once.
         if chrom_no_coords and chrom_st and chrom_end:
             df_filtered = (
-                df.filter(
+                df.with_columns(
+                    coord_type=pl.when(pl.col("chrom").eq(pl.lit(chrom_no_coords)))
+                    .then(pl.lit("no_coords"))
+                    .when(pl.col("chrom").eq(pl.lit(chrom)))
+                    .then(pl.lit("coords"))
+                    .otherwise(pl.lit("other"))
+                )
+                .filter(
                     expr_chrom_coords(
                         pl.col("chrom") == chrom_no_coords,
                         pl.col("chrom") == chrom,
-                        True,
+                        False,
                     )
                 )
                 .with_columns(
@@ -77,20 +84,21 @@ def read_bed9(infile: str | TextIO, *, chrom: str | None = None) -> pl.DataFrame
                 # Remove null intervals created by clipping to boundaries
                 .filter(
                     expr_chrom_coords(
-                        ~(
+                        (
                             (
-                                pl.col("chrom_st").eq(chrom_st)
-                                & pl.col("chrom_st").eq(chrom_end)
+                                pl.col("chrom_st").ne(chrom_st)
+                                & pl.col("chrom_st").ne(chrom_end)
                             )
                             | (
-                                pl.col("chrom_end").eq(chrom_st)
-                                & pl.col("chrom_end").eq(chrom_end)
+                                pl.col("chrom_end").ne(chrom_st)
+                                & pl.col("chrom_end").ne(chrom_end)
                             )
                         ),
                         True,
                         True,
                     )
                 )
+                .drop("coord_type")
                 .collect()
             )
         elif chrom:

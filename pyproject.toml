@@ -29,3 +29,17 @@ Homepage = "https://github.com/logsdon-lab/cenplot"
 
 [project.scripts]
 cenplot = "cenplot.main:main"
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.pypi-dependencies]
+cenplot = { path = ".", editable = true }
+
+[tool.pixi.tasks]
+
+[tool.pixi.dependencies]
+pip = ">=26.2.1,<27"
+python = "==3.12"
+ruff = ">=0.16.7,<0.17"

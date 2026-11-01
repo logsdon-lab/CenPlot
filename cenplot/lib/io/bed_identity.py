@@ -47,8 +47,14 @@ def read_bedpe(
             skip_rows=skip_rows,
         )
         .with_columns(
-            ctg_st=pl.col("query").str.extract(r":(\d+)-").cast(pl.Int64).fill_null(0),
-            ctg_end=pl.col("query").str.extract(r"(\d+)$").cast(pl.Int64).fill_null(0),
+            ctg_st=pl.col("query")
+            .str.extract(r":(\d+)-")
+            .cast(pl.Int64)
+            .fill_null(pl.col("query_st").min().over("query")),
+            ctg_end=pl.col("query")
+            .str.extract(r":\d+-(\d+)$")
+            .cast(pl.Int64)
+            .fill_null(pl.col("query_end").max().over("query")),
         )
         .with_columns(
             is_abs=(
@@ -85,9 +91,9 @@ def read_bedpe(
         expr_no_coords: pl.Expr, expr_coords: pl.Expr, expr_otherwise: pl.Expr
     ) -> pl.Expr:
         return (
-            pl.when(pl.col("query").eq(chrom_no_coords))
+            pl.when(pl.col("coord_type").eq(pl.lit("no_coords")))
             .then(expr_no_coords)
-            .when(pl.col("query").eq(chrom))
+            .when(pl.col("coord_type").eq(pl.lit("coords")))
             .then(expr_coords)
             .otherwise(expr_otherwise)
         )
@@ -100,9 +106,16 @@ def read_bedpe(
     # Coordinate are right split once.
     if chrom_no_coords and chrom_st and chrom_end:
         df = (
-            lf.filter(
+            lf.with_columns(
+                coord_type=pl.when(pl.col("query").eq(pl.lit(chrom_no_coords)))
+                .then(pl.lit("no_coords"))
+                .when(pl.col("query").eq(pl.lit(chrom)))
+                .then(pl.lit("coords"))
+                .otherwise(pl.lit("other"))
+            )
+            .filter(
                 expr_chrom_coords(
-                    pl.col("query") == chrom_no_coords, pl.col("query") == chrom, True
+                    pl.col("query") == chrom_no_coords, pl.col("query") == chrom, False
                 )
             )
             .with_columns(
@@ -130,28 +143,29 @@ def read_bedpe(
             # Remove null intervals created by clipping to boundaries
             .filter(
                 expr_chrom_coords(
-                    ~(
+                    (
                         (
-                            pl.col("query_st").eq(chrom_st)
-                            & pl.col("query_st").eq(chrom_end)
+                            pl.col("query_st").ne(chrom_st)
+                            & pl.col("query_st").ne(chrom_end)
                         )
                         | (
-                            pl.col("query_end").eq(chrom_st)
-                            & pl.col("query_end").eq(chrom_end)
+                            pl.col("query_end").ne(chrom_st)
+                            & pl.col("query_end").ne(chrom_end)
                         )
                         | (
-                            pl.col("ref_st").eq(chrom_st)
-                            & pl.col("ref_st").eq(chrom_end)
+                            pl.col("ref_st").ne(chrom_st)
+                            & pl.col("ref_st").ne(chrom_end)
                         )
                         | (
-                            pl.col("ref_end").eq(chrom_st)
-                            & pl.col("ref_end").eq(chrom_end)
+                            pl.col("ref_end").ne(chrom_st)
+                            & pl.col("ref_end").ne(chrom_end)
                         )
                     ),
                     True,
                     True,
                 )
             )
+            .drop("coord_type")
             .collect()
         )
     elif chrom:

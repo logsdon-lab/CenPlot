@@ -1,3 +1,4 @@
+import os
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
@@ -123,6 +124,8 @@ def merge_plots(
     # Returns
     * None
     """
+    outdir = os.path.dirname(outfile)
+    os.makedirs(outdir, exist_ok=True)
     if outfile.endswith(".pdf"):
         with PdfPages(outfile) as pdf:
             for fig, _, _ in figures:

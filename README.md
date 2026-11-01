@@ -45,7 +45,7 @@ cenplot draw \
 -c "chm13_chr10:38568472-42561808" \
 -p 4 \
 -d plots \
--o "plot/merged_image.png"
+-o "plots/merged_image.png"
 ```
 
 ## Python API
